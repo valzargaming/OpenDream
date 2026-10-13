@@ -14,6 +14,13 @@ override, compiler bundle hashes, invocation, warnings and generated JSON hash.
 The compiler is explicitly rebuilt before publication. CI seeds an invalid
 stale compiler output and requires its replacement plus successful compilation.
 
+The published compiler also compiles eight explicit spatial verb selectors and
+checks their serialized accessibility and rounded radii. Separate failed
+compilations verify that omitted view radii, invalid arguments, instant verbs,
+icon cropping and the run builtin retain their specific diagnostics and produce
+no JSON. Explicit view selectors are implemented; omitted view radii still do
+not inherit world.view, so that compatibility warning remains.
+
 No server/client is launched and no existing installation, saves or config is
 changed. The old installed `FA0C1762...` JSON is not retrospectively attributed
 to this source. A reviewed candidate needs a matching complete source tree,

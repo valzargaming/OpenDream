@@ -102,6 +102,9 @@ try:
         receipt["stale_output_control"]["replacement_sha256"] = sha(compiler)
         receipt["stale_output_control"]["passed"] = True
     receipt["compiler_sha256"] = sha(compiler)
+    run([sys.executable, str(ENGINE/"tools/civ13-gaia/check-verb-diagnostics.py"),
+         "--dotnet", args.dotnet, "--compiler", str(compiler),
+         "--output", str(out/"verb-diagnostics")], "verb-diagnostics")
     log = run([args.dotnet, str(compiler), "--version=516.1681", str(staged)], "gaia-compile", game)
     generated = staged.with_suffix(".json")
     assert generated.is_file() and generated.stat().st_size > 0
