@@ -98,11 +98,15 @@ public sealed partial class GameTests : ContentIntegrationTest {
         var clientOptions = new ClientContentIntegrationOption {
             ContentBeforeIoC = () => {
                 var identity = new NativeIdentityCoordinator(new InjectedNativeObserver());
+                IoCManager.RegisterInstance<NativeIdentityCoordinator>(identity, true);
+            },
+            ContentBeforeConnect = () => {
+                // Observe after the real client Initialize transition clears stale identity.
+                var identity = IoCManager.Resolve<NativeIdentityCoordinator>();
                 identity.Begin();
                 Assert.That(identity.Poll(), Is.True);
                 // The test transport connects directly; mark the same one-use handshake consumed.
                 identity.AuthorizeHandshake(_ => { });
-                IoCManager.RegisterInstance<NativeIdentityCoordinator>(identity, true);
             }
         };
         var serverOptions = new ServerContentIntegrationOption();
