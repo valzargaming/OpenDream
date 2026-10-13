@@ -1,0 +1,40 @@
+name: Civ13 immutable Gaia artifact
+on:
+  pull_request:
+    paths: ['DMCompiler/**', 'tools/civ13-gaia/**', '.github/workflows/civ13-gaia-artifact.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  gaia-candidate:
+    runs-on: windows-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          submodules: recursive
+      - uses: actions/checkout@v4
+        with:
+          repository: Civ13/Civ13
+          ref: b8a61dd5d9afed3a5716f62b27c280db4064a427
+          path: civ13-source
+          persist-credentials: false
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.401
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile pinned compiler and Gaia candidate; no game execution
+        env:
+          DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+          MSBUILDDISABLENODEREUSE: '1'
+        run: python tools/civ13-gaia/build.py --game civ13-source --output gaia-output --timeout 1200
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: civ13-gaia-candidate-${{ github.event.pull_request.head.sha || github.sha }}
+          path: gaia-output/
+          retention-days: 14
