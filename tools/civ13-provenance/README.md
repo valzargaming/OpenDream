@@ -8,7 +8,9 @@ the exact PR head and does not pull newer engine dependencies.
 
 Run `build.py --output <new-directory>` with .NET 10.0.401 and Python 3.12+.
 `--prepare-only` freezes source and dependency hashes without compilation.
-`--offline` forbids restore and requires previously prepared project assets.
+Full builds restore their declared dependencies and must not be used in a local
+no-restore resource slot. Untracked source/resources (including ignored files)
+are rejected; the complete Robust diff must equal the declared auth patch.
 Builds use one MSBuild node with compiler servers disabled. No test launches a
 game, connects a client, installs files, changes settings or accesses accounts.
 
