@@ -25,10 +25,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Build pinned client, Shared and authentication loader with behavior controls
-        run: python tools/civ13-provenance/build.py --output provenance-output --timeout 1500
       - name: Reject contaminated source and dependency inputs
         run: python tools/civ13-provenance/test-inputs.py
+      - name: Build pinned client, Shared and authentication loader with behavior controls
+        run: python tools/civ13-provenance/build.py --output provenance-output --timeout 1500
       - uses: actions/upload-artifact@v4
         if: always()
         with:
