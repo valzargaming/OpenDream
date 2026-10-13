@@ -1,4 +1,5 @@
 #nullable enable
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -9,9 +10,14 @@ using OpenDreamRuntime.Procs;
 namespace Content.IntegrationTests;
 
 public sealed partial class GameTests {
-    private static void AsyncReturnsOwnValues(DreamManager manager, DreamObjectTree tree, DreamRefManager refs) {
-        Assert.That(tree.TryGetGlobalProc("async_return_ownership_probe", out var proc), Is.True);
-        var payload = tree.CreateObject(tree.Datum);
+    private static async Task AsyncReturnsOwnValues(DreamManager manager, DreamObjectTree tree, DreamRefManager refs,
+        Func<Action, Task> onServer, Func<int, Task> advanceTicks) {
+        DreamProc? proc = null;
+        DreamObject payload = null!;
+        await onServer(() => {
+            Assert.That(tree.TryGetGlobalProc("async_return_ownership_probe", out proc), Is.True);
+            payload = tree.CreateObject(tree.Datum);
+        });
         var id = payload.RefId;
         try {
             foreach (var noWait in new[] { false, true }) {
@@ -19,6 +25,8 @@ public sealed partial class GameTests {
                     var observed = 0;
                     var reentrant = 0;
                     var delivered = false;
+                    var finished = false;
+                    await onServer(() => {
                     using (var completed = DreamThread.Run("async return ownership", async state => {
                         var value = noWait
                             ? await state.CallNoWait(proc!, manager.WorldInstance, null, new DreamValue(payload))
@@ -33,21 +41,34 @@ public sealed partial class GameTests {
                                 reentrant = payload.RefCount;
                             }
                         }
+                        finished = true;
                         return DreamValue.Null;
                     })) {
                         Assert.That(completed.IsNull, Is.True);
                     }
+                    });
+                    // CallNoWait intentionally schedules its continuation later.
+                    // Pump the real connected game ticks, without blocking its thread.
+                    var done = false;
+                    for (var tick = 0; tick < 100 && !done; tick++) {
+                        await advanceTicks(1);
+                        await onServer(() => done = finished);
+                    }
+                    await onServer(() => {
                     Assert.That(observed, Is.EqualTo(2), "Async returned value acquires an awaited owner");
                     Assert.That(delivered, Is.True);
                     Assert.That(reentrant, Is.EqualTo(3), "Reentrant async call preserves the earlier awaited owner");
                     Assert.That(payload.RefCount, Is.EqualTo(1), "Completed async calls release awaited owners");
                     Assert.That(payload.Deleted, Is.False);
+                    Assert.That(finished, Is.True, "Async continuation completes within bounded game ticks");
+                    });
                 }
             }
 
             // Actual DM returns a temporary owner. ReturnedInto borrows it; the
             // production frame must acquire before that temporary is released.
             // Exercise cancellation/disposal before delivery, including replacement.
+            await onServer(() => {
             var factory = new AsyncNativeProc(-1, tree.Root, "async pending return ownership",
                 new List<string>(), new Dictionary<string, DreamValue>(), _ => Task.FromResult(DreamValue.Null));
             for (var iteration = 0; iteration < 1000; iteration++) {
@@ -64,12 +85,15 @@ public sealed partial class GameTests {
                 thread.PopProcState();
                 Assert.That(payload.RefCount, Is.EqualTo(1), "Canceled pending async return releases its owner");
             }
+            });
         } finally {
-            payload.DecRef();
+            await onServer(() => payload.DecRef());
         }
+        await onServer(() => {
         Assert.That(payload.Deleted, Is.True);
         using var located = refs.LocateRef(id);
         Assert.That(located.IsNull, Is.True);
         TestContext.Progress.WriteLine("Async return ownership: 2000 connected Call/CallNoWait deliveries, 2000 reentrant calls and 1000 pending-return replacements/cancellations passed");
+        });
     }
 }

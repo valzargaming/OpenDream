@@ -25,8 +25,8 @@ def verify(trx_path, log, exit_code, marker, *, expressions=('payload.RefCount',
     counters = root.find('t:ResultSummary/t:Counters', NS)
     if counters is None:
         raise ValueError('Missing result counters')
-    for field, expected in {'total': 1, 'executed': 1, 'passed': 0, 'failed': 1}.items():
-        if int(counters.get(field, '-1')) != expected:
+    for field, counter_expected in {'total': 1, 'executed': 1, 'passed': 0, 'failed': 1}.items():
+        if int(counters.get(field, '-1')) != counter_expected:
             raise ValueError('Unexpected test counters')
     for field in ('error', 'timeout', 'aborted', 'inconclusive', 'notRunnable', 'disconnected'):
         if int(counters.get(field, '0')) != 0:
