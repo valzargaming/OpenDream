@@ -3,10 +3,43 @@ using NUnit.Framework;
 using OpenDreamRuntime;
 using OpenDreamRuntime.Objects;
 using OpenDreamRuntime.Objects.Types;
+using OpenDreamRuntime.Procs;
 
 namespace Content.IntegrationTests;
 [TestFixture]
-public sealed class GameTests : ContentIntegrationTest {
+public sealed partial class GameTests : ContentIntegrationTest {
+
+    private static void CompletedSpawnsReuseStates(DreamManager manager, DreamObjectTree tree) {
+        Assert.That(tree.TryGetGlobalProc("spawn_pool_reuse_probe", out var proc), Is.True);
+        var payload = tree.CreateObject(tree.Datum);
+        var originalReferences = payload.RefCount;
+        var initialPoolCount = DMProcState.Pool.Count;
+        try {
+            for (var batch = 0; batch < 10; batch++) {
+                using var result = DreamThread.Run(proc!, manager.WorldInstance, payload,
+                    new DreamValue(1000), new DreamValue(payload));
+                Assert.That(result.MustGetValueAsFloat(), Is.EqualTo(1000));
+                Assert.That(payload.RefCount, Is.EqualTo(originalReferences),
+                    "Completed spawn copies must release arguments, locals and return values");
+                Assert.That(DMProcState.Pool.Count, Is.LessThanOrEqualTo(initialPoolCount + 2),
+                    $"Completed spawn batch {batch} must reuse states instead of permanently growing the pool");
+            }
+            foreach (var state in DMProcState.Pool) {
+                Assert.That(state.Thread, Is.Null);
+                Assert.That(state.Instance, Is.Null);
+                Assert.That(state.Usr, Is.Null);
+                Assert.That(state.Proc, Is.Null);
+                Assert.That(state.ArgumentCount, Is.Zero);
+                Assert.That(state.ProgramCounter, Is.Zero);
+                Assert.That(state.Result, Is.EqualTo(DreamValue.Null));
+                Assert.That(state.WaitFor, Is.True);
+                Assert.That(state.Enumerators, Is.All.Null);
+            }
+            TestContext.Progress.WriteLine($"Spawn pool: {initialPoolCount} initial, {DMProcState.Pool.Count} after 10000 completed spawns");
+        } finally {
+            payload.DecRef();
+        }
+    }
 
     private static void EyeAssignmentOwnsExactlyOneReference(DreamObjectTree tree) {
         var connection = new DreamConnection("ownership-test");
@@ -70,6 +103,8 @@ public sealed class GameTests : ContentIntegrationTest {
             var tree = server.ResolveDependency<DreamObjectTree>();
             FilterWrappersReleaseOnAtomDeletion(tree);
             EyeAssignmentOwnsExactlyOneReference(tree);
+            CompletedSpawnsReuseStates(manager, tree);
+            CancelledThreadsReleaseOwnedFrames(manager, tree);
         });
     }
 }
