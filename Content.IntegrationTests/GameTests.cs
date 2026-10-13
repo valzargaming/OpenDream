@@ -115,6 +115,8 @@ public sealed partial class GameTests : ContentIntegrationTest {
         await server.WaitAssertion(() => {
             var tree = server.ResolveDependency<DreamObjectTree>();
             NativeArgumentsReleaseOwnedValues(manager, tree, server.ResolveDependency<DreamRefManager>());
+            SupportedOperatorFallbacksReleaseOwners(manager, tree, server.ResolveDependency<DreamRefManager>());
+            MissingOperatorArgumentsReleaseOwners(manager, tree, server.ResolveDependency<DreamRefManager>());
             ObjectInitializationReleasesOwnedValues(manager, tree, server.ResolveDependency<DreamRefManager>());
             ProcInitializationReleasesOwnedValues(manager, tree, server.ResolveDependency<DreamRefManager>());
             ExceptionsReleaseOwnedValues(manager, tree, server.ResolveDependency<DreamRefManager>());

@@ -195,3 +195,65 @@ var/global/list/areas_by_type = list()
         if(error.name != "Destination is too short. (Parameter 'destination')")
             throw error
         return count == 257
+
+// Ownership probes: actual assignment opcode dispatch, not helper substitutes.
+/datum/operator_divide_fallback
+    proc/operator/(rhs)
+        return rhs
+
+/datum/operator_multiply_fallback
+    proc/operator*(rhs)
+        return rhs
+
+/datum/operator_defined
+    proc/operator+(rhs)
+        return rhs
+    proc/operator[](index)
+        return index
+    proc/operator[]=(index, value)
+        return value
+
+/datum/operator_divide_exact
+    proc/operator/=(rhs)
+        return 73
+    proc/operator/(rhs)
+        return 19
+
+/datum/operator_multiply_exact
+    proc/operator*=(rhs)
+        return 73
+    proc/operator*(rhs)
+        return 19
+
+/proc/operator_divide_fallback_probe(payload)
+    var/result = new /datum/operator_divide_fallback
+    result /= payload
+    return result
+
+/proc/operator_multiply_fallback_probe(payload)
+    var/result = new /datum/operator_multiply_fallback
+    result *= payload
+    return result
+
+/proc/operator_add_defined_probe(payload)
+    var/result = new /datum/operator_defined
+    return result + payload
+
+/proc/operator_divide_exact_probe(payload)
+    var/result = new /datum/operator_divide_exact
+    result /= payload
+    return result
+
+/proc/operator_multiply_exact_probe(payload)
+    var/result = new /datum/operator_multiply_exact
+    result *= payload
+    return result
+
+/proc/operator_index_defined_probe(payload)
+    var/result = new /datum/operator_defined
+    return result[payload]
+
+/proc/operator_index_assign_defined_probe(payload)
+    var/result = new /datum/operator_defined
+    result[payload] = payload
+    return payload
