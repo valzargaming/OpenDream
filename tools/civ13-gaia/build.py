@@ -58,6 +58,9 @@ try:
     assert receipt["game_head"] == GAME_HEAD
     assert receipt["robust_head"] == ROBUST_HEAD
     subprocess.run(["git", "diff", "--exit-code", "HEAD"], cwd=game, check=True)
+    unexpected = git(game, "ls-files", "--others", "-z")
+    if unexpected:
+        raise RuntimeError("Unexpected game input, including ignored files: " + unexpected.split("\0")[0])
     subprocess.run(["git", "diff", "--exit-code", "HEAD", "--", ".", ":!RobustToolbox"], cwd=ENGINE, check=True)
     version = run([args.dotnet, "--version"], "sdk").strip()
     assert version == "10.0.401"
