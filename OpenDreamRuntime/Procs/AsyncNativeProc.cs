@@ -32,7 +32,8 @@ namespace OpenDreamRuntime.Procs {
             [Dependency] public DreamObjectTree ObjectTree = default!;
             [Dependency] public ProcScheduler ProcScheduler = default!;
 
-            private readonly DreamValue[] _arguments = new DreamValue[128];
+            internal const int ArgumentCapacity = 128;
+            private readonly DreamValue[] _arguments = new DreamValue[ArgumentCapacity];
 
             public override DreamProc? Proc => _proc;
             private AsyncNativeProc? _proc;
@@ -219,6 +220,12 @@ namespace OpenDreamRuntime.Procs {
         private readonly Dictionary<string, DreamValue>? _defaultArgumentValues = defaultArgumentValues;
 
         public override ProcState CreateState(DreamThread thread, DreamObject? src, DreamObject? usr, [HandlesResourceDisposal] DreamProcArguments arguments) {
+            // A rejected frame never reaches the thread's disposal stack.
+            if (arguments.Count > AsyncNativeProcState.ArgumentCapacity) {
+                arguments.Dispose();
+                throw new ArgumentException("Destination is too short.", "destination");
+            }
+
             if (!AsyncNativeProcState.Pool.TryPop(out var state)) {
                 state = new AsyncNativeProcState();
             }
