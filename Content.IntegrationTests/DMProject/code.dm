@@ -50,6 +50,30 @@ var/global/exception_ownership_expected_payload
 			completed[1]++
 	return completed[1]
 
+/proc/native_argument_failure_probe(payload)
+	try
+		clamp(payload, 0, 1)
+	catch(var/exception/error)
+		if(error.name != "Clamp expects a number or list")
+			throw error
+		return 1
+	return 0
+
+/proc/native_argument_rethrow_probe(payload)
+	try
+		try
+			clamp(payload, 0, 1)
+		catch(var/exception/error)
+			throw error
+	catch(var/exception/error)
+		if(error.name != "Clamp expects a number or list")
+			throw error
+		return 1
+	return 0
+
+/proc/native_argument_success_probe(payload)
+	return !isnull(payload)
+
 /proc/cancellation_depth_probe(payload)
 	var/local_payload = payload
 	. = payload

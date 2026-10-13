@@ -1,0 +1,48 @@
+name: Native argument ownership omission controls
+on:
+  pull_request:
+    paths: ['OpenDreamRuntime/Procs/NativeProc.cs', 'OpenDreamRuntime/Procs/AsyncNativeProc.cs', 'Content.IntegrationTests/GameTests.NativeArguments.cs', 'Content.IntegrationTests/DMProject/code.dm', 'tests/native_argument_ownership/**', '.github/workflows/native-argument-ownership.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  omission:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        control: [baseline, sync-finally, async-replace]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          submodules: recursive
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Apply one omission in disposable CI checkout
+        run: python tests/native_argument_ownership/control.py '${{ matrix.control }}'
+      - name: Compile actual engine and connected tests
+        run: dotnet build --configuration Release --property WarningLevel=4 /m
+      - name: Verify intended connected native failure
+        shell: bash
+        run: |
+          set +e
+          COMPlus_gcServer=1 dotnet test --no-build Content.IntegrationTests/Content.IntegrationTests.csproj --filter 'FullyQualifiedName=Content.IntegrationTests.GameTests.NoRuntimesTest' -v n > native-argument-control.log 2>&1
+          result=$?
+          set -e
+          tail -80 native-argument-control.log
+          python tests/native_argument_ownership/control.py '${{ matrix.control }}' --verify native-argument-control.log --exit-code "$result"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-argument-${{ matrix.control }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            native-argument-control-source.json
+            native-argument-control.log
+          retention-days: 14
