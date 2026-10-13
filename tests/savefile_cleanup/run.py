@@ -106,7 +106,7 @@ def run(args, control):
         expected = {'baseline': 'FAIL: null-resource deletion releases object variables',
                     'base-cleanup': 'FAIL: null-resource deletion releases object variables',
                     'close-detach': 'FAIL: flush failure retains dirty handle',
-                    'directory-removal': 'FAIL: shared close retains directory cache'}
+                    'directory-removal': 'FAIL: first write failure retains directory cache'}
         if control:
             if result.returncode != 1 or expected[control] not in log:
                 raise RuntimeError('Control did not reject the intended omission: ' + log)
