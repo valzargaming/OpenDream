@@ -129,6 +129,8 @@ try:
                     "RobustToolbox/Robust.Client/Robust.Client.csproj"]
         for index, project in enumerate(projects):
             run([args.dotnet, "restore", project, "--disable-parallel", "-p:Configuration=Release"], "restore-"+str(index))
+        metadata_project = "tools/civ13-provenance/metadata/LoaderMetadataProbe.csproj"
+        run([args.dotnet, "restore", metadata_project, "--disable-parallel"], "restore-loader-metadata")
         def probe(project, label, expected=None, failure=None):
             run([args.dotnet, "run", "--project", project, "-c", "Release", "--no-restore",
                  "-p:UseSharedCompilation=false", "-p:BuildInParallel=false"], label, expected, failure)
@@ -182,7 +184,34 @@ try:
         shutil.copy2(server/"OpenDreamShared.dll", candidate_shared)
         shutil.copy2(server/"OpenDreamRuntime.dll", candidate_runtime)
         loader = ROOT/"RobustToolbox/bin/Client/Robust.Client.dll"
+        release_loader = OUT/"Robust.Client.Release-control.dll"
+        shutil.copy2(loader, release_loader)
+        def loader_metadata(path, label, failure=None):
+            run([args.dotnet, "run", "--project", metadata_project, "-c", "Release", "--no-restore",
+                 "-p:UseSharedCompilation=false", "-p:BuildInParallel=false", "--", str(path)], label,
+                expected=None if failure else "PASS launchauth metadata contract", failure=failure)
+        loader_metadata(release_loader, "loader-release-control", "Launcher authentication command is missing")
+        auth_project = projects[4]
+        webview_project = "RobustToolbox/Robust.Client.WebView/Robust.Client.WebView.csproj"
+        for label, project in (("loader", auth_project), ("webview", webview_project)):
+            run([args.dotnet, "restore", project, "--disable-parallel", "-p:Configuration=Tools",
+                 "-p:RobustToolsBuild=true"], "restore-auth-"+label)
+            run([args.dotnet, "build", project, "-c", "Tools", "-t:Rebuild", "--no-restore",
+                 "--disable-build-servers", "-m:1", "-p:UseSharedCompilation=false", "-p:BuildInParallel=false",
+                 "-p:RobustToolsBuild=true", "-p:ContinuousIntegrationBuild=true",
+                 "-p:PathMap="+str(ROOT)+"=/src"], "build-auth-"+label)
+            run([args.dotnet, "publish", project, "-c", "Tools", "--no-build", "--no-restore",
+                 "-p:RobustToolsBuild=true", "-o", str(OUT/("auth-"+label))], "publish-auth-"+label)
+        loader = OUT/"auth-loader/Robust.Client.dll"
+        loader_metadata(loader, "loader-tools-positive")
         shutil.copy2(loader, candidate_loader)
+        receipt["authentication_loader"] = {"configuration": "Tools", "RobustToolsBuild": True,
+                                             "command": "launchauth", "metadata_contract": "passed",
+                                             "credentials_accessed": False, "authenticated_join": "not run"}
+        receipt["authentication_bundle_files"] = {str(path.relative_to(OUT)):
+                                                   {"sha256": digest(path), "bytes": path.stat().st_size}
+                                                   for directory in (OUT/"auth-loader", OUT/"auth-webview")
+                                                   for path in sorted(directory.rglob("*")) if path.is_file()}
         receipt["artifacts"] = {str(p.relative_to(ROOT)) if p.is_relative_to(ROOT) else p.name:
                                  {"sha256": digest(p), "bytes": p.stat().st_size}
                                  for p in [archive, candidate_shared, candidate_loader, candidate_runtime, client/"OpenDreamClient.dll", client/"OpenDreamShared.dll",

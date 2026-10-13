@@ -20,6 +20,12 @@ The receipt binds the exact source tree, dependency patch, SDK, logs and output
 hashes. Tests require 211 glide assertions, two intended movement failures,
 direction-copy assertions and an intended historical direction-copy failure.
 Full client, Shared, server and authentication-loader builds follow the probes.
+The loader is then rebuilt/published with optimized `Tools` configuration and
+`RobustToolsBuild=true`, matching the existing authenticated launcher capability.
+Release omits `launchauth`: CI requires that Release negative control to fail
+the metadata contract, and the Tools loader to retain the command type, getter,
+Execute method and SQLite reference. Complete loader/WebView dependency bundles
+are hashed separately. This does not read accounts or prove authenticated join.
 Spatial verb production-body assertions and two intended historical failures
 also run before the final rebuild. A Runtime DLL candidate is now retained
 with its exact source/hash receipt for the server authorization change.
