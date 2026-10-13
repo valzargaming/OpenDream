@@ -60,14 +60,47 @@ class StandalonePackageTests(unittest.TestCase):
             standalone.package_layout(self.package, self.source)
         self.assertFalse((self.root/'outside.dll').exists())
 
-    def test_smoke_uses_pinned_cli_quit_syntax(self):
+    def test_smoke_queues_graceful_quit_with_isolated_environment(self):
         receipt = standalone.package_layout(self.package, self.source)
-        response = subprocess.CompletedProcess([], 0, 'PASS native identity content sandbox type checks', '')
-        with patch.object(standalone.subprocess, 'run', return_value=response) as launch:
+        def run(command, **options):
+            isolated = options['cwd']
+            script = (isolated / receipt['loader']).parent / 'user_data/startup-smoke.cfg'
+            self.assertEqual(script.read_text(encoding='utf-8'), 'quit\n')
+            self.assertEqual(command[-4:], ['--headless', '--cvar', 'discord.enabled=false',
+                                            '+exec startup-smoke.cfg'])
+            environment = options['env']
+            for key in ['ROBUST_DISABLE_SANDBOX', 'ROBUST_AUTH_TOKEN', 'ROBUST_CVAR_TEST',
+                        'ROBUST_CVARS', 'ROBUST_MODULE_TEST']:
+                self.assertNotIn(key, environment)
+            self.assertEqual(environment['ROBUST_MODULE_ROBUST_CLIENT_WEBVIEW'],
+                             str(isolated / receipt['webview']))
+            return subprocess.CompletedProcess([], 0,
+                'PASS native identity content sandbox type checks\n'
+                'Shutting down! Reason: quit command used', '')
+        contamination = {key: 'fixture' for key in ['ROBUST_DISABLE_SANDBOX', 'ROBUST_AUTH_TOKEN',
+                         'ROBUST_CVAR_TEST', 'ROBUST_CVARS', 'ROBUST_MODULE_TEST']}
+        with patch.dict(standalone.os.environ, contamination), \
+                patch.object(standalone.subprocess, 'run', side_effect=run):
             result = standalone.smoke(self.package, 'fake-dotnet', receipt)
-        self.assertEqual(launch.call_args.args[0][-3:], ['--self-contained', '--headless', '+quit'])
         self.assertEqual(result['sandboxed_headless_startup'], 'passed')
         self.assertEqual(result['authenticated_join'], 'not run')
+        self.assertFalse(((self.package/'standalone')/receipt['loader']).parent.joinpath('user_data').exists())
+
+    def test_smoke_rejects_success_exit_without_actual_shutdown(self):
+        receipt = standalone.package_layout(self.package, self.source)
+        response = subprocess.CompletedProcess([], 0, 'PASS native identity content sandbox type checks', '')
+        with patch.object(standalone.subprocess, 'run', return_value=response):
+            with self.assertRaisesRegex(RuntimeError, 'startup or sandbox verification failed'):
+                standalone.smoke(self.package, 'fake-dotnet', receipt)
+
+    def test_smoke_still_rejects_runtime_errors(self):
+        receipt = standalone.package_layout(self.package, self.source)
+        response = subprocess.CompletedProcess([], 0,
+            'PASS native identity content sandbox type checks\n'
+            'Shutting down! Reason: quit command used\n[ERRO] fixture failure', '')
+        with patch.object(standalone.subprocess, 'run', return_value=response):
+            with self.assertRaisesRegex(RuntimeError, 'startup or sandbox verification failed'):
+                standalone.smoke(self.package, 'fake-dotnet', receipt)
 
     def test_timeout_retains_both_outputs(self):
         receipt = standalone.package_layout(self.package, self.source)
