@@ -1,3 +1,61 @@
+diff --git a/Robust.Client.WebView/Cef/WebViewManagerCef.cs b/Robust.Client.WebView/Cef/WebViewManagerCef.cs
+index c98fbaf..396a73f 100644
+--- a/Robust.Client.WebView/Cef/WebViewManagerCef.cs
++++ b/Robust.Client.WebView/Cef/WebViewManagerCef.cs
+@@ -5,6 +5,7 @@ using System.IO;
+ using System.Net;
+ using System.Reflection;
+ using System.Runtime.InteropServices;
++using System.Runtime.Loader;
+ using System.Text;
+ using Robust.Client.Console;
+ using Robust.Shared.Configuration;
+@@ -137,6 +138,13 @@ namespace Robust.Client.WebView.Cef
+             if (ProbeDir(BasePath, out var path))
+                 return path;
+ 
++            // Optional modules loaded by directory override have their own deps
++            // file; their native directory is absent from the host search list.
++            var resolver = new AssemblyDependencyResolver(Assembly.GetExecutingAssembly().Location);
++            var cefLibraryPath = resolver.ResolveUnmanagedDllToPath("libcef");
++            if (cefLibraryPath != null && ProbeDir(Path.GetDirectoryName(cefLibraryPath)!, out path))
++                return path;
++
+             foreach (var searchDir in NativeDllSearchDirectories())
+             {
+                 if (ProbeDir(searchDir, out path))
+diff --git a/Robust.Client/GameController/GameController.RobustModules.cs b/Robust.Client/GameController/GameController.RobustModules.cs
+index 3aab543..010cb92 100644
+--- a/Robust.Client/GameController/GameController.RobustModules.cs
++++ b/Robust.Client/GameController/GameController.RobustModules.cs
+@@ -1,6 +1,7 @@
+ using System;
+ using System.IO;
+ using System.Reflection;
++using System.Runtime.InteropServices;
+ using System.Runtime.Loader;
+ using Robust.Client.WebViewHook;
+ using Robust.Shared.ContentPack;
+@@ -71,6 +72,19 @@ namespace Robust.Client
+                 return alc.LoadFromAssemblyPath(assemblyPath);
+             };
+ 
++            // A managed module directory override does not add its native assets to
++            // the host's probing paths. Resolve from this module's own deps file.
++            var nativeResolver = new AssemblyDependencyResolver(Path.Combine(envVar, $"{moduleName}.dll"));
++            alc.ResolvingUnmanagedDll += (assembly, name) =>
++            {
++                var libraryPath = nativeResolver.ResolveUnmanagedDllToPath(name);
++                if (libraryPath == null)
++                    return IntPtr.Zero;
++
++                return NativeLibrary.Load(libraryPath, assembly,
++                    DllImportSearchPath.UseDllDirectoryForDependencies | DllImportSearchPath.SafeDirectories);
++            };
++
+             _modLoader.ExtraModuleLoaders += name =>
+             {
+                 foreach (var assembly in alc.Assemblies)
 diff --git a/Robust.Client/GameController/GameController.cs b/Robust.Client/GameController/GameController.cs
 index 60fabdc..8879a8c 100644
 --- a/Robust.Client/GameController/GameController.cs

@@ -209,12 +209,27 @@ try:
         for name in ("Robust.Client.dll", "Robust.Shared.dll", "Robust.Shared.Maths.dll", "Robust.LoaderApi.dll"):
             if digest(OUT/"auth-loader"/name) != digest(OUT/"auth-webview"/name):
                 raise RuntimeError("Authentication loader/WebView dependency mismatch: " + name)
+        run([sys.executable, "tools/civ13-provenance/native-paths/run.py", "--dotnet", args.dotnet,
+             "--robust", str(ROOT/"RobustToolbox"), "--bundle", str(OUT/"auth-webview"),
+             "--output", str(OUT/"native-path-proof")], "native-module-paths",
+            expected="PASS native module path controls")
+        validation_source = ROOT/"tools/civ13-provenance/client-validation"
+        run([sys.executable, str(validation_source/"verify.py"), "--dotnet", args.dotnet,
+             "--robust", str(ROOT/"RobustToolbox"), "--output", str(OUT/"client-validation-proof")],
+            "client-front-end", expected="PASS pinned parser identity binding")
+        if os.name == "nt":
+            run([sys.executable, str(validation_source/"test-client-job.py"), str(OUT/"client-job-proof")],
+                "client-job-controls", expected='"controls": 6')
+        shutil.copytree(validation_source, OUT/"client-validation-source", ignore=shutil.ignore_patterns("__pycache__"))
+        receipt["client_validation_source_inventory"] = {p.name: {"sha256": digest(p), "bytes": p.stat().st_size}
+                                                         for p in sorted(validation_source.glob("*.py"))}
         loader = OUT/"auth-loader/Robust.Client.dll"
         loader_metadata(loader, "loader-tools-positive")
         shutil.copy2(loader, candidate_loader)
         receipt["authentication_loader"] = {"configuration": "Tools", "RobustToolsBuild": True,
                                              "command": "launchauth", "metadata_contract": "passed",
                                              "publication_trimming": False, "shared_dependency_hash_agreement": "passed",
+                                             "native_path_contract": "passed; target native loading not run",
                                              "credentials_accessed": False, "authenticated_join": "not run"}
         receipt["authentication_bundle_files"] = {str(path.relative_to(OUT)):
                                                    {"sha256": digest(path), "bytes": path.stat().st_size}
