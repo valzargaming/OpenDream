@@ -1,0 +1,9 @@
+# Repeated ownership audit
+
+Run `run.py --dotnet <absolute SDK executable> --output <receipts> --work <unique temporary directory> --all-controls` with .NET 10 and Python 3.12 or newer.
+
+The positive workload runs 10 identical batches of 1,000 operations for each of eight paths: unfiltered early exit, filtered early exit, filtered assignment exception, filtered completion, range, orange, area range and asynchronous state reuse. Every operation must return seven watched object counts to their initial values. Pooled list storage must contain no retained values; asynchronous argument slots must be empty and their state pool bounded. Four omission controls independently remove filtered iterator disposal, range contents-variable disposal, list value release and async argument clearing. Preparation failures do not count as successful controls.
+
+The harness compiles complete production enumerators, asynchronous state and scheduler files, plus extracted contents factory, range, list append and list deletion bodies. Reference counting, maps, type checks, assignments, base proc state and threads are inert adapters. The scheduler is compiled but not exercised here. Map traversal returns a fixed turf and no real players, seasons, DM bytecode or server systems run. These checks demonstrate ownership release in the tested bodies, not complete interpreter correctness, managed heap stability or a cause for live Gaia memory growth. Production source SHA-256 values and the checkout commit accompany each receipt.
+
+Restore uses an explicit empty NuGet source configuration and a package-free project. Builds disable node reuse, shared compilation and restore. On Windows, use `guard-windows.py` for a single resource-bounded owner: 2 GiB combined private memory, at least 6 GiB available host physical memory, 420 seconds execution plus cleanup. The guard never attaches to the running game. A guard failure requires review before another run.

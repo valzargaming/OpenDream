@@ -40,3 +40,15 @@ jobs:
             Write-Host "PASS rejected $($entry[0]): $($entry[1]) ownership failures"
           }
           $global:LASTEXITCODE = 0
+      - name: Repeated contents, range and async ownership
+        shell: bash
+        run: |
+          set -euo pipefail
+          python tests/memory_roots/run.py --dotnet "$(command -v dotnet)" --output "$RUNNER_TEMP/memory-root-receipts" --work "$RUNNER_TEMP/memory-root-work" --all-controls
+      - name: Upload repeated ownership receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: repeated-ownership-receipts
+          path: ${{ runner.temp }}/memory-root-receipts
+          if-no-files-found: ignore
