@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+import os
 import zipfile
 
 spec = importlib.util.spec_from_file_location('server_acceptance', Path(__file__).with_name('server_acceptance.py'))
@@ -170,6 +171,44 @@ class FileDistribution(unittest.TestCase):
             self.skipTest('Host cannot create fixture symlinks')
         with self.assertRaisesRegex(ValueError, 'Symlink/reparse'):
             self.export()
+
+    def test_legitimate_canonical_alias_exports(self):
+        (self.root/'alias').mkdir()
+        alias = self.root/'alias'/'..'
+        self.assertNotEqual(str(alias.absolute()), str(alias.resolve()))
+        result = server.export(alias, alias/self.output.relative_to(self.root), HEAD,
+            self.sha(self.output/'receipt.json'),
+            identity_reader=lambda root, budget: copy.deepcopy(self.ident))
+        self.assertEqual(result['runtime_acceptance'], 'not run')
+
+    def test_ancestor_link_rejected_even_for_regular_leaf(self):
+        link = self.root/'ancestor-link'
+        try:
+            link.symlink_to(self.root/'Resources', target_is_directory=True)
+        except (OSError, NotImplementedError):
+            self.skipTest('Host cannot create fixture directory symlinks')
+        with self.assertRaisesRegex(ValueError, 'Symlink/reparse'):
+            server.regular(link/'manifest.yml')
+        with self.assertRaisesRegex(ValueError, 'Symlink/reparse'):
+            server.regular(link/'..'/'Resources'/'manifest.yml')
+
+    @unittest.skipUnless(os.name == 'nt', 'Windows 8.3 path metadata fixture')
+    def test_windows_short_path_alias_exports(self):
+        import ctypes
+        short_path = ctypes.windll.kernel32.GetShortPathNameW
+        short_path.argtypes = [ctypes.c_wchar_p, ctypes.c_wchar_p, ctypes.c_uint32]
+        short_path.restype = ctypes.c_uint32
+        buffer = ctypes.create_unicode_buffer(32768)
+        length = short_path(str(self.root), buffer, len(buffer))
+        if not length or length >= len(buffer):
+            self.skipTest('Volume cannot provide a short path')
+        alias = Path(buffer.value)
+        if str(alias).casefold() == str(alias.resolve()).casefold():
+            self.skipTest('Volume provides no distinct 8.3 alias')
+        result = server.export(alias, alias/self.output.relative_to(self.root), HEAD,
+            self.sha(self.output/'receipt.json'),
+            identity_reader=lambda root, budget: copy.deepcopy(self.ident))
+        self.assertEqual(result['runtime_acceptance'], 'not run')
 
     def test_output_overlap(self):
         with self.assertRaisesRegex(ValueError, 'overlap'):

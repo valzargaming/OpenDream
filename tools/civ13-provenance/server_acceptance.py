@@ -35,9 +35,13 @@ class Budget:
 
 
 def regular(path):
-    info = path.lstat()
-    if path.resolve() != path.absolute() or stat.S_ISLNK(info.st_mode) or getattr(info, 'st_file_attributes', 0) & 0x400:
-        raise ValueError('Symlink/reparse input rejected: ' + str(path))
+    # Windows CI temp paths can contain legitimate RUNNER~1 aliases. A resolved
+    # spelling mismatch is not link evidence; inspect every lexical ancestor.
+    path = path.absolute()
+    for ancestor in [*reversed(path.parents), path]:
+        info = ancestor.lstat()
+        if stat.S_ISLNK(info.st_mode) or getattr(info, 'st_file_attributes', 0) & 0x400:
+            raise ValueError('Symlink/reparse input rejected: ' + str(ancestor))
     if not stat.S_ISREG(info.st_mode) and not stat.S_ISDIR(info.st_mode):
         raise ValueError('Non-file input rejected: ' + str(path))
     return info
@@ -241,6 +245,7 @@ def export(root, output, head, receipt_sha256, budget=None, identity_reader=iden
     root, output = root.absolute(), output.absolute()
     budget = budget or Budget()
     regular(root); regular(output)
+    root, output = root.resolve(strict=True), output.resolve(strict=True)
     layout = output/'server-acceptance'
     if layout.exists() or layout.is_symlink() or (output/'server-acceptance-layout.json').exists():
         raise ValueError('Acceptance output already exists')
