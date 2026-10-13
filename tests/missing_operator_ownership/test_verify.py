@@ -67,7 +67,7 @@ class OracleTests(unittest.TestCase):
         hooks=(root/'Content.IntegrationTests/GameTests.cs').read_text()
         for name in ('NativeArgumentsReleaseOwnedValues','ObjectInitializationReleasesOwnedValues',
                      'ProcInitializationReleasesOwnedValues','SupportedOperatorFallbacksReleaseOwners',
-                     'MissingOperatorArgumentsReleaseOwners'):
+                     'MissingOperatorArgumentsReleaseOwners','ExternalCallRejectionsReleaseArguments'):
             self.assertEqual(hooks.count(name+'('),1)
 
     def test_positive_shape_and_completion_markers(self):
