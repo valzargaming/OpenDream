@@ -7,7 +7,7 @@ from verify import verify
 
 root = pathlib.Path(__file__).resolve().parents[2]
 parser = argparse.ArgumentParser()
-parser.add_argument('control', choices=['baseline', 'sync-finally', 'async-replace'])
+parser.add_argument('control', choices=['baseline', 'sync-finally', 'async-replace', 'arglist-baseline', 'arglist-finally', 'arglist-replace'])
 parser.add_argument('--verify', type=pathlib.Path)
 parser.add_argument('--exit-code', type=int)
 parser.add_argument('--trx', type=pathlib.Path)
@@ -16,16 +16,35 @@ markers = {
     'baseline': 'Native call argument ownership balanced: native_argument_failure_probe',
     'sync-finally': 'Native call argument ownership balanced: native_argument_failure_probe',
     'async-replace': 'Async slot replacement releases original owner',
+    'arglist-baseline': 'Failed arglist conversion releases temporary owners',
+    'arglist-finally': 'Failed arglist conversion releases temporary owners',
+    'arglist-replace': 'Arglist overwritten slot releases previous owner',
 }
 if args.verify:
     log = args.verify.read_text(errors='replace')
     if not args.trx:
         raise SystemExit('Structured TRX result required')
-    verify(args.trx, log, args.exit_code, markers[args.control])
+    options = {'expressions': ('arglistOriginal.RefCount',)} if args.control.startswith('arglist-') else {}
+    verify(args.trx, log, args.exit_code, markers[args.control], **options)
     print('INTENDED NATIVE ARGUMENT OMISSION REJECTED:', args.control)
     raise SystemExit(0)
 paths = ['OpenDreamRuntime/Procs/NativeProc.cs', 'OpenDreamRuntime/Procs/AsyncNativeProc.cs']
-if args.control == 'baseline':
+if args.control.startswith('arglist-'):
+    path = root / 'OpenDreamRuntime/Procs/DMProc.cs'
+    content = path.read_text()
+    if args.control == 'arglist-baseline':
+        path.write_bytes(subprocess.check_output(['git', 'show', '689d8f0a49a3dbbad07fa3b3ad163544a22bfd4a:OpenDreamRuntime/Procs/DMProc.cs']))
+    elif args.control == 'arglist-finally':
+        old = '''                        // Temporary owners must be released even if a later key is invalid.
+                        foreach (var arg in arguments)
+                            arg.Dispose();'''
+        if content.count(old) != 1: raise SystemExit('Arglist finally target not unique')
+        path.write_text(content.replace(old, '                        // Omitted temporary argument cleanup.'))
+    else:
+        old = '                                argument.Dispose();\n'
+        if content.count(old) != 2: raise SystemExit('Arglist replacement targets not unique')
+        path.write_text(content.replace(old, ''))
+elif args.control == 'baseline':
     native = subprocess.check_output(['git', 'show', 'df99ae89ca4cccc34325d99b0779ac4e569d8de5:' + paths[0]])
     (root / paths[0]).write_bytes(native)
     historical = subprocess.check_output(['git', 'show', 'df99ae89ca4cccc34325d99b0779ac4e569d8de5:' + paths[1]], text=True)
