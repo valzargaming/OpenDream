@@ -9,12 +9,14 @@ checks 1000 replacements, self-assignment, rejected indexes and disposal with re
 datum owners. It does not run an asynchronous gameplay action or live game.
 
 Remote omission CI builds the actual engine and runs this connected test against an
-immutable df99 baseline, a removed synchronous finally, and removed async slot
+immutable df99 NativeProc/SetArgument baseline, a removed synchronous finally, and removed async slot
 ownership. Compilation failure, unrelated failure or missing named ownership
 assertion is rejected. Structured TRX must contain exactly one failing NoRuntimesTest
 with the complete intended assertion/refcount delta and actual fixture stack. Mixed
 engine errors, runner errors and additional test/assertion failures are rejected;
 the verifier has explicit intended-plus-unrelated-failure negative examples.
+Only the historical SetArgument method is restored from AsyncNativeProc, so
+independent newer async return/scheduling fixes remain present in this control.
 No local helper/compiler/server was executed in the reserved
 production investigation window. These counts prove ownership contracts, not
 production memory attribution, full-map latency or long-term memory stability.

@@ -26,9 +26,20 @@ if args.verify:
     raise SystemExit(0)
 paths = ['OpenDreamRuntime/Procs/NativeProc.cs', 'OpenDreamRuntime/Procs/AsyncNativeProc.cs']
 if args.control == 'baseline':
-    for path in paths:
-        content = subprocess.check_output(['git', 'show', 'df99ae89ca4cccc34325d99b0779ac4e569d8de5:' + path])
-        (root / path).write_bytes(content)
+    native = subprocess.check_output(['git', 'show', 'df99ae89ca4cccc34325d99b0779ac4e569d8de5:' + paths[0]])
+    (root / paths[0]).write_bytes(native)
+    historical = subprocess.check_output(['git', 'show', 'df99ae89ca4cccc34325d99b0779ac4e569d8de5:' + paths[1]], text=True)
+    path = root / paths[1]
+    current = path.read_text()
+    # Restore only the immutable historical argument method. Other async
+    # return/scheduling fixes must remain intact for independent controls.
+    signature = '            public override void SetArgument(int id, DreamValue value) {'
+    def method(source):
+        if source.count(signature) != 1: raise SystemExit('Baseline argument method not unique')
+        start = source.index(signature)
+        end = source.index('\n            }', start) + len('\n            }')
+        return source[start:end]
+    path.write_text(current.replace(method(current), method(historical)))
 elif args.control == 'sync-finally':
     path = root / paths[0]
     content = path.read_text()
