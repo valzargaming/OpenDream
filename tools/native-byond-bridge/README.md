@@ -57,3 +57,9 @@ and `bin/Content.Client`. `standalone-layout.json` binds every file. The remote
 package check runs a sandboxed headless startup in a fresh temporary copy without
 connecting to a server or acquiring a BYOND identity. It does not establish
 native account/CID, rendering, admin admission or save acceptance.
+The isolated smoke explicitly enables `opendream.startup_smoke` (default false),
+frozen before content loads. After one complete client frame, a one-shot handler
+unsubscribes and uses the normal quit command. It works in the disconnected menu,
+where simulation ticks are paused. The harness requires frame and graceful
+shutdown markers, exit zero, sandbox success and no runtime errors. Optional
+Discord presence is disabled only for this account-free smoke.

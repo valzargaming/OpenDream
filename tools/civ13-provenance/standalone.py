@@ -75,17 +75,12 @@ def smoke(package, dotnet, receipt):
     with tempfile.TemporaryDirectory(prefix='sandboxed-client-startup-') as directory:
         isolated = Path(directory) / 'standalone'
         shutil.copytree(package / 'standalone', isolated)
-        # The pinned +quit runs before GameLoop.Run, when Shutdown is a no-op.
-        # exec queues its lines for the first live loop tick instead.
-        user_data = (isolated / receipt['loader']).parent / 'user_data'
-        user_data.mkdir()
-        (user_data / 'startup-smoke.cfg').write_text('quit\n', encoding='utf-8')
         environment = {k: v for k, v in os.environ.items()
                        if k.upper() not in {'ROBUST_DISABLE_SANDBOX', 'ROBUST_CVARS'}
                        and not k.upper().startswith(('ROBUST_AUTH_', 'ROBUST_CVAR_', 'ROBUST_MODULE_'))}
         environment['ROBUST_MODULE_ROBUST_CLIENT_WEBVIEW'] = str(isolated / receipt['webview'])
         command = [dotnet, str(isolated / receipt['loader']), '--self-contained', '--headless',
-                   '--cvar', 'discord.enabled=false', '+exec startup-smoke.cfg']
+                   '--cvar', 'discord.enabled=false', '--cvar', 'opendream.startup_smoke=true']
         try:
             result = subprocess.run(command, cwd=isolated, env=environment, text=True,
                                     capture_output=True, timeout=60)
@@ -99,6 +94,7 @@ def smoke(package, dotnet, receipt):
         text = result.stdout + result.stderr
         (package / 'standalone-startup.log').write_text(text, encoding='utf-8')
         if (result.returncode or 'PASS native identity content sandbox type checks' not in text
+                or 'PASS native identity startup smoke client frame' not in text
                 or 'Shutting down! Reason: quit command used' not in text
                 or any(marker in text for marker in ['[ERRO]', '[FATL]', 'Unhandled exception', 'not whitelisted'])):
             print('Sandboxed startup failure diagnostics (first 65536 characters):\n' + text[:65536])
