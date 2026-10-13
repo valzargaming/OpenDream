@@ -13,7 +13,7 @@ PRODUCTION = 'OpenDreamRuntime/Procs/DMOpcodeHandlers.CallExt.cs'
 BASELINE_BLOB = '2f785444c267e1eb00486934c948a79fd1ed3405'
 BASELINE_HASH = '46b6cce48a56a23deeb7dccabff2132100e3407acd6dd2c508809931e960cfb2'
 CANDIDATE_HASH = '90a62947bd570231faad0b24efed87f189d1d7453cb9c519ff0b8f16c5ef6d01'
-FIXTURE_HASHES = {'Content.IntegrationTests/GameTests.cs': '385cf0f7dcf12467b3c134c8b57f63b2437b77d05414b82406946b64d998442a', 'Content.IntegrationTests/GameTests.CallExt.cs': '45368e7375120862fc3a237c5ab85a4dc573a9a54030bf9b76a3bc7b5943b22d', 'Content.IntegrationTests/DMProject/code.dm': 'bc43b02f0640a966d0883a6b7835764b0266760f76c729b563cbafb70645bee7', 'tests/native_argument_ownership/verify.py': 'ff9ba7da2224604cd45d170e15aa3131061ef7aef56a367ea93f204e278be960'}
+FIXTURE_HASHES = {'Content.IntegrationTests/GameTests.cs': '2e57e4ee43f384647721017b1123d8a155a5a5e7660c7d9f60d5dc86841b35f3', 'Content.IntegrationTests/GameTests.CallExt.cs': '45368e7375120862fc3a237c5ab85a4dc573a9a54030bf9b76a3bc7b5943b22d', 'Content.IntegrationTests/DMProject/code.dm': 'f682a1b3ed2946205cdf292a6b5f9670770274e81df538650061842677e4712f', 'tests/native_argument_ownership/verify.py': 'ff9ba7da2224604cd45d170e15aa3131061ef7aef56a367ea93f204e278be960'}
 OPTIONS = {
     'string-omit': dict(marker='External call releases argument owner: call_ext_string_rejection_probe', expected=1, actual=2),
     'byond-omit': dict(marker='External call releases argument owner: call_ext_byond_rejection_probe', expected=1, actual=2),

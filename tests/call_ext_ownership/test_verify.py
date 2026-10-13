@@ -61,9 +61,9 @@ class OracleTests(unittest.TestCase):
         root=pathlib.Path(__file__).resolve().parents[2]
         hooks=(root/'Content.IntegrationTests/GameTests.cs').read_text()
         for name in ('NativeArgumentsReleaseOwnedValues','ObjectInitializationReleasesOwnedValues',
-                     'ProcInitializationReleasesOwnedValues','ExternalCallRejectionsReleaseArguments'):
+                     'ProcInitializationReleasesOwnedValues','ExternalCallRejectionsReleaseArguments',
+                     'SupportedOperatorFallbacksReleaseOwners','MissingOperatorArgumentsReleaseOwners'):
             self.assertEqual(hooks.count(name+'('),1)
-        self.assertNotIn('MissingOperatorArgumentsReleaseOwners(',hooks)
         dm=(root/'Content.IntegrationTests/DMProject/code.dm').read_text()
         self.assertIn('object_initialization_new_probe',dm)
         self.assertIn('proc_initialization_arglist_probe',dm)
