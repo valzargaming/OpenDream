@@ -9,6 +9,8 @@ import subprocess
 import sys
 import time
 import zipfile
+# Provenance forbids untracked source inputs, including generated module caches.
+sys.dont_write_bytecode = True
 from standalone import package_layout, smoke
 
 ROOT = Path(__file__).resolve().parents[2]
