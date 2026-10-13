@@ -129,3 +129,5 @@ var/global/list/areas_by_type = list()
 		TEST.RunTest()
 		del(TEST) //and clean up
 	world.log << "IntegrationTests successful, /world/New() exiting..."
+/proc/async_return_ownership_probe(payload)
+	return payload

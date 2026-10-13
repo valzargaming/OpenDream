@@ -98,6 +98,9 @@ public sealed partial class GameTests : ContentIntegrationTest {
         if(manager.LastDMException is not null) {
             Assert.Fail($"Runtime occurred on server boot: {manager.LastDMException}");
         }
+        await AsyncReturnsOwnValues(manager, server.ResolveDependency<DreamObjectTree>(),
+            server.ResolveDependency<DreamRefManager>(), action => server.WaitAssertion(action),
+            ticks => RunTicksSync(client, server, ticks));
         // Reuse the existing server: BYOND API initialization is process-global.
         await server.WaitAssertion(() => {
             var tree = server.ResolveDependency<DreamObjectTree>();

@@ -74,6 +74,7 @@ namespace OpenDreamRuntime.Procs {
                 Thread.Resume().Dispose();
             }
 
+            // The caller owns the awaited value and must dispose or transfer it.
             public Task<DreamValue> Call(DreamProc proc, DreamObject? src, DreamObject? usr, params DreamValue[] arguments) {
                 _callTcs = new();
                 _callProcNotify = proc.CreateState(Thread, src, usr, new DreamProcArguments(arguments));
@@ -97,11 +98,13 @@ namespace OpenDreamRuntime.Procs {
 
             public override void ReturnedInto(DreamValue value) {
                 // We don't call `_callTcs.SetResult` here because we're about to be resumed and can do it there.
+                value.IncRef();
+                _callResult?.Dispose();
                 _callResult = value;
             }
 
             public override void Cancel() {
-                _callTcs?.SetCanceled();
+                _callTcs?.TrySetCanceled();
             }
 
             public override void Dispose() {
@@ -120,6 +123,7 @@ namespace OpenDreamRuntime.Procs {
                 _task = null;
                 _callProcNotify = null;
                 _callTcs = null!;
+                _callResult?.Dispose();
                 _callResult = null;
                 _inResume = false;
 
@@ -143,15 +147,6 @@ namespace OpenDreamRuntime.Procs {
                     return ProcStatus.Returned;
                 }
 
-                // We need to call a proc.
-                if (_callProcNotify != null) {
-                    var callProcNotify = _callProcNotify;
-                    _callProcNotify = null;
-
-                    Thread.PushProcState(callProcNotify);
-                    return ProcStatus.Called;
-                }
-
                 // We've just finished calling a proc, notify our task
                 if (_callResult != null) {
                     var callTcs = _callTcs;
@@ -159,7 +154,26 @@ namespace OpenDreamRuntime.Procs {
                     _callTcs = null;
                     _callResult = null;
 
-                    callTcs.SetResult(callResult);
+                    // Cancellation may have completed the TCS while its async
+                    // continuation is still pending. A refused transfer keeps
+                    // the owner here, rather than stranding it in a thrown call.
+                    if (callTcs?.TrySetResult(callResult) != true)
+                        callResult.Dispose();
+                }
+
+                // SetResult runs the continuation synchronously. It may finish
+                // this task or request another DM call while SafeResume is guarded.
+                if (_task.IsCompleted) {
+                    if (_task.Exception != null)
+                        throw _task.Exception;
+                    return ProcStatus.Returned;
+                }
+
+                if (_callProcNotify != null) {
+                    var callProcNotify = _callProcNotify;
+                    _callProcNotify = null;
+                    Thread.PushProcState(callProcNotify);
+                    return ProcStatus.Called;
                 }
 
                 // Otherwise, we are still pending
