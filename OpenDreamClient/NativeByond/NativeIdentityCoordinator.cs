@@ -55,7 +55,8 @@ public sealed class NativeIdentityCoordinator(INativeIdentityProvider provider) 
         if (!_pending.IsCompleted) return false;
         var pending = _pending;
         _pending = null;
-        if (pending.Status == TaskStatus.RanToCompletion && pending.Result is { } report &&
+        // Never wait on the frame thread: read only an already completed successful task.
+        if (pending.IsCompletedSuccessfully && pending.GetAwaiter().GetResult() is { } report &&
             report.Epoch == _request.Epoch && report.Nonce == _request.Nonce && Valid(report))
             _identity = report;
         else if (pending.IsFaulted)
