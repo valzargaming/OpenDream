@@ -29,7 +29,21 @@ def replace(path, old, new):
 def prepare(control):
     if control == 'baseline':
         for path in PATHS:
-            (ROOT / path).write_bytes(subprocess.check_output(['git', 'show', f'{BASELINE}:{path}'], cwd=ROOT))
+            historical = subprocess.check_output(['git', 'show', f'{BASELINE}:{path}'], cwd=ROOT)
+            if path == 'OpenDreamRuntime/Procs/DMProc.cs':
+                # Preserve independent argument conversion fixes in this file.
+                target = ROOT / path
+                current = target.read_text()
+                signature = '    public override void CatchException(Exception exception, string file, int line) {'
+                def method(source):
+                    if source.count(signature) != 1:
+                        raise RuntimeError('Exception baseline catch method not unique')
+                    start = source.index(signature)
+                    end = source.index('\n    public override void Dispose()', start)
+                    return source[start:end]
+                target.write_text(current.replace(method(current), method(historical.decode().replace('\r\n', '\n'))))
+            else:
+                (ROOT / path).write_bytes(historical)
     elif control == 'discard-release':
         replace(PATHS[0], '// A catch without a binding still consumes the thrown value.\n'
                 '                (exception as DMThrowException)?.Dispose();',
