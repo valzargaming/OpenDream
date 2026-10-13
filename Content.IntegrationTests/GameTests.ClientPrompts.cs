@@ -33,7 +33,7 @@ public sealed partial class GameTests {
                 using var empty = connection.PromptList(DreamValueType.Obj, list, "", "", DreamValue.Null).GetAwaiter().GetResult();
                 Assert.That(empty.IsNull, Is.True);
                 Assert.That(payload.RefCount, Is.EqualTo(2), "Filtered empty prompt releases snapshot owners");
-                foreach (var response in new object?[] { null, -1f, 99f, 0f }) {
+                foreach (var response in new object[] { null, -1f, 99f, 0f }) {
                     var id = (int)nextId.GetValue(connection)!;
                     var task = connection.PromptList(DreamValueType.Null, list, "", "", DreamValue.Null);
                     Assert.That(payload.RefCount, Is.EqualTo(3), "Pending prompt holds one snapshot owner");
