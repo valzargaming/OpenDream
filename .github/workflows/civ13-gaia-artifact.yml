@@ -15,6 +15,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
           submodules: recursive
+          path: engine
       - uses: actions/checkout@v4
         with:
           repository: Civ13/Civ13
@@ -31,7 +32,7 @@ jobs:
         env:
           DOTNET_CLI_TELEMETRY_OPTOUT: '1'
           MSBUILDDISABLENODEREUSE: '1'
-        run: python tools/civ13-gaia/build.py --game civ13-source --output gaia-output --timeout 1200
+        run: python engine/tools/civ13-gaia/build.py --game civ13-source --output gaia-output --timeout 1200
       - uses: actions/upload-artifact@v4
         if: always()
         with:

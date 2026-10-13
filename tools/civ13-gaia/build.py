@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import re
 import subprocess
+import sys
 import time
 
 ENGINE = Path(__file__).resolve().parents[2]
@@ -61,6 +62,8 @@ try:
     version = run([args.dotnet, "--version"], "sdk").strip()
     assert version == "10.0.401"
     receipt["sdk"] = version
+    run([sys.executable, str(ENGINE/"tools/civ13-provenance/build.py"), "--prepare-only",
+         "--output", str(out/"engine-source-proof")], "engine-input-contract")
     run([args.dotnet, "restore", "DMCompiler/DMCompiler.csproj", "--disable-parallel", "-p:Configuration=Release"], "compiler-restore")
     compiler_dir = out/"compiler"
     run([args.dotnet, "publish", "DMCompiler/DMCompiler.csproj", "-c", "Release", "--no-restore",
