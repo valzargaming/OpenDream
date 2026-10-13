@@ -9,3 +9,10 @@
 	ASSERT(south.GetPixel(1, 1, "", WEST) == null)
 	ASSERT(west.GetPixel(1, 1, "", SOUTH) == "#ffff00")
 	ASSERT(west.GetPixel(1, 1, "", WEST) == null)
+
+	// Reinsert a constructor-selected single-direction frame into its destination.
+	var/icon/assembled = icon()
+	for(var/D in list(SOUTH, NORTH, EAST, WEST))
+		var/icon/selected = icon(source, dir = D)
+		assembled.Insert(selected, "", dir = D)
+		ASSERT(assembled.GetPixel(1, 1, "", D) == selected.GetPixel(1, 1, "", SOUTH))

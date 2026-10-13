@@ -2,6 +2,7 @@
 using Robust.Client.GameObjects;
 using Robust.Client.Graphics;
 using Robust.Shared.Utility;
+using Robust.Shared.Timing;
 
 namespace OpenDreamClient.Rendering;
 
@@ -14,8 +15,12 @@ public sealed partial class AtomGlideSystem : EntitySystem {
         public readonly TransformComponent Transform = transform;
         public readonly DMISpriteComponent Sprite = sprite;
         public Vector2 EndPos;
+        public Vector2 RenderedPos;
+        public float Elapsed = -1;
+        public float AutomaticSpeed;
     }
 
+    [Dependency] private IGameTiming _gameTiming = default!;
     [Dependency] private TransformSystem _transformSystem = default!;
     [Dependency] private IEntityManager _entityManager = default!;
     [Dependency] private IDreamInterfaceManager _interfaceManager = default!;
@@ -59,7 +64,8 @@ public sealed partial class AtomGlideSystem : EntitySystem {
 
             var currentPos = glide.Transform.LocalPosition;
             var newPos = currentPos;
-            var movementSpeed = CalculateMovementSpeed(_interfaceManager.IconSize, glide.Sprite.Icon.Appearance.GlideSize);
+            glide.Elapsed += frameTime;
+            var movementSpeed = GlideTiming.Speed(_interfaceManager.IconSize, glide.Sprite.Icon.Appearance.GlideSize, _gameTiming.TickRate, glide.AutomaticSpeed);
             var movement = movementSpeed * frameTime;
 
             // Move X towards the end position at a constant speed
@@ -85,6 +91,7 @@ public sealed partial class AtomGlideSystem : EntitySystem {
             }
 
             _ignoreMoveEvent = true;
+            glide.RenderedPos = newPos;
             _transformSystem.SetLocalPositionNoLerp(glide.Uid, newPos, glide.Transform);
             _ignoreMoveEvent = false;
         }
@@ -111,12 +118,13 @@ public sealed partial class AtomGlideSystem : EntitySystem {
             break;
         }
 
-        var startingFrom = glide?.EndPos ?? e.OldPosition.Position;
+        var previousDestination = glide?.EndPos ?? e.OldPosition.Position;
+        var startingFrom = glide?.RenderedPos ?? e.OldPosition.Position;
         var glidingTo = e.NewPosition.Position;
 
         // Moving a greater distance than 2 tiles. Don't glide.
         // TODO: Support step_size values (I think that's what decides whether or not to glide?)
-        if ((glidingTo - startingFrom).Length() > 2f) {
+        if ((glidingTo - previousDestination).Length() > 2f) {
             // Stop the current glide if there is one
             if (glide != null)
                 _currentGlides.Remove(glide);
@@ -133,16 +141,12 @@ public sealed partial class AtomGlideSystem : EntitySystem {
         // Move the transform to our starting point
         _transformSystem.SetLocalPositionNoLerp(e.Sender, startingFrom, e.Component);
 
+        var remaining = glidingTo - startingFrom;
+        glide.AutomaticSpeed = GlideTiming.AutomaticSpeed(_interfaceManager.IconSize, _gameTiming.TickRate, Math.Max(Math.Abs(remaining.X), Math.Abs(remaining.Y)), glide.Elapsed);
+        glide.Elapsed = 0;
+        glide.RenderedPos = startingFrom;
         glide.EndPos = glidingTo;
         _ignoreMoveEvent = false;
     }
 
-    private static float CalculateMovementSpeed(int iconSize, float glideSize) {
-        if (glideSize == 0)
-            glideSize = 4; // TODO: 0 gives us "automated control" over this value, not just setting it to 4
-
-        // Assume a 20 TPS server
-        // TODO: Support other TPS
-        return glideSize / iconSize * 20f;
-    }
 }
