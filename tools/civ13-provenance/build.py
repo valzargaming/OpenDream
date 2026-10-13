@@ -12,6 +12,7 @@ import zipfile
 # Provenance forbids untracked source inputs, including generated module caches.
 sys.dont_write_bytecode = True
 from standalone import package_layout, smoke
+from server_acceptance import capture_inputs
 
 ROOT = Path(__file__).resolve().parents[2]
 ROBUST = "af2a7d0406b410c4d960f0f4b34513651c6dc742"
@@ -241,6 +242,7 @@ try:
                                  {"sha256": digest(p), "bytes": p.stat().st_size}
                                  for p in [archive, candidate_shared, candidate_loader, candidate_runtime, client/"OpenDreamClient.dll", client/"OpenDreamShared.dll",
                                            server/"OpenDreamShared.dll", loader]}
+        receipt["server_acceptance_inputs"] = capture_inputs(ROOT, OUT)
         receipt["build"] = "passed"
     receipt["checks"] = checks
 except BaseException as error:
@@ -249,3 +251,6 @@ except BaseException as error:
 finally:
     receipt["checks"] = checks
     (OUT/"receipt.json").write_text(json.dumps(receipt, indent=2), encoding="utf-8")
+    if receipt["build"] == "passed" and "error" not in receipt and os.environ.get("GITHUB_OUTPUT"):
+        with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as step_output:
+            step_output.write("server_acceptance_receipt_sha256=" + digest(OUT/"receipt.json") + "\n")

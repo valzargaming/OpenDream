@@ -29,8 +29,13 @@ jobs:
         run: python tools/civ13-provenance/test-inputs.py
       - name: Verify standalone resource and assembly inventory contracts
         run: python -B -m unittest discover -s tools/civ13-provenance -p test_standalone.py -v
+      - name: Verify file-only server acceptance distribution contracts
+        run: python -B -m unittest discover -s tools/civ13-provenance -p test_server_acceptance.py -v
       - name: Build pinned client, Shared and authentication loader with behavior controls
+        id: coherent-build
         run: python tools/civ13-provenance/build.py --output provenance-output --timeout 1500
+      - name: Export already-built server acceptance distribution
+        run: python -B tools/civ13-provenance/server_acceptance.py --output provenance-output --head '${{ github.event.pull_request.head.sha || github.sha }}' --receipt-sha256 '${{ steps.coherent-build.outputs.server_acceptance_receipt_sha256 }}' --timeout 300
       - uses: actions/upload-artifact@v4
         if: always()
         with:
