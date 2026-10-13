@@ -109,6 +109,11 @@ namespace OpenDreamRuntime.Procs {
 
             public override void Dispose() {
                 ProcScheduler.Unschedule(this);
+                // Until Resume pushes it, this frame owns the pending callee.
+                // Cancellation/completion can dispose us before that transfer.
+                var callProcNotify = _callProcNotify;
+                _callProcNotify = null;
+                callProcNotify?.Dispose();
                 base.Dispose();
 
                 for (int i = 0; i < ArgumentCount; i++)
@@ -121,7 +126,6 @@ namespace OpenDreamRuntime.Procs {
                 _proc = null!;
                 _taskFunc = null!;
                 _task = null;
-                _callProcNotify = null;
                 _callTcs = null!;
                 _callResult?.Dispose();
                 _callResult = null;

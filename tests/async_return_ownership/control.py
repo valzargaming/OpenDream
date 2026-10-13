@@ -8,7 +8,7 @@ sys.path.insert(0, str(root / 'tests/native_argument_ownership'))
 from verify import verify
 
 parser = argparse.ArgumentParser()
-parser.add_argument('control', choices=['baseline', 'acquire', 'replacement', 'dispose', 'reentry', 'refused-release'])
+parser.add_argument('control', choices=['baseline', 'acquire', 'replacement', 'dispose', 'reentry', 'refused-release', 'pending-baseline', 'pending-callee'])
 parser.add_argument('--verify', type=pathlib.Path)
 parser.add_argument('--trx', type=pathlib.Path)
 parser.add_argument('--exit-code', type=int)
@@ -20,6 +20,8 @@ cases = {
     'dispose': ('Canceled pending async return releases its owner', 'payload.RefCount', 1, 2),
     'reentry': ('Reentrant async call preserves the earlier awaited owner', 'reentrant', 3, 0),
     'refused-release': ('Canceled live async delivery releases refused owner', 'payload.RefCount', 1, 2),
+    'pending-baseline': ('Canceled unpushed async callee releases its argument owner', 'payload.RefCount', 1, 2),
+    'pending-callee': ('Canceled unpushed async callee releases its argument owner', 'payload.RefCount', 1, 2),
 }
 if args.verify:
     marker, expression, expected, actual = cases[args.control]
@@ -33,6 +35,8 @@ if args.verify:
 path = root / 'OpenDreamRuntime/Procs/AsyncNativeProc.cs'
 if args.control == 'baseline':
     path.write_bytes(subprocess.check_output(['git', 'show', '103d12b8826af1f553da296d109441aca82ee8e7:OpenDreamRuntime/Procs/AsyncNativeProc.cs']))
+elif args.control == 'pending-baseline':
+    path.write_bytes(subprocess.check_output(['git', 'show', '512112435a6f326fa6f0dd80adfdd00b3aca2f9b:OpenDreamRuntime/Procs/AsyncNativeProc.cs']))
 else:
     content = path.read_text()
     if args.control == 'acquire':
@@ -44,6 +48,9 @@ else:
     elif args.control == 'dispose':
         old = '                _callTcs = null!;\n                _callResult?.Dispose();'
         new = '                _callTcs = null!;'
+    elif args.control == 'pending-callee':
+        old = '                callProcNotify?.Dispose();'
+        new = ''
     elif args.control == 'refused-release':
         old = '''                    if (callTcs?.TrySetResult(callResult) != true)
                         callResult.Dispose();'''
