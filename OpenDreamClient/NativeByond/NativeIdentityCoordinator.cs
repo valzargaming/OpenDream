@@ -81,6 +81,13 @@ public sealed class NativeIdentityCoordinator(INativeIdentityProvider provider) 
         applyOverride(observed.Key);
     }
 
+    public void ConnectionReset() {
+        // BaseClient resets its previously rejected Connecting state before retry.
+        // Preserve only the new, unused observation acquired for that retry.
+        if (_identity.HasValue && !_handshakeUsed) return;
+        Clear();
+    }
+
     public void Clear() {
         _identity = null;
         _handshakeUsed = false;

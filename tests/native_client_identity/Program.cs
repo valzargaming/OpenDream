@@ -29,6 +29,8 @@ static class Probe {
             provider.Complete("NativeAccount" + index, "00018446744073709551616000");
             Check(coordinator.Poll(), "completed provider polled");
             Check(coordinator.Identity?.ComputerId == "00018446744073709551616000", "CID remains exact digit text");
+            coordinator.ConnectionReset();
+            Check(coordinator.Identity.HasValue, "retry reset preserves fresh unused observation");
             Check(Login(coordinator, out var sent) && sent == "NativeAccount" + index, "native name replaces supplied name");
             Check(!Login(coordinator, out _), "one observation cannot authorize another handshake");
             coordinator.Begin();
@@ -37,7 +39,7 @@ static class Probe {
             provider.Complete("OtherAccount", "002");
             coordinator.Poll();
             Check(Login(coordinator, out sent) && sent == "OtherAccount", "reconnect uses fresh account");
-            coordinator.Clear();
+            coordinator.ConnectionReset();
             Check(!Login(coordinator, out _), "disconnect clears identity");
         }
         coordinator.Begin();

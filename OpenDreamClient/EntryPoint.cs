@@ -84,7 +84,10 @@ public sealed partial class EntryPoint : GameClient {
             _nativeIdentity.AuthorizeHandshake(name => _baseClient.PlayerNameOverride = name);
         } else if (args.NewLevel is Robust.Client.ClientRunLevel.Initialize or Robust.Client.ClientRunLevel.Error) {
             _baseClient.PlayerNameOverride = null;
-            _nativeIdentity.Clear();
+            if (args.NewLevel == Robust.Client.ClientRunLevel.Initialize && args.OldLevel == Robust.Client.ClientRunLevel.Connecting)
+                _nativeIdentity.ConnectionReset();
+            else
+                _nativeIdentity.Clear();
         }
     }
 
