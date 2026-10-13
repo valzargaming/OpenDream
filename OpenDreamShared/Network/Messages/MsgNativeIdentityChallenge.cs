@@ -17,7 +17,7 @@ public sealed class MsgNativeIdentityChallenge : NetMessage {
     public override void WriteToBuffer(NetOutgoingMessage buffer, IRobustSerializer serializer) {
         buffer.Write(Epoch.ToByteArray());
         var nonce = Convert.FromHexString(Nonce);
-        if (nonce.Length != 32) throw new FormatException("Invalid native identity challenge.");
+        if (nonce.Length != 32) throw new ArgumentException("Invalid native identity challenge.");
         buffer.Write(nonce);
     }
 }

@@ -27,6 +27,8 @@ jobs:
           python-version: '3.12'
       - name: Apply one ownership omission in disposable CI checkout
         run: python tests/exception_ownership/control.py '${{ matrix.control }}'
+      - name: Apply pinned trusted client host patch
+        run: python tools/civ13-provenance/prepare-robust.py
       - name: Compile actual engine and connected tests
         run: dotnet build --configuration Release --property WarningLevel=4 /m
       - name: Verify intended connected native failure

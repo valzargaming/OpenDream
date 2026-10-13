@@ -3,7 +3,7 @@ using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace OpenDreamClient.NativeByond;
+namespace Robust.Client.NativeByond;
 
 public readonly record struct NativeIdentityRequest(Guid Epoch, string Nonce);
 public readonly record struct NativeIdentityReport(Guid Epoch, string Nonce, string Key, string ComputerId);
@@ -23,7 +23,7 @@ public sealed class UnavailableNativeIdentityProvider : INativeIdentityProvider 
 /// Client-thread coordinator. No username/config/CLI input is an identity source.
 /// The native report remains client-reported, without spoof-resistance claims.
 /// </summary>
-public sealed class NativeIdentityCoordinator(INativeIdentityProvider provider, TimeProvider? time = null) : IDisposable {
+public sealed class NativeIdentityCoordinator(INativeIdentityProvider provider, TimeProvider? time = null, string startupAddress = "") : IDisposable {
     public static readonly TimeSpan Lifetime = TimeSpan.FromSeconds(60);
     private readonly TimeProvider _time = time ?? TimeProvider.System;
     private long _started;
@@ -36,6 +36,7 @@ public sealed class NativeIdentityCoordinator(INativeIdentityProvider provider, 
     private bool _channelUsed;
     private bool _disposed;
     public NativeIdentityReport? Identity => _identity;
+    public string StartupAddress { get; } = startupAddress;
     public bool Pending => _pending != null;
 
     public void Begin() {

@@ -6,13 +6,13 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace OpenDreamClient.NativeByond;
+namespace Robust.Client.NativeByond;
 
 /// <summary>
 /// Windows native BYOND observation. Executables and a CI-built helper are operator-configured.
 /// Opens the registered BYOND URI handler to use its logged-in account; never reads credentials.
 /// </summary>
-public sealed class FileNativeObserverHost : INativeObserverHost {
+internal sealed class FileNativeObserverHost : INativeObserverHost {
     public Task<INativeObservation> StartAsync(NativeObserverOptions options, NativeIdentityRequest request,
         CancellationToken cancellation) => Task.Run<INativeObservation>(() => Start(options, request, cancellation), cancellation);
 

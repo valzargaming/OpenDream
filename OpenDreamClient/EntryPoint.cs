@@ -4,7 +4,7 @@ using OpenDreamClient.Interface;
 using OpenDreamClient.Rendering;
 using OpenDreamClient.Rendering.Particles;
 using OpenDreamClient.Resources;
-using OpenDreamClient.NativeByond;
+using Robust.Client.NativeByond;
 using OpenDreamClient.States;
 using OpenDreamShared;
 using OpenDreamShared.Network.Messages;

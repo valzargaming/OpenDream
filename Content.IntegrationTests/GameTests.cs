@@ -5,7 +5,7 @@ using OpenDreamRuntime;
 using OpenDreamRuntime.Objects;
 using OpenDreamRuntime.Objects.Types;
 using OpenDreamRuntime.Procs;
-using OpenDreamClient.NativeByond;
+using Robust.Client.NativeByond;
 using OpenDreamShared;
 using Robust.Shared.IoC;
 

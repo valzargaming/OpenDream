@@ -11,11 +11,11 @@ public sealed class MsgNativeIdentityReport : NetMessage {
     public byte[] Body = Array.Empty<byte>();
     public override void ReadFromBuffer(NetIncomingMessage buffer, IRobustSerializer serializer) {
         var count = buffer.ReadVariableInt32();
-        if (count <= 0 || count > MaximumBodyBytes) throw new FormatException("Invalid native report size.");
+        if (count <= 0 || count > MaximumBodyBytes) throw new ArgumentException("Invalid native report size.");
         Body = buffer.ReadBytes(count);
     }
     public override void WriteToBuffer(NetOutgoingMessage buffer, IRobustSerializer serializer) {
-        if (Body.Length <= 0 || Body.Length > MaximumBodyBytes) throw new FormatException("Invalid native report size.");
+        if (Body.Length <= 0 || Body.Length > MaximumBodyBytes) throw new ArgumentException("Invalid native report size.");
         buffer.WriteVariableInt32(Body.Length);
         buffer.Write(Body);
     }

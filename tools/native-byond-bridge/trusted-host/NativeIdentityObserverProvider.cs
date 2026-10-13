@@ -2,22 +2,22 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace OpenDreamClient.NativeByond;
+namespace Robust.Client.NativeByond;
 
-public readonly record struct NativeObserverOptions(string ByondBin, string ObserverDirectory);
+internal readonly record struct NativeObserverOptions(string ByondBin, string ObserverDirectory);
 
 /// <summary>Owns only the temporary observation world it created, never a game or existing client.</summary>
-public interface INativeObservation : IAsyncDisposable {
+internal interface INativeObservation : IAsyncDisposable {
     Task<NativeIdentityReport?> ReadAsync(NativeIdentityRequest request, CancellationToken cancellation);
 }
 
-public interface INativeObserverHost {
+internal interface INativeObserverHost {
     Task<INativeObservation> StartAsync(NativeObserverOptions options, NativeIdentityRequest request,
         CancellationToken cancellation);
 }
 
 /// <summary>External effects are injected. Each completed, failed or canceled attempt releases its world.</summary>
-public sealed class NativeIdentityObserverProvider(INativeObserverHost host,
+internal sealed class NativeIdentityObserverProvider(INativeObserverHost host,
     Func<NativeObserverOptions> options) : INativeIdentityProvider {
     private readonly SemaphoreSlim _serial = new(1, 1);
 

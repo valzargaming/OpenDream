@@ -38,3 +38,22 @@ Actual native account/CID parity and a real authenticated admin join/save have n
 been established by injected tests or compilation. Do not activate or deploy this
 path until those acceptance gates pass. Player identity is not MCP administrator
 authorization.
+
+## Trusted native host boundary
+
+The native observer coordinator and host are compiled into the pinned trusted
+`Robust.Client` engine through `tools/civ13-provenance/robust-auth.patch`.
+Downloadable OpenDream content receives bounded begin, poll, handshake, report
+and clear operations. The file/process host, observer options and provider are
+internal engine types. Executable and helper paths are frozen from operator
+configuration before content loads; changing a CVar from content cannot retarget
+an observation. No sandbox/type-check policy is relaxed.
+
+Use `python tools/civ13-provenance/prepare-robust.py` before ordinary solution
+builds. It accepts only the exact pinned revision and exact declared patch.
+The coherent package includes `standalone/` with the Tools loader under
+`RobustToolbox/bin/Client`, pinned `RobustToolbox/Resources`, content `Resources`
+and `bin/Content.Client`. `standalone-layout.json` binds every file. The remote
+package check runs a sandboxed headless startup in a fresh temporary copy without
+connecting to a server or acquiring a BYOND identity. It does not establish
+native account/CID, rendering, admin admission or save acceptance.

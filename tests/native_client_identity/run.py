@@ -9,7 +9,7 @@ root = pathlib.Path(__file__).resolve().parents[2]
 parser = argparse.ArgumentParser()
 parser.add_argument('--control', choices=['name', 'reuse', 'reconnect', 'binding', 'deadline'])
 args = parser.parse_args()
-source = root / 'OpenDreamClient/NativeByond/NativeIdentityCoordinator.cs'
+source = root / 'tools/native-byond-bridge/trusted-host/NativeIdentityCoordinator.cs'
 controls = {
     'name': ('applyOverride(observed.Key);', '// omitted native name override', 'native name replaces supplied name'),
     'reuse': ('_disposed || _handshakeUsed ||', '_disposed ||', 'one observation cannot authorize another handshake'),

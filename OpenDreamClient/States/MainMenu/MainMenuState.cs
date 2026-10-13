@@ -1,5 +1,5 @@
 using System.Text.RegularExpressions;
-using OpenDreamClient.NativeByond;
+using Robust.Client.NativeByond;
 using Robust.Shared.Timing;
 using Robust.Client;
 using Robust.Client.ResourceManagement;
@@ -33,10 +33,7 @@ public sealed partial class MainMenuState : State {
 
     protected override void Startup() {
         _mainMenuControl = new MainMenuControl(_resourceCache, _configurationManager);
-        if (_controllerProxy.LaunchState.ConnectEndpoint is { } endpoint) {
-            var host = endpoint.Host.Contains(':') ? $"[{endpoint.Host}]" : endpoint.Host;
-            _mainMenuControl.AddressBox.Text = $"{host}:{endpoint.Port}";
-        }
+        _mainMenuControl.AddressBox.Text = _nativeIdentity.StartupAddress;
         _userInterfaceManager.StateRoot.AddChild(_mainMenuControl);
 
         _mainMenuControl.QuitButton.OnPressed += QuitButtonPressed;

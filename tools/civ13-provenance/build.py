@@ -9,6 +9,7 @@ import subprocess
 import sys
 import time
 import zipfile
+from standalone import package_layout, smoke
 
 ROOT = Path(__file__).resolve().parents[2]
 ROBUST = "af2a7d0406b410c4d960f0f4b34513651c6dc742"
@@ -108,16 +109,9 @@ try:
         raise RuntimeError("RobustToolbox revision differs from pinned gitlink")
     patch = ROOT/"tools/civ13-provenance/robust-auth.patch"
     receipt["robust_auth_patch_sha256"] = digest(patch)
-    # A previously prepared checkout is accepted only if the exact patch can reverse cleanly.
-    probe = subprocess.run(["git", "apply", "--reverse", "--check", str(patch)],
-                           cwd=ROOT/"RobustToolbox", capture_output=True)
-    if probe.returncode:
-        subprocess.run(["git", "apply", "--check", str(patch)], cwd=ROOT/"RobustToolbox", check=True)
-        subprocess.run(["git", "apply", str(patch)], cwd=ROOT/"RobustToolbox", check=True)
-    effective = subprocess.check_output(["git", "diff", "--no-ext-diff", "--no-color", "--binary",
-                                          "--abbrev=7", "--no-renames", "HEAD"], cwd=ROOT/"RobustToolbox")
-    if effective.replace(b"\r\n", b"\n") != patch.read_bytes().replace(b"\r\n", b"\n"):
-        raise RuntimeError("Robust effective diff differs from the declared authentication patch")
+    # Normalize patch line endings while preserving the exact declared effective diff.
+    subprocess.run([sys.executable, str(ROOT/"tools/civ13-provenance/prepare-robust.py")],
+                   cwd=ROOT, check=True, timeout=60)
     reject_untracked_inputs(ROOT/"RobustToolbox")
     receipt["engine_sources"] = source_inventory(ROOT)
     receipt["robust_sources"] = source_inventory(ROOT/"RobustToolbox")
@@ -239,6 +233,8 @@ try:
                                                    {"sha256": digest(path), "bytes": path.stat().st_size}
                                                    for directory in (OUT/"auth-loader", OUT/"auth-webview")
                                                    for path in sorted(directory.rglob("*")) if path.is_file()}
+        receipt["standalone_layout"] = package_layout(OUT, ROOT)
+        receipt["standalone_startup"] = smoke(OUT, args.dotnet, receipt["standalone_layout"])
         receipt["artifacts"] = {str(p.relative_to(ROOT)) if p.is_relative_to(ROOT) else p.name:
                                  {"sha256": digest(p), "bytes": p.stat().st_size}
                                  for p in [archive, candidate_shared, candidate_loader, candidate_runtime, client/"OpenDreamClient.dll", client/"OpenDreamShared.dll",

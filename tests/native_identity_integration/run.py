@@ -13,9 +13,9 @@ args = parser.parse_args()
 files = [root / path for path in [
     'OpenDreamRuntime/NativeByondBridge/NativeClientReportLedger.cs',
     'OpenDreamRuntime/NativeByondBridge/NativeIdentityAdmissionGate.cs',
-    'OpenDreamClient/NativeByond/NativeIdentityCoordinator.cs',
-    'OpenDreamClient/NativeByond/NativeIdentityObserverProvider.cs',
-    'OpenDreamClient/NativeByond/FileNativeObserverHost.cs',
+    'tools/native-byond-bridge/trusted-host/NativeIdentityCoordinator.cs',
+    'tools/native-byond-bridge/trusted-host/NativeIdentityObserverProvider.cs',
+    'tools/native-byond-bridge/trusted-host/FileNativeObserverHost.cs',
     'tests/native_identity_integration/Program.cs']]
 controls = {
     'consume': (1, '_attempts.Remove(binding, out var attempt)', '_attempts.TryGetValue(binding, out var attempt)', 'admission replay rejected'),
