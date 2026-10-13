@@ -195,3 +195,18 @@ var/global/list/areas_by_type = list()
         if(error.name != "Destination is too short. (Parameter 'destination')")
             throw error
         return count == 257
+
+// Source-only candidate: these ordinary call statements remain compiler/runtime UNRUN.
+/proc/call_ext_string_rejection_probe(payload)
+	try
+		call("ownership_rejection_unused", "symbol@failure")(payload)
+	catch(var/exception/error)
+		return error.name
+	return "missing resolver rejection"
+
+/proc/call_ext_byond_rejection_probe(payload)
+	try
+		call("ownership_rejection_unused", "byond:symbol@failure")(payload)
+	catch(var/exception/error)
+		return error.name
+	return "missing resolver rejection"
