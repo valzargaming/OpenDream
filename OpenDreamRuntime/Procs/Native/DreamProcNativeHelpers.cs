@@ -174,6 +174,32 @@ internal static partial class DreamProcNativeHelpers {
         return tiles;
     }
 
+    /// <summary>Use the same visibility and center semantics for view(), oview() and verb access.</summary>
+    public static DreamList HandleView(AtomManager atomManager, IDreamMapManager mapManager, DreamObjectAtom center, ViewRange range, bool includeCenter) {
+        var view = center.ObjectDefinition.ObjectTree.CreateList();
+        if (includeCenter) {
+            if (center.TryGetVariable("contents", out var contents) && contents.TryGetValueAsDreamList(out var contentsList)) {
+                foreach (var item in contentsList.EnumerateValues())
+                    view.AddValue(item);
+            }
+            contents.Dispose();
+        }
+
+        var eyePos = atomManager.GetAtomPosition(center);
+        var viewData = CollectViewData(atomManager, mapManager, eyePos, range);
+        ViewAlgorithm.CalculateVisibility(viewData);
+        foreach (var tile in MakeViewSpiral(viewData, includeCenter)) {
+            if (tile == null || !tile.IsVisible)
+                continue;
+            if (!mapManager.TryGetCellAt((eyePos.X + tile.DeltaX, eyePos.Y + tile.DeltaY), eyePos.Z, out var cell))
+                continue;
+            view.AddValue(new(cell.Turf));
+            foreach (var movable in cell.Movables)
+                view.AddValue(new(movable));
+        }
+        return view;
+    }
+
     public static DreamList HandleRange(DreamObjectAtom center, ViewRange range, bool includeCenter) {
         HashSet<DreamObjectArea> seenAreas = [];
         DreamList rangeList = center.ObjectDefinition.ObjectTree.CreateList(range.Height * range.Width);

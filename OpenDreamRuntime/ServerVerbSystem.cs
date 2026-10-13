@@ -4,6 +4,7 @@ using DMCompiler.DM;
 using OpenDreamRuntime.Objects;
 using OpenDreamRuntime.Objects.Types;
 using OpenDreamRuntime.Procs.Native;
+using OpenDreamRuntime.Map;
 using OpenDreamShared.Dream;
 using Robust.Server.Player;
 using Robust.Shared.Enums;
@@ -14,6 +15,7 @@ namespace OpenDreamRuntime;
 public sealed partial class ServerVerbSystem : VerbSystem {
     [Dependency] private DreamManager _dreamManager = default!;
     [Dependency] private AtomManager _atomManager = default!;
+    [Dependency] private IDreamMapManager _mapManager = default!;
     [Dependency] private DreamObjectTree _objectTree = default!;
     [Dependency] private IPlayerManager _playerManager = default!;
 
@@ -286,8 +288,8 @@ public sealed partial class ServerVerbSystem : VerbSystem {
                 DreamList viewCollection;
                 if(verbAccessibility.IsRange()) {
                     viewCollection = DreamProcNativeHelpers.HandleRange(connection.Mob, new(verbInfo.Range), !verbAccessibility.IsO());
-                } else { // TODO implement view
-                    viewCollection = DreamProcNativeHelpers.HandleRange(connection.Mob, new(verbInfo.Range), !verbAccessibility.IsO());
+                } else {
+                    viewCollection = DreamProcNativeHelpers.HandleView(_atomManager, _mapManager, connection.Mob, new(verbInfo.Range), !verbAccessibility.IsO());
                 }
 
                 var inRange = viewCollection.ContainsValue(new(srcAtom));

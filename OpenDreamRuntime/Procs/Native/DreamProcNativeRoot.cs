@@ -1828,31 +1828,10 @@ internal static class DreamProcNativeRoot {
     [DreamProcParameter("Dist", Type = DreamValueTypeFlag.Float, DefaultValue = 5)]
     [DreamProcParameter("Center", Type = DreamValueTypeFlag.DreamObject)]
     public static DreamValue NativeProc_oview(NativeProc.Bundle bundle, DreamObject? src, DreamObject? usr) {
-        DreamList view = bundle.ObjectTree.CreateList();
-
         (DreamObjectAtom? center, ViewRange range) = DreamProcNativeHelpers.ResolveViewArguments(bundle.DreamManager, usr as DreamObjectAtom, bundle.Arguments);
-        if (center is null)
-            return new(view);
-
-        var eyePos = bundle.AtomManager.GetAtomPosition(center);
-        var viewData = DreamProcNativeHelpers.CollectViewData(bundle.AtomManager, bundle.MapManager, eyePos, range);
-
-        ViewAlgorithm.CalculateVisibility(viewData);
-
-        var mapManager = bundle.MapManager;
-        foreach (var tile in DreamProcNativeHelpers.MakeViewSpiral(viewData, false)) {
-            if (tile == null || tile.IsVisible == false)
-                continue;
-            if (!mapManager.TryGetCellAt((eyePos.X + tile.DeltaX, eyePos.Y + tile.DeltaY), eyePos.Z, out var cell))
-                continue;
-
-            view.AddValue(new(cell.Turf));
-            foreach (var movable in cell.Movables) {
-                view.AddValue(new(movable));
-            }
-        }
-
-        return new DreamValue(view);
+        return center is null
+            ? new(bundle.ObjectTree.CreateList())
+            : new(DreamProcNativeHelpers.HandleView(bundle.AtomManager, bundle.MapManager, center, range, false));
     }
 
     [DreamProc("oviewers")]
@@ -3120,40 +3099,10 @@ internal static class DreamProcNativeRoot {
     [DreamProcParameter("Dist", Type = DreamValueTypeFlag.Float, DefaultValue = 5)]
     [DreamProcParameter("Center", Type = DreamValueTypeFlag.DreamObject)]
     public static DreamValue NativeProc_view(NativeProc.Bundle bundle, DreamObject? src, DreamObject? usr) {
-        DreamList view = bundle.ObjectTree.CreateList();
-
         (DreamObjectAtom? center, ViewRange range) = DreamProcNativeHelpers.ResolveViewArguments(bundle.DreamManager, usr as DreamObjectAtom, bundle.Arguments);
-        if (center is null)
-            return new(view);
-
-        if (center.TryGetVariable("contents", out var centerContents) && centerContents.TryGetValueAsDreamList(out var centerContentsList)) {
-            foreach (var item in centerContentsList.EnumerateValues()) {
-                view.AddValue(item);
-            }
-        }
-
-        centerContents.Dispose();
-
-        // Center gets included during the walk through the tiles
-
-        var eyePos = bundle.AtomManager.GetAtomPosition(center);
-        var viewData = DreamProcNativeHelpers.CollectViewData(bundle.AtomManager, bundle.MapManager, eyePos, range);
-
-        ViewAlgorithm.CalculateVisibility(viewData);
-
-        foreach (var tile in DreamProcNativeHelpers.MakeViewSpiral(viewData, true)) {
-            if (tile == null || tile.IsVisible == false)
-                continue;
-            if (!bundle.MapManager.TryGetCellAt((eyePos.X + tile.DeltaX, eyePos.Y + tile.DeltaY), eyePos.Z, out var cell))
-                continue;
-
-            view.AddValue(new(cell.Turf));
-            foreach (var movable in cell.Movables) {
-                view.AddValue(new(movable));
-            }
-        }
-
-        return new DreamValue(view);
+        return center is null
+            ? new(bundle.ObjectTree.CreateList())
+            : new(DreamProcNativeHelpers.HandleView(bundle.AtomManager, bundle.MapManager, center, range, true));
     }
 
     [DreamProc("viewers")]
