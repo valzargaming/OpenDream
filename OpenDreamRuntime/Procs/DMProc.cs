@@ -593,9 +593,8 @@ public sealed class DMProcState : ProcState {
             DreamValue value;
 
             if (exception is DMThrowException throwException) {
-                // DMThrowException incremements its Value's ref count
-                // Let's consider this an ownership transfer, so no IncRef/DecRef is needed
-                value = throwException.Value;
+                // Transfer the throw wrapper's owned reference to the local.
+                value = throwException.TakeValue();
             } else {
                 // CreateException's reference is transferred to the local var
                 value = new DreamValue(DreamManager.CreateException(exception, file, line));

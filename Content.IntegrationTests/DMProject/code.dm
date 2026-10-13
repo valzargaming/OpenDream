@@ -1,4 +1,43 @@
 //Setup code - put whatever you need for testing here.
+/proc/exception_discard_probe(payload)
+	try
+		throw payload
+	catch
+		return 1
+
+/proc/exception_bound_probe(payload)
+	try
+		throw payload
+	catch(var/caught)
+		return caught
+
+/proc/exception_nested_probe(payload)
+	try
+		try
+			throw payload
+		catch(var/caught)
+			if(caught != payload)
+				CRASH("Nested catch changed thrown value")
+			throw caught
+	catch(var/rethrown)
+		return rethrown
+
+/proc/exception_uncaught_probe(payload)
+	exception_ownership_expected_payload = payload
+	throw payload
+
+var/global/exception_ownership_expected_payload
+/world/Error(exception/error)
+	if(exception_ownership_expected_payload)
+		var/matched = (error.name == exception_ownership_expected_payload)
+		exception_ownership_expected_payload = null
+		if(!matched)
+			CRASH("Uncaught exception changed thrown payload")
+		// The engine test harness fails on error-level logs. Only this expected
+		// throw is consumed; unrelated runtime errors still use the native path.
+		return
+	return ..()
+
 /proc/spawn_pool_reuse_probe(count, datum/payload)
 	var/datum/captured = payload
 	var/list/completed = list(0)

@@ -105,13 +105,23 @@ namespace OpenDreamRuntime {
     }
 
     [Virtual]
-    internal class DMThrowException : Exception {
-        public readonly DreamValue Value;
+    internal class DMThrowException : Exception, IDisposable {
+        private DreamValue _value;
 
         public DMThrowException(DreamValue value) : base(GetRuntimeMessage(value))  {
-            Value = value;
-            Value.IncRef(); // Better hope we're gracefully caught!
+            _value = value;
+            _value.IncRef();
         }
+
+        // Transfer the owned reference exactly once, including clearing the CLR
+        // reference retained by LastDMException and debugger exception history.
+        public DreamValue TakeValue() {
+            var value = _value;
+            _value = DreamValue.Null;
+            return value;
+        }
+
+        public void Dispose() => TakeValue().Dispose();
 
         private static string GetRuntimeMessage(DreamValue value) {
             string? name;
@@ -510,8 +520,12 @@ namespace OpenDreamRuntime {
                 inWorldError = top.Proc?.OwningType == dreamMan.WorldInstance.ObjectDefinition.TreeEntry && top.Proc?.Name == "Error";
             }
 
-            dreamMan.HandleException(exception, msg, file, line, inWorldError: inWorldError);
-            IoCManager.Resolve<IDreamDebugManager>().HandleException(this, exception);
+            try {
+                dreamMan.HandleException(exception, msg, file, line, inWorldError: inWorldError);
+                IoCManager.Resolve<IDreamDebugManager>().HandleException(this, exception);
+            } finally {
+                (exception as DMThrowException)?.Dispose();
+            }
         }
 
         public IEnumerable<ProcState> InspectStack() {
@@ -537,7 +551,12 @@ namespace OpenDreamRuntime {
                 PopProcState();
             }
 
-            _current.CatchException(exception, file, line);
+            try {
+                _current.CatchException(exception, file, line);
+            } finally {
+                // A catch without a binding still consumes the thrown value.
+                (exception as DMThrowException)?.Dispose();
+            }
             return true;
         }
 
