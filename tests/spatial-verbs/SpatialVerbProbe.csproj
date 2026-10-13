@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><TargetFramework>net10.0</TargetFramework><OutputType>Exe</OutputType><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable></PropertyGroup>
+  <ItemGroup>
+    <Compile Include="obj/GeneratedProduction.cs" Link="GeneratedProduction.cs" />
+    <Compile Include="../../OpenDreamShared/Dream/ViewAlgorithm.cs" Link="ViewAlgorithm.cs" />
+    <Compile Include="../../OpenDreamShared/Dream/ViewRange.cs" Link="ViewRange.cs" />
+  </ItemGroup>
+</Project>

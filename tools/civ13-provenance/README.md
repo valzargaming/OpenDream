@@ -20,10 +20,15 @@ The receipt binds the exact source tree, dependency patch, SDK, logs and output
 hashes. Tests require 211 glide assertions, two intended movement failures,
 direction-copy assertions and an intended historical direction-copy failure.
 Full client, Shared, server and authentication-loader builds follow the probes.
+Spatial verb production-body assertions and two intended historical failures
+also run before the final rebuild. A Runtime DLL candidate is now retained
+with its exact source/hash receipt for the server authorization change.
 The candidate mount contains matching client/Shared assemblies and source
 resources. The installed Gaia runtime has a separate spawn-pool patch at
 `10360211767d6ea26fa20e1a32d2b2da84a1f9b1`; these outputs must never overwrite
-that runtime DLL. No merge, installation, packaging release or runtime restart
+that runtime DLL without a separate reviewed runtime candidate/rollback and
+the exclusive runtime owner's tested replacement slot. The current source
+retains the merged spawn-pool patch. No installation, packaging release or runtime restart
 is performed by this workflow.
 
 Historical installed hashes `7c4f17e9...` (client mount) and `59454ebf...`

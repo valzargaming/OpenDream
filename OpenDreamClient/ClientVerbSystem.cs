@@ -111,7 +111,7 @@ public sealed partial class ClientVerbSystem : VerbSystem {
             foreach (var verbId in appearance.Verbs) {
                 if (!_verbs.TryGetValue(verbId, out var verb))
                     continue;
-                if (verb.IsHidden(ignoreHiddenAttr, seeInvisibility!.Value))
+                if (verb.IsHidden(ignoreHiddenAttr, seeInvisibility ?? 0))
                     continue;
 
                 // Check the verb's "set src" allows us to execute this
@@ -151,7 +151,7 @@ public sealed partial class ClientVerbSystem : VerbSystem {
                     case VerbAccessibility.InRange:
                     case VerbAccessibility.ORange:
                     case VerbAccessibility.InORange: {
-                        if(_playerManager.LocalEntity is not null)
+                        if(_playerManager.LocalEntity is null)
                             continue;
                         if(verb.Range < 0)
                             continue;

@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import time
 import zipfile
 
@@ -154,6 +155,9 @@ try:
             probe(projects[1], "icon-historical-control", failure="normalized SOUTH frame must insert")
         finally:
             target.write_bytes(original)
+        run([sys.executable, "tests/spatial-verbs/run.py", "--dotnet", args.dotnet],
+            "spatial-verbs", expected="PASS both historical spatial-verb controls")
+        shutil.copy2(ROOT/"tests/spatial-verbs/obj/source-receipt.json", OUT/"spatial-source-receipt.json")
         for index, project in enumerate(projects[2:]):
             run([args.dotnet, "build", project, "-c", "Release", "-t:Rebuild",
                  "--no-restore", "--disable-build-servers", "-m:1", "-p:UseSharedCompilation=false",
@@ -174,12 +178,14 @@ try:
                 z.write(client/name, "Assemblies/"+name)
         candidate_shared = OUT/"OpenDreamShared.dll"
         candidate_loader = OUT/"Robust.Client.dll"
+        candidate_runtime = OUT/"OpenDreamRuntime.dll"
         shutil.copy2(server/"OpenDreamShared.dll", candidate_shared)
+        shutil.copy2(server/"OpenDreamRuntime.dll", candidate_runtime)
         loader = ROOT/"RobustToolbox/bin/Client/Robust.Client.dll"
         shutil.copy2(loader, candidate_loader)
         receipt["artifacts"] = {str(p.relative_to(ROOT)) if p.is_relative_to(ROOT) else p.name:
                                  {"sha256": digest(p), "bytes": p.stat().st_size}
-                                 for p in [archive, candidate_shared, candidate_loader, client/"OpenDreamClient.dll", client/"OpenDreamShared.dll",
+                                 for p in [archive, candidate_shared, candidate_loader, candidate_runtime, client/"OpenDreamClient.dll", client/"OpenDreamShared.dll",
                                            server/"OpenDreamShared.dll", loader]}
         receipt["build"] = "passed"
     receipt["checks"] = checks
