@@ -4,6 +4,7 @@ using OpenDreamClient.Interface;
 using OpenDreamClient.Rendering;
 using OpenDreamClient.Rendering.Particles;
 using OpenDreamClient.Resources;
+using OpenDreamClient.NativeByond;
 using OpenDreamClient.States;
 using OpenDreamShared;
 using OpenDreamShared.Network.Messages;
@@ -26,6 +27,8 @@ public sealed partial class EntryPoint : GameClient {
     [Dependency] private IClientNetManager _netManager = default!;
     [Dependency] private ParticlesManager _particleManager = default!;
     [Dependency] private IEntitySystemManager _entitySystemManager = default!;
+    [Dependency] private NativeIdentityCoordinator _nativeIdentity = default!;
+    [Dependency] private Robust.Client.IBaseClient _baseClient = default!;
 
     private const string IEUserAgent =
         "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.2; WOW64; Trident/7.0; .NET4.0C; .NET4.0E; .NET CLR 2.0.50727; .NET CLR 3.0.30729; .NET CLR 3.5.30729)";
@@ -58,6 +61,15 @@ public sealed partial class EntryPoint : GameClient {
 
         IoCManager.BuildGraph();
         IoCManager.InjectDependencies(this);
+        // Subscribe before UI transitions. BaseClient sends the login name after this event.
+        _baseClient.RunLevelChanged += (_, args) => {
+            if (args.NewLevel == Robust.Client.ClientRunLevel.Connecting) {
+                _nativeIdentity.AuthorizeHandshake(name => _baseClient.PlayerNameOverride = name);
+            } else if (args.NewLevel is Robust.Client.ClientRunLevel.Initialize or Robust.Client.ClientRunLevel.Error) {
+                _baseClient.PlayerNameOverride = null;
+                _nativeIdentity.Clear();
+            }
+        };
 
         _configurationManager.OverrideDefault(CVars.NetPredict, false);
         _configurationManager.OverrideDefault(CVars.ResAutoScaleEnabled, false); // Fixes weird scaling when sizing windows too small

@@ -11,9 +11,9 @@
                               HorizontalAlignment="Center">
                     <BoxContainer Orientation="Horizontal"
                                   SeparationOverride="4">
-                        <Label Text="Username: " FontColorOverride="#FFFFFF"/>
-                        <LineEdit Name="UsernameBoxProtected"
-                                  PlaceHolder="JoeGenero"
+                        <Label Text="BYOND account: " FontColorOverride="#FFFFFF"/>
+                        <Label Name="NativeAccountProtected"
+                                  Text="Log into BYOND to connect"
                                   HorizontalExpand="True" />
                     </BoxContainer>
                     <Control MinSize="0 2" />

@@ -1,11 +1,34 @@
 name: Isolated native identity handoff
 on:
   pull_request:
-    paths: ['OpenDreamRuntime/NativeByondBridge/**', 'tests/native_byond_proof/**', 'tools/native-byond-bridge/**', '.github/workflows/native-byond-proof.yml']
+    paths: ['OpenDreamRuntime/NativeByondBridge/**', 'OpenDreamClient/**', 'tests/native_client_identity/**', 'tests/native_byond_proof/**', 'tools/native-byond-bridge/**', '.github/workflows/native-byond-proof.yml']
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
+  client-identity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    strategy:
+      fail-fast: false
+      matrix:
+        probe: [positive, name, reuse, reconnect, binding]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Positive injected native observer probe
+        if: matrix.probe == 'positive'
+        run: python tests/native_client_identity/run.py
+      - name: Reject omitted client identity guard
+        if: matrix.probe != 'positive'
+        run: python tests/native_client_identity/run.py --control '${{ matrix.probe }}'
   ledger:
     runs-on: ubuntu-latest
     timeout-minutes: 8
