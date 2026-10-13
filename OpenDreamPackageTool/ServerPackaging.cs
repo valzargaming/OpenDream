@@ -186,26 +186,9 @@ public static class ServerPackaging {
     }
 
     private static void CopyContentAssemblies(string dest) {
-        List<string> files = new();
         string sourceDir = Path.Combine("bin", "Content.Server");
-        string[] baseAssemblies = ServerContentAssemblies;
-
-        // Additional assemblies that need to be copied such as EFCore.
-        foreach (var filename in Directory.EnumerateFiles(sourceDir)) {
-            if (ServerExtraAssemblies.Any(assembly => filename.StartsWith(assembly)) &&
-                !ServerNotExtraAssemblies.Any(assembly => filename.StartsWith(assembly)))
-                files.Add(filename);
-        }
-
-        // Include content assemblies.
-        foreach (var assembly in baseAssemblies) {
-            files.Add(assembly + ".dll");
-
-            // If PDB available, include it as well.
-            var pdbPath = assembly + ".pdb";
-            if (File.Exists(Path.Combine(sourceDir, pdbPath)))
-                files.Add(pdbPath);
-        }
+        var files = ContentAssemblySelection.Select(sourceDir, ServerContentAssemblies,
+            ServerExtraAssemblies, ServerNotExtraAssemblies);
 
         // Create assemblies dir if necessary.
         Directory.CreateDirectory(dest);
