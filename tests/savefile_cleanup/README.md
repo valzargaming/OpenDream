@@ -26,6 +26,12 @@ omitted final directory eviction. Logs and receipts bind the checkout and
 fixture sources. They do not establish complete-interpreter behavior, native
 client acceptance, gameplay performance, or a cause of Gaia's memory growth.
 
+`Content.IntegrationTests/GameTests.Savefile.cs` additionally reuses the existing
+connected integration server to exercise 200 failed/uninitialized disposals
+and normal shared-file contents through real engine objects, resources,
+polymorphic JSON, and `DreamRefManager.LocateRef`. It performs no forced CLR GC.
+The package-free write-failure and omission cases remain separate evidence.
+
 On the shared Windows investigation host, use `guard-windows.py` only with the
 runtime owner's fresh resource grant. It gates its child before execution,
 uses a kill-on-close job with a hard 2 GiB aggregate commit limit, and samples
