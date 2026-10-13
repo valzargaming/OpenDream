@@ -1,0 +1,36 @@
+name: Client verb catalog regressions
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+jobs:
+  handlers:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Production handler ordering and omission controls
+        shell: pwsh
+        run: |
+          $sdk = (Get-Command dotnet).Source
+          python tests/verb_catalog/run.py --dotnet $sdk --all-controls --output "$env:RUNNER_TEMP/verb-catalog-receipts"
+          if ($LASTEXITCODE -ne 0) { throw 'Verb catalog regression failed' }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: verb-catalog-${{ matrix.os }}
+          path: ${{ runner.temp }}/verb-catalog-receipts
+          if-no-files-found: ignore
