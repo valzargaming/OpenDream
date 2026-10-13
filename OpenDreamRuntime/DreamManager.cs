@@ -104,6 +104,7 @@ public sealed partial class DreamManager {
     public void Update() {
         if (!Initialized)
             return;
+        UpdateNativeAdmission();
 
         using (Profiler.BeginZone("Tick", color: (uint)Color.OrangeRed.ToArgb())) {
             CurrentTickStart = Environment.TickCount64;

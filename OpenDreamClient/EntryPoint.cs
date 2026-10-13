@@ -109,6 +109,13 @@ public sealed partial class EntryPoint : GameClient {
         IoCManager.Resolve<IDreamSoundEngine>().Initialize();
 
         _netManager.RegisterNetMessage<MsgAllAppearances>(RxAllAppearances);
+        _netManager.RegisterNetMessage<MsgNativeIdentityReport>();
+        _netManager.RegisterNetMessage<MsgNativeIdentityChallenge>(message => {
+            if (_nativeIdentity.TryTakeChannelReport(message.Epoch, message.Nonce, out var body))
+                _netManager.ClientSendMessage(new MsgNativeIdentityReport { Body = body });
+            else
+                message.MsgChannel.Disconnect("A fresh native BYOND observation is required.");
+        });
 
         if (_configurationManager.GetCVar(CVars.DisplayCompat))
             _dreamInterface.OpenAlert(

@@ -5,6 +5,13 @@ namespace OpenDreamShared;
 
 [CVarDefs]
 public abstract class OpenDreamCVars {
+    public static readonly CVarDef<bool> RequireNativeIdentity =
+        CVarDef.Create("opendream.require_native_identity", false, CVar.SERVERONLY);
+    public static readonly CVarDef<string> NativeByondBin =
+        CVarDef.Create("opendream.native_byond_bin", "", CVar.CLIENTONLY);
+    public static readonly CVarDef<string> NativeObserverDirectory =
+        CVarDef.Create("opendream.native_observer_directory", "", CVar.CLIENTONLY);
+
     public static readonly CVarDef<string> JsonPath =
         CVarDef.Create("opendream.json_path", string.Empty, CVar.SERVERONLY);
 

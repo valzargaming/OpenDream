@@ -16,6 +16,7 @@ var/bridge_claimed = FALSE
 /world/New()
     ..()
     fdel("native-report.json")
+    fdel("native-ready.json")
     var/request_text = file2text("bridge-request.json")
     if (!istext(request_text) || length(request_text) > 8192)
         del(world)
@@ -26,6 +27,12 @@ var/bridge_claimed = FALSE
         del(world)
         return
     if (!islist(bridge_request) || !bridge_hex(bridge_request["nonce"]) || !istext(bridge_request["epoch"]) || length(bridge_request["epoch"]) != 36)
+        del(world)
+        return
+    if (!world.port && !world.OpenPort(0))
+        del(world)
+        return
+    if (!text2file(json_encode(list("epoch" = bridge_request["epoch"], "nonce" = bridge_request["nonce"], "port" = world.port)), "native-ready.json"))
         del(world)
         return
     // This is a finite observation world, not a background daemon or game session.

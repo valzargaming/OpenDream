@@ -4,6 +4,9 @@ using OpenDreamRuntime;
 using OpenDreamRuntime.Objects;
 using OpenDreamRuntime.Objects.Types;
 using OpenDreamRuntime.Procs;
+using OpenDreamClient.NativeByond;
+using OpenDreamShared;
+using Robust.Shared.IoC;
 
 namespace Content.IntegrationTests;
 [TestFixture]
@@ -91,7 +94,19 @@ public sealed partial class GameTests : ContentIntegrationTest {
     /// </summary>
     [Test]
     public async Task NoRuntimesTest() {
-        var (client, server) = await StartConnectedServerClientPair();
+        var clientOptions = new ClientContentIntegrationOption {
+            ContentBeforeIoC = () => {
+                var identity = new NativeIdentityCoordinator(new InjectedNativeObserver());
+                identity.Begin();
+                Assert.That(identity.Poll(), Is.True);
+                // The test transport connects directly; mark the same one-use handshake consumed.
+                identity.AuthorizeHandshake(_ => { });
+                IoCManager.RegisterInstance<NativeIdentityCoordinator>(identity, true);
+            }
+        };
+        var serverOptions = new ServerContentIntegrationOption();
+        serverOptions.CVarOverrides[OpenDreamCVars.RequireNativeIdentity.Name] = true;
+        var (client, server) = await StartConnectedServerClientPair(clientOptions, serverOptions);
         await RunTicksSync(client, server, 1000);
         Assert.That(server.IsAlive);
         var manager = server.ResolveDependency<DreamManager>();
@@ -104,6 +119,7 @@ public sealed partial class GameTests : ContentIntegrationTest {
         // Reuse the existing server: BYOND API initialization is process-global.
         await server.WaitAssertion(() => {
             var tree = server.ResolveDependency<DreamObjectTree>();
+            NativeIdentityCreatesObservedClient(manager);
             NativeArgumentsReleaseOwnedValues(manager, tree, server.ResolveDependency<DreamRefManager>());
             ExceptionsReleaseOwnedValues(manager, tree, server.ResolveDependency<DreamRefManager>());
             SavefileFailuresReleaseRegisteredObjects(tree, server.ResolveDependency<DreamRefManager>());

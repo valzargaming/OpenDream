@@ -33,6 +33,7 @@ public sealed class NativeIdentityCoordinator(INativeIdentityProvider provider, 
     private NativeIdentityRequest _request;
     private NativeIdentityReport? _identity;
     private bool _handshakeUsed;
+    private bool _channelUsed;
     private bool _disposed;
     public NativeIdentityReport? Identity => _identity;
     public bool Pending => _pending != null;
@@ -95,9 +96,23 @@ public sealed class NativeIdentityCoordinator(INativeIdentityProvider provider, 
         Clear();
     }
 
+    public bool TryTakeChannelReport(Guid epoch, string nonce, out byte[] body) {
+        body = Array.Empty<byte>();
+        if (Expired) Clear();
+        if (_disposed || !_handshakeUsed || _channelUsed || _identity is not { } report || epoch == Guid.Empty || nonce.Length != 64)
+            return false;
+        foreach (var character in nonce)
+            if (!(character is >= '0' and <= '9' or >= 'A' and <= 'F')) return false;
+        _channelUsed = true;
+        body = System.Text.Encoding.UTF8.GetBytes($"epoch={epoch:D}&nonce={nonce}&key={Uri.EscapeDataString(report.Key)}&cid={report.ComputerId}");
+        _identity = null;
+        return true;
+    }
+
     public void Clear() {
         _identity = null;
         _handshakeUsed = false;
+        _channelUsed = false;
         _request = default;
         _cancellation?.Cancel();
         _cancellation?.Dispose();

@@ -68,7 +68,11 @@ public sealed class DreamObjectClient : DreamObject {
 
                 return true;
             case "computer_id": // FIXME: This is not secure! Whenever RT implements a more robust (heh) method of uniquely identifying computers, replace this impl with that.
-                MD5 md5 = MD5.Create();
+                if (Connection.NativeComputerId is { } nativeComputerId) {
+                    value = new(nativeComputerId);
+                    return true;
+                }
+                using var md5 = MD5.Create();
                 // Check on Robust.Shared.Network.NetUserData.HWId" if you want to seed from how RT does user identification.
                 // We don't use it here because it is probably not enough to ensure security, and (as of time of writing) only works on Windows machines.
                 byte[] brown = Encoding.UTF8.GetBytes(Connection.Key);
