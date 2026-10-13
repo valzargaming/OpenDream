@@ -11,6 +11,8 @@ Run `build.py --output <new-directory>` with .NET 10.0.401 and Python 3.12+.
 Full builds restore their declared dependencies and must not be used in a local
 no-restore resource slot. Untracked source/resources (including ignored files)
 are rejected; the complete Robust diff must equal the declared auth patch.
+Every recursive dependency must match its pinned gitlink, have unchanged tracked
+inputs, and pass the same ignored/untracked input check before inventory.
 Builds use one MSBuild node with compiler servers disabled. No test launches a
 game, connects a client, installs files, changes settings or accesses accounts.
 
