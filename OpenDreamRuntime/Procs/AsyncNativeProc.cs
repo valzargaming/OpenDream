@@ -192,6 +192,8 @@ namespace OpenDreamRuntime.Procs {
                 if (id < 0 || id >= ArgumentCount)
                     throw new IndexOutOfRangeException($"Given argument id ({id}) was out of range");
 
+                value.IncRef();
+                _arguments[id].Dispose();
                 _arguments[id] = value;
             }
         }
