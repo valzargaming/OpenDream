@@ -179,3 +179,19 @@ var/global/list/areas_by_type = list()
 			return error.name == "Destination is too short. (Parameter 'destination')"
 		return error.name == "Index was outside the bounds of the array."
 	return 0
+
+/datum/object_initialization_owner_probe
+    New()
+        return
+
+/proc/object_initialization_new_probe(payload, count)
+    var/list/arguments = new/list(count)
+    arguments[1] = payload
+    try
+        var/datum/created = new /datum/object_initialization_owner_probe(arglist(arguments))
+        del(created)
+        return count == 256
+    catch(var/exception/error)
+        if(error.name != "Destination is too short. (Parameter 'destination')")
+            throw error
+        return count == 257

@@ -1,0 +1,68 @@
+name: Object initialization ownership controls
+on:
+  pull_request:
+    paths: ['OpenDreamRuntime/Procs/InitDreamObject.cs', 'OpenDreamRuntime/Objects/DreamObject.cs', 'OpenDreamRuntime/Procs/DMOpcodeHandlers.cs', 'Content.IntegrationTests/GameTests.ObjectInitialization.cs', 'Content.IntegrationTests/GameTests.cs', 'Content.IntegrationTests/DMProject/code.dm', 'tests/object_initialization/**', '.github/workflows/object-initialization-ownership.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  ownership:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        control: [positive, rejected-dispose, factory-guard, opcode-guard]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          submodules: recursive
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.401
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Record immutable candidate inputs
+        run: |
+          python - <<'PY'
+          import hashlib, json, pathlib, subprocess
+          paths = ['OpenDreamRuntime/Procs/InitDreamObject.cs', 'OpenDreamRuntime/Objects/DreamObject.cs', 'OpenDreamRuntime/Procs/DMOpcodeHandlers.cs', 'Content.IntegrationTests/GameTests.ObjectInitialization.cs', 'Content.IntegrationTests/GameTests.cs', 'Content.IntegrationTests/DMProject/code.dm', 'tests/object_initialization/control.py', 'tests/native_argument_ownership/verify.py', '.github/workflows/object-initialization-ownership.yml']
+          receipt = {'head': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(), 'sha256': {p: hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest() for p in paths}}
+          pathlib.Path('object-initialization-candidate.json').write_text(json.dumps(receipt, indent=2))
+          PY
+      - name: Apply exactly one omission to this disposable checkout
+        if: matrix.control != 'positive'
+        run: python tests/object_initialization/control.py '${{ matrix.control }}' --root .
+      - name: Verify strict structured-result rejection contracts
+        run: |
+          python -m unittest discover -s tests/native_argument_ownership -p test_verify.py -v
+          python -m unittest discover -s tests/object_initialization -p test_verify.py -v
+      - name: Build real engine and connected tests
+        run: dotnet build --configuration Release --property WarningLevel=4 -m:1 -p:UseSharedCompilation=false --disable-build-servers
+      - name: Verify actual production object initialization ownership
+        shell: bash
+        run: |
+          set +e
+          COMPlus_gcServer=1 dotnet test --no-build Content.IntegrationTests/Content.IntegrationTests.csproj --filter 'FullyQualifiedName=Content.IntegrationTests.GameTests.NoRuntimesTest' --logger 'trx;LogFileName=object-initialization.trx' --results-directory object-initialization-results -v n > object-initialization.log 2>&1
+          result=$?
+          set -e
+          tail -80 object-initialization.log
+          if [ '${{ matrix.control }}' = positive ]; then
+            test "$result" -eq 0
+            grep -F 'Passed NoRuntimesTest' object-initialization.log
+          else
+            python tests/object_initialization/control.py '${{ matrix.control }}' --log object-initialization.log --trx object-initialization-results/object-initialization.trx --exit-code "$result"
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: object-initialization-${{ matrix.control }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            object-initialization-candidate.json
+            object-initialization-control-*.json
+            object-initialization.log
+            object-initialization-results/object-initialization.trx
+          retention-days: 14

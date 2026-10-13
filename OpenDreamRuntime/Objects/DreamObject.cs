@@ -324,6 +324,7 @@ public class DreamObject {
     public ProcState InitProc(DreamThread thread, DreamObject? usr, [HandlesResourceDisposal] DreamProcArguments arguments) {
         DebugTools.Assert(!Deleted, "Cannot call InitProc() on a deleted object");
 
+        InitDreamObjectState.ValidateArguments(arguments);
         if (!InitDreamObjectState.Pool.TryPop(out var state)) {
             state = new InitDreamObjectState(ObjectDefinition.DreamManager, ObjectDefinition.ObjectTree);
         }
