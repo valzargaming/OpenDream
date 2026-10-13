@@ -1,0 +1,22 @@
+diff --git a/Robust.Client/GameController/GameController.cs b/Robust.Client/GameController/GameController.cs
+index 60fabdc..8879a8c 100644
+--- a/Robust.Client/GameController/GameController.cs
++++ b/Robust.Client/GameController/GameController.cs
+@@ -320,6 +320,8 @@ namespace Robust.Client
+ 
+             _clyde.Ready();
+ 
++            ProgramShared.RunExecCommands(_console, _commandLineArgs?.ExecCommands);
++
+             if (_resourceManifest!.AutoConnect &&
+                 (_commandLineArgs?.Connect == true || _commandLineArgs?.Launcher == true)
+                 && LaunchState.ConnectEndpoint != null)
+@@ -327,7 +329,7 @@ namespace Robust.Client
+                 _client.ConnectToServer(LaunchState.ConnectEndpoint);
+             }
+ 
+-            ProgramShared.RunExecCommands(_console, _commandLineArgs?.ExecCommands);
++
+ 
+             return true;
+         }

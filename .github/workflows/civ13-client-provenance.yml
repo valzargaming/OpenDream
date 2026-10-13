@@ -1,0 +1,35 @@
+name: Civ13 pinned client provenance
+on:
+  pull_request:
+    paths: ['OpenDreamClient/**', 'OpenDreamShared/**', 'tests/glide/**', 'tests/icon-direction/**', 'tools/civ13-provenance/**', '.github/workflows/civ13-client-provenance.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  pinned-build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          submodules: recursive
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.401
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build pinned client, Shared and authentication loader with behavior controls
+        run: python tools/civ13-provenance/build.py --output provenance-output --timeout 1500
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: civ13-client-provenance-${{ matrix.os }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: provenance-output/
+          retention-days: 14

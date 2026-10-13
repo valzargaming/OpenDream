@@ -215,8 +215,11 @@ public static class DMIParser {
             } else {
                 directions = new(1);
 
+                // Direction-selected icon constructors normalize their frame to SOUTH.
+                // Insert must still copy that single frame into the requested destination direction.
                 if (!Directions.TryGetValue(dir.Value, out var frames))
-                    frames = Array.Empty<ParsedDMIFrame>();
+                    frames = Directions.Count == 1 && Directions.TryGetValue(AtomDirection.South, out var southFrames)
+                        ? southFrames : Array.Empty<ParsedDMIFrame>();
 
                 directions.Add(asSouth ? AtomDirection.South : dir.Value, frames);
             }
