@@ -7,7 +7,7 @@ namespace OpenDreamShared.Network.Messages;
 
 public sealed class MsgNativeIdentityReport : NetMessage {
     public const int MaximumBodyBytes = 8192;
-    public override MsgGroups MsgGroup => MsgGroups.EntityEvent;
+    public override MsgGroups MsgGroup => MsgGroups.Core;
     public byte[] Body = Array.Empty<byte>();
     public override void ReadFromBuffer(NetIncomingMessage buffer, IRobustSerializer serializer) {
         var count = buffer.ReadVariableInt32();

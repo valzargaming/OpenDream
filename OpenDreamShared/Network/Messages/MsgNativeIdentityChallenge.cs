@@ -6,7 +6,8 @@ using Robust.Shared.Serialization;
 namespace OpenDreamShared.Network.Messages;
 
 public sealed class MsgNativeIdentityChallenge : NetMessage {
-    public override MsgGroups MsgGroup => MsgGroups.EntityEvent;
+    // Admission precedes InGame; entity traffic is not available yet.
+    public override MsgGroups MsgGroup => MsgGroups.Core;
     public Guid Epoch;
     public string Nonce = "";
     public override void ReadFromBuffer(NetIncomingMessage buffer, IRobustSerializer serializer) {

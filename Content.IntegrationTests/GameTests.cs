@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using OpenDreamRuntime;
@@ -110,6 +111,15 @@ public sealed partial class GameTests : ContentIntegrationTest {
         await RunTicksSync(client, server, 1000);
         Assert.That(server.IsAlive);
         var manager = server.ResolveDependency<DreamManager>();
+        // Transport connection alone does not establish interface/admission completion.
+        var admissionWait = System.Diagnostics.Stopwatch.StartNew();
+        var joined = false;
+        while (!joined && admissionWait.Elapsed < System.TimeSpan.FromSeconds(15)) {
+            await RunTicksSync(client, server, 1);
+            await server.WaitAssertion(() => joined = manager.Connections.Any(connection => connection.Session != null));
+            await Task.Delay(1);
+        }
+        Assert.That(joined, Is.True, "Actual DM client admission completes before ownership fixtures");
         if(manager.LastDMException is not null) {
             Assert.Fail($"Runtime occurred on server boot: {manager.LastDMException}");
         }
