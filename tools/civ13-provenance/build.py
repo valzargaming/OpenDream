@@ -196,17 +196,25 @@ try:
         for label, project in (("loader", auth_project), ("webview", webview_project)):
             run([args.dotnet, "restore", project, "--disable-parallel", "-p:Configuration=Tools",
                  "-p:RobustToolsBuild=true"], "restore-auth-"+label)
-            run([args.dotnet, "build", project, "-c", "Tools", "-t:Rebuild", "--no-restore",
-                 "--disable-build-servers", "-m:1", "-p:UseSharedCompilation=false", "-p:BuildInParallel=false",
-                 "-p:RobustToolsBuild=true", "-p:ContinuousIntegrationBuild=true",
-                 "-p:PathMap="+str(ROOT)+"=/src"], "build-auth-"+label)
+        # WebView references Client: build that dependency graph once, then publish both
+        # without a second compilation or the Client-only ILLink publication rewrite.
+        run([args.dotnet, "build", webview_project, "-c", "Tools", "-t:Rebuild", "--no-restore",
+             "--disable-build-servers", "-m:1", "-p:UseSharedCompilation=false", "-p:BuildInParallel=false",
+             "-p:RobustToolsBuild=true", "-p:ContinuousIntegrationBuild=true",
+             "-p:PathMap="+str(ROOT)+"=/src"], "build-auth-graph")
+        for label, project in (("loader", auth_project), ("webview", webview_project)):
             run([args.dotnet, "publish", project, "-c", "Tools", "--no-build", "--no-restore",
-                 "-p:RobustToolsBuild=true", "-o", str(OUT/("auth-"+label))], "publish-auth-"+label)
+                 "-p:RobustToolsBuild=true", "-p:RobustILLink=false",
+                 "-o", str(OUT/("auth-"+label))], "publish-auth-"+label)
+        for name in ("Robust.Client.dll", "Robust.Shared.dll", "Robust.Shared.Maths.dll", "Robust.LoaderApi.dll"):
+            if digest(OUT/"auth-loader"/name) != digest(OUT/"auth-webview"/name):
+                raise RuntimeError("Authentication loader/WebView dependency mismatch: " + name)
         loader = OUT/"auth-loader/Robust.Client.dll"
         loader_metadata(loader, "loader-tools-positive")
         shutil.copy2(loader, candidate_loader)
         receipt["authentication_loader"] = {"configuration": "Tools", "RobustToolsBuild": True,
                                              "command": "launchauth", "metadata_contract": "passed",
+                                             "publication_trimming": False, "shared_dependency_hash_agreement": "passed",
                                              "credentials_accessed": False, "authenticated_join": "not run"}
         receipt["authentication_bundle_files"] = {str(path.relative_to(OUT)):
                                                    {"sha256": digest(path), "bytes": path.stat().st_size}

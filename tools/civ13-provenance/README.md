@@ -26,6 +26,9 @@ Release omits `launchauth`: CI requires that Release negative control to fail
 the metadata contract, and the Tools loader to retain the command type, getter,
 Execute method and SQLite reference. Complete loader/WebView dependency bundles
 are hashed separately. This does not read accounts or prove authenticated join.
+Both bundles are published from one rebuilt Tools dependency graph with the
+Client-only ILLink publication rewrite disabled; shared dependency hashes must
+agree exactly. No separately rebuilt or rewritten Client variant is mixed in.
 Spatial verb production-body assertions and two intended historical failures
 also run before the final rebuild. A Runtime DLL candidate is now retained
 with its exact source/hash receipt for the server authorization change.
