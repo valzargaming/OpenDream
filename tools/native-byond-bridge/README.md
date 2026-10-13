@@ -7,7 +7,8 @@ observer rejects guests, accepts only loopback clients and never reads passwords
 account credential storage. This is a client report, without spoof-resistance claims.
 
 The isolated native workflow compiles with BYOND 516.1681 and packages bridge.dmb,
-bridge.rsc and native-observer.json, binding output/source hashes to the exact commit.
+native-observer.json and bridge.rsc when emitted, binding output/source hashes to the exact commit.
+Resource-free worlds can have no RSC; the manifest explicitly binds that absence.
 Unpack these together in an operator-chosen directory. In the client's configuration:
 
 ```toml

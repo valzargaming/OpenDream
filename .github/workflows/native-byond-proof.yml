@@ -109,7 +109,10 @@ jobs:
           python - <<'PY'
           import hashlib, json, os, pathlib
           paths = [pathlib.Path(name) for name in ['bridge.dmb', 'bridge.rsc']]
-          manifest = {'schema': 1, 'byond_version': '516.1681', 'source_commit': os.environ['OBSERVER_SOURCE_SHA'], 'files': {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}, 'sources': {name: hashlib.sha256(pathlib.Path(name).read_bytes()).hexdigest() for name in ['bridge.dm', 'bridge.dme']}}
+          # Resource-free worlds may have no RSC; bind that absence instead of fabricating one.
+          manifest = {'schema': 1, 'byond_version': '516.1681', 'source_commit': os.environ['OBSERVER_SOURCE_SHA'], 'files': {str(p): hashlib.sha256(p.read_bytes()).hexdigest() if p.exists() else None for p in paths}, 'sources': {name: hashlib.sha256(pathlib.Path(name).read_bytes()).hexdigest() for name in ['bridge.dm', 'bridge.dme']}}
+          if manifest['files']['bridge.dmb'] is None:
+              raise SystemExit('Native compiler produced no DMB')
           pathlib.Path('native-observer.json').write_text(json.dumps(manifest, indent=2) + '\n')
           PY
         env:

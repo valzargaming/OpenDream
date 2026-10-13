@@ -38,12 +38,20 @@ public sealed class FileNativeObserverHost : INativeObserverHost {
             foreach (var name in new[] { "bridge.dmb", "bridge.rsc" }) {
                 cancellation.ThrowIfCancellationRequested();
                 var source = Path.Combine(options.ObserverDirectory, name);
+                var declared = files.GetProperty(name);
+                if (name == "bridge.rsc" && declared.ValueKind == JsonValueKind.Null) {
+                    if (File.Exists(source)) throw new InvalidDataException("Unbound native observer RSC is present.");
+                    continue;
+                }
                 var info = new FileInfo(source);
                 if (!info.Exists || info.Length > 4 * 1024 * 1024) throw new InvalidDataException("Invalid native helper size.");
                 // Verify the exact bytes copied, avoiding a second read of mutable artifact files.
-                var bytes = File.ReadAllBytes(source);
+                using var input = new FileStream(source, FileMode.Open, FileAccess.Read, FileShare.Read);
+                if (input.Length > 4 * 1024 * 1024) throw new InvalidDataException("Invalid native helper size.");
+                var bytes = new byte[(int)input.Length];
+                input.ReadExactly(bytes);
                 var digest = Convert.ToHexString(SHA256.HashData(bytes));
-                if (!string.Equals(digest, files.GetProperty(name).GetString(), StringComparison.OrdinalIgnoreCase))
+                if (!string.Equals(digest, declared.GetString(), StringComparison.OrdinalIgnoreCase))
                     throw new InvalidDataException("Native observer artifact hash mismatch.");
                 File.WriteAllBytes(Path.Combine(directory, name), bytes);
             }
