@@ -52,8 +52,10 @@ jobs:
           unzip -q byond.zip
           cd byond
           make here
-          export LD_LIBRARY_PATH="${LD_LIBRARY_PATH:-}"
+          # The vendor setup reads optional unset environment variables.
+          set +u
           source bin/byondsetup
+          set -u
           cd "$GITHUB_WORKSPACE/tools/native-byond-bridge"
           DreamMaker -max_errors 0 bridge.dme | tee native-compile.log
           grep -F '516.1681' native-compile.log
