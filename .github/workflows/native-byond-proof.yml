@@ -52,6 +52,7 @@ jobs:
           unzip -q byond.zip
           cd byond
           make here
+          export LD_LIBRARY_PATH="${LD_LIBRARY_PATH:-}"
           source bin/byondsetup
           cd "$GITHUB_WORKSPACE/tools/native-byond-bridge"
           DreamMaker -max_errors 0 bridge.dme | tee native-compile.log

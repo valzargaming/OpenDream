@@ -86,6 +86,7 @@ try {
     Check(!ledger.TryBegin(binding, out _), "population bound enforced");
     Check(ledger.PendingCount == NativeClientReportLedger.MaximumPending, "bounded retained records");
     time.Advance(TimeSpan.FromSeconds(60));
+    ledger.PruneExpired();
     Check(ledger.PendingCount == 0, "expired records released");
     ledger.TryBegin(binding, out var finalNonce);
     Accept(Form(finalNonce), out var finalTicket);

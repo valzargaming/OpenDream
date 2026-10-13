@@ -43,6 +43,8 @@ public sealed class NativeClientReportLedger : IDisposable {
     }
 
     public int PendingCount { get { lock (_lock) { Prune(); return _pending.Count; } } }
+    // Future owner must call from its periodic update even when no reports arrive.
+    public void PruneExpired() { lock (_lock) { Prune(); } }
 
     public bool TryBegin(SessionBinding binding, out string nonce) {
         nonce = "";

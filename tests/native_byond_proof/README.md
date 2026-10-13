@@ -11,6 +11,8 @@ replacement, disconnect, total 60-second expiry including queued delivery, stric
 UTF-8/form parsing and the 128-record bound. CID remains exact digit text, including
 leading zeroes and values exceeding machine integers. Four independent omissions
 must fail their named assertion after compilation succeeds.
+Expiration is pruned on ledger operations. The future owner must call PruneExpired
+from its periodic update to release idle expired records; no scheduler is installed.
 
 Run `python tests/native_byond_proof/run.py` using a verified interpreter and SDK10.
 The registered GitHub workflow runs positive and omission probes. These are adapter
