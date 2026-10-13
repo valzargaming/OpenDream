@@ -34,6 +34,13 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
+          name: civ13-startup-diagnostic-${{ matrix.os }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: provenance-output/standalone-startup.log
+          if-no-files-found: ignore
+          retention-days: 14
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
           name: civ13-client-provenance-${{ matrix.os }}-${{ github.event.pull_request.head.sha || github.sha }}
           path: provenance-output/
           retention-days: 14

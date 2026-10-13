@@ -86,13 +86,15 @@ def smoke(package, dotnet, receipt):
         except subprocess.TimeoutExpired as error:
             def decoded(value):
                 return value.decode('utf-8', errors='replace') if isinstance(value, bytes) else value or ''
-            (package / 'standalone-startup.log').write_text(
-                decoded(error.stdout) + decoded(error.stderr), encoding='utf-8')
+            text = decoded(error.stdout) + decoded(error.stderr)
+            (package / 'standalone-startup.log').write_text(text, encoding='utf-8')
+            print('Sandboxed startup timeout diagnostics (first 65536 characters):\n' + text[:65536])
             raise RuntimeError('Sandboxed client startup did not exit within 60 seconds') from error
         text = result.stdout + result.stderr
         (package / 'standalone-startup.log').write_text(text, encoding='utf-8')
         if (result.returncode or 'PASS native identity content sandbox type checks' not in text
                 or any(marker in text for marker in ['[ERRO]', '[FATL]', 'Unhandled exception', 'not whitelisted'])):
+            print('Sandboxed startup failure diagnostics (first 65536 characters):\n' + text[:65536])
             raise RuntimeError('Standalone client startup or sandbox verification failed; see standalone-startup.log')
     return {'sandboxed_headless_startup': 'passed', 'native_observation': 'not run',
             'authenticated_join': 'not run', 'rendering': 'not run', 'save_acceptance': 'not run'}
