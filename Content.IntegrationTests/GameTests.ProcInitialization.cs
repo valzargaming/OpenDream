@@ -28,6 +28,7 @@ public sealed partial class GameTests {
             new List<string>(), new Dictionary<string, DreamValue>(), _ => Task.FromResult(DreamValue.Null));
         static DreamValue[] Arguments(int count, DreamObject owner) {
             var values = new DreamValue[count];
+            Array.Fill(values, DreamValue.Null);
             values[0] = new DreamValue(owner);
             return values;
         }
