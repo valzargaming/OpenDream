@@ -55,12 +55,30 @@ def source_inventory(directory):
     names = git("ls-files", "-z", cwd=directory).split("\0")
     return {n: digest(directory/n) for n in names if n and (directory/n).is_file()}
 
+def reject_untracked_inputs(directory):
+    for name in git("ls-files", "--others", "-z", cwd=directory).split("\0"):
+        if not name:
+            continue
+        path = directory/name
+        if path == OUT or OUT in path.parents:
+            continue
+        parts = Path(name).parts
+        generated = False
+        for index, part in enumerate(parts):
+            if part not in ("bin", "obj"):
+                continue
+            parent = directory.joinpath(*parts[:index])
+            if parent == directory or any(parent.glob("*.csproj")):
+                generated = True
+                break
+        if not generated:
+            raise RuntimeError("Unexpected untracked build input: " + name)
+
 parser = argparse.ArgumentParser()
 parser.add_argument("--dotnet", default="dotnet")
 parser.add_argument("--output", type=Path, required=True)
 parser.add_argument("--timeout", type=int, default=1200)
 parser.add_argument("--prepare-only", action="store_true")
-parser.add_argument("--offline", action="store_true", help="Use previously prepared assets; never restore packages")
 args = parser.parse_args()
 OUT = args.output.resolve()
 OUT.mkdir(parents=True, exist_ok=True)
@@ -73,7 +91,14 @@ receipt = {"engine_head": git("rev-parse", "HEAD"), "engine_tree": git("rev-pars
            "sdk_required": "10.0.401", "build": "not run", "installed": False,
            "graphical_acceptance": "not run", "runtime_acceptance": "not run"}
 try:
-    subprocess.run(["git", "diff", "--exit-code", "HEAD", "--", ".", ":!RobustToolbox"], cwd=ROOT, check=True)
+    if OUT.is_relative_to(ROOT):
+        relative = OUT.relative_to(ROOT)
+        if len(relative.parts) != 1 or (ROOT/relative.parts[0]).exists() and any(
+                path.startswith(relative.parts[0]+"/") for path in git("ls-files").splitlines()):
+            raise RuntimeError("Output must be a separate top-level generated directory")
+    if subprocess.run(["git", "diff", "--quiet", "HEAD", "--", ".", ":!RobustToolbox"], cwd=ROOT).returncode:
+        raise RuntimeError("Tracked engine inputs differ from the declared head")
+    reject_untracked_inputs(ROOT)
     if receipt["robust_head"] != ROBUST:
         raise RuntimeError("RobustToolbox revision differs from pinned gitlink")
     patch = ROOT/"tools/civ13-provenance/robust-auth.patch"
@@ -84,6 +109,11 @@ try:
     if probe.returncode:
         subprocess.run(["git", "apply", "--check", str(patch)], cwd=ROOT/"RobustToolbox", check=True)
         subprocess.run(["git", "apply", str(patch)], cwd=ROOT/"RobustToolbox", check=True)
+    effective = subprocess.check_output(["git", "diff", "--no-ext-diff", "--no-color", "--binary",
+                                          "--abbrev=7", "--no-renames", "HEAD"], cwd=ROOT/"RobustToolbox")
+    if effective.replace(b"\r\n", b"\n") != patch.read_bytes().replace(b"\r\n", b"\n"):
+        raise RuntimeError("Robust effective diff differs from the declared authentication patch")
+    reject_untracked_inputs(ROOT/"RobustToolbox")
     receipt["engine_sources"] = source_inventory(ROOT)
     receipt["robust_sources"] = source_inventory(ROOT/"RobustToolbox")
     receipt["submodules"] = dependency_inventory(ROOT/"RobustToolbox")
@@ -92,9 +122,8 @@ try:
         projects = ["tests/glide/GlideProbe.csproj", "tests/icon-direction/DirectionProbe.csproj",
                     "OpenDreamClient/OpenDreamClient.csproj", "OpenDreamServer/OpenDreamServer.csproj",
                     "RobustToolbox/Robust.Client/Robust.Client.csproj"]
-        if not args.offline:
-            for index, project in enumerate(projects):
-                run([args.dotnet, "restore", project, "--disable-parallel", "-p:Configuration=Release"], "restore-"+str(index))
+        for index, project in enumerate(projects):
+            run([args.dotnet, "restore", project, "--disable-parallel", "-p:Configuration=Release"], "restore-"+str(index))
         def probe(project, label, expected=None, failure=None):
             run([args.dotnet, "run", "--project", project, "-c", "Release", "--no-restore",
                  "-p:UseSharedCompilation=false", "-p:BuildInParallel=false"], label, expected, failure)
@@ -122,7 +151,7 @@ try:
         finally:
             target.write_bytes(original)
         for index, project in enumerate(projects[2:]):
-            run([args.dotnet, "build", project, "-c", "Release",
+            run([args.dotnet, "build", project, "-c", "Release", "-t:Rebuild",
                  "--no-restore", "--disable-build-servers", "-m:1", "-p:UseSharedCompilation=false",
                  "-p:BuildInParallel=false", "-p:ContinuousIntegrationBuild=true",
                  "-p:PathMap="+str(ROOT)+"=/src"], "build-"+str(index))
