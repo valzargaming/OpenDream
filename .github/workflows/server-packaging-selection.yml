@@ -1,0 +1,63 @@
+name: Server packaging selection controls
+on:
+  pull_request:
+    paths:
+      - 'OpenDreamPackageTool/ServerPackaging.cs'
+      - 'OpenDreamPackageTool/ContentAssemblySelection.cs'
+      - 'tests/server_packaging/**'
+      - '.github/workflows/server-packaging-selection.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  selection:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        control: [positive, dedup, prefix, required]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.401
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test strict source and result verifier
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest discover -s tests/server_packaging -p test_control.py -v 2>&1 | tee packaging-verifier.log
+      - name: Record exact source and apply one isolated control
+        run: python tests/server_packaging/control.py '${{ matrix.control }}' --head '${{ github.event.pull_request.head.sha || github.sha }}'
+      - name: Compile actual linked selection probe separately
+        shell: bash
+        run: |
+          set -euo pipefail
+          dotnet build tests/server_packaging/SelectionProbe.csproj -c Release --nologo 2>&1 | tee packaging-build.log
+      - name: Run and strictly verify the compiled probe
+        shell: bash
+        run: |
+          set +e
+          dotnet run --project tests/server_packaging/SelectionProbe.csproj -c Release --no-build > packaging-run.log 2>&1
+          result=$?
+          set -e
+          cat packaging-run.log
+          python tests/server_packaging/control.py '${{ matrix.control }}' --head '${{ github.event.pull_request.head.sha || github.sha }}' --verify packaging-run.log --exit-code "$result"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: packaging-selection-${{ matrix.control }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            packaging-control-source.json
+            packaging-verifier.log
+            packaging-build.log
+            packaging-run.log
+            OpenDreamPackageTool/ContentAssemblySelection.cs
+            tests/server_packaging/source-contract.json
+          if-no-files-found: warn
+          retention-days: 14
