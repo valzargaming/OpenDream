@@ -24,6 +24,43 @@ index c98fbaf..396a73f 100644
              foreach (var searchDir in NativeDllSearchDirectories())
              {
                  if (ProbeDir(searchDir, out path))
+diff --git a/Robust.Client/Console/Commands/LauncherAuthCommand.cs b/Robust.Client/Console/Commands/LauncherAuthCommand.cs
+index 02c462d..e25a3cf 100644
+--- a/Robust.Client/Console/Commands/LauncherAuthCommand.cs
++++ b/Robust.Client/Console/Commands/LauncherAuthCommand.cs
+@@ -21,7 +21,15 @@ namespace Robust.Client.Console.Commands
+ 
+         public override void Execute(IConsoleShell shell, string argStr, string[] args)
+         {
+-            var wantName = args.Length > 0 ? args[0] : null;
++            _auth.Token = null;
++            _auth.UserId = null;
++            _auth.LauncherAuthUserName = null;
++            if (args.Length != 1 || string.IsNullOrWhiteSpace(args[0]))
++            {
++                shell.WriteLine("A single named launcher login is required");
++                return;
++            }
++            var wantName = args[0];
+ 
+             using var con = GetDb();
+             using var cmd = con.CreateCommand();
+@@ -46,9 +54,15 @@ namespace Robust.Client.Console.Commands
+             var userId = Guid.Parse(reader.GetString(0));
+             var userName = reader.GetString(1);
+             var token = reader.GetString(2);
++            if (!string.Equals(userName, wantName, StringComparison.Ordinal) || string.IsNullOrWhiteSpace(token))
++            {
++                shell.WriteLine("Requested launcher login did not match a usable saved identity");
++                return;
++            }
+ 
+             _auth.Token = token;
+             _auth.UserId = new NetUserId(userId);
++            _auth.LauncherAuthUserName = userName;
+ 
+             shell.WriteLine($"Logged into account {userName}");
+         }
 diff --git a/Robust.Client/GameController/GameController.RobustModules.cs b/Robust.Client/GameController/GameController.RobustModules.cs
 index 3aab543..010cb92 100644
 --- a/Robust.Client/GameController/GameController.RobustModules.cs
@@ -57,24 +94,101 @@ index 3aab543..010cb92 100644
              {
                  foreach (var assembly in alc.Assemblies)
 diff --git a/Robust.Client/GameController/GameController.cs b/Robust.Client/GameController/GameController.cs
-index 60fabdc..8879a8c 100644
+index 60fabdc..3684d90 100644
 --- a/Robust.Client/GameController/GameController.cs
 +++ b/Robust.Client/GameController/GameController.cs
-@@ -320,6 +320,8 @@ namespace Robust.Client
+@@ -1,4 +1,5 @@
+ using System;
++using System.Collections.Generic;
+ using System.IO;
+ using System.Linq;
+ using System.Net;
+@@ -320,6 +321,9 @@ namespace Robust.Client
  
              _clyde.Ready();
  
-+            ProgramShared.RunExecCommands(_console, _commandLineArgs?.ExecCommands);
++            if (!TryRunStartupCommands())
++                return false;
 +
              if (_resourceManifest!.AutoConnect &&
                  (_commandLineArgs?.Connect == true || _commandLineArgs?.Launcher == true)
                  && LaunchState.ConnectEndpoint != null)
-@@ -327,7 +329,7 @@ namespace Robust.Client
+@@ -327,8 +331,50 @@ namespace Robust.Client
                  _client.ConnectToServer(LaunchState.ConnectEndpoint);
              }
  
 -            ProgramShared.RunExecCommands(_console, _commandLineArgs?.ExecCommands);
-+
  
++
++            return true;
++        }
++
++        private void ClearLauncherAuthState()
++        {
++            _authManager.Token = null;
++            _authManager.UserId = null;
++            _authManager.LauncherAuthUserName = null;
++        }
++
++        private bool TryRunStartupCommands()
++        {
++            var commands = _commandLineArgs?.ExecCommands;
++            if (commands == null)
++                return true;
++
++            string? expectedName = null;
++            foreach (var command in commands)
++            {
++                var tokens = new List<string>();
++                CommandParsing.ParseArguments(command, tokens);
++                if (tokens.Count == 0 || tokens[0] != "launchauth")
++                    continue;
++
++                ClearLauncherAuthState();
++                if (expectedName != null || tokens.Count != 2 || string.IsNullOrWhiteSpace(tokens[1]))
++                {
++                    _logger.Error("A single named launcher login is required before automatic connection.");
++                    return false;
++                }
++                expectedName = tokens[1];
++            }
++
++            ProgramShared.RunExecCommands(_console, commands);
++            if (expectedName != null &&
++                (_authManager.UserId == null || string.IsNullOrWhiteSpace(_authManager.Token) ||
++                 !string.Equals(_authManager.LauncherAuthUserName, expectedName, StringComparison.Ordinal)))
++            {
++                ClearLauncherAuthState();
++                _logger.Error("Requested launcher authentication did not succeed; automatic connection is stopped.");
++                return false;
++            }
              return true;
          }
+ 
+diff --git a/Robust.Shared/Network/AuthManager.cs b/Robust.Shared/Network/AuthManager.cs
+index ea2250e..a727d2d 100644
+--- a/Robust.Shared/Network/AuthManager.cs
++++ b/Robust.Shared/Network/AuthManager.cs
+@@ -13,6 +13,7 @@ namespace Robust.Shared.Network
+         NetUserId? UserId { get; set; }
+         string? Server { get; set; }
+         string? Token { get; set; }
++        string? LauncherAuthUserName { get; set; }
+         string? PubKey { get; set; }
+ 
+         /// <summary>
+@@ -30,11 +31,14 @@ namespace Robust.Shared.Network
+         public NetUserId? UserId { get; set; }
+         public string? Server { get; set; } = DefaultAuthServer;
+         public string? Token { get; set; }
++        public string? LauncherAuthUserName { get; set; }
+         public string? PubKey { get; set; }
+         public bool AllowHwid { get; set; } = true;
+ 
+         public void LoadFromEnv()
+         {
++            // Environment credentials are never evidence of a named saved lookup.
++            LauncherAuthUserName = null;
+             if (TryGetVar("ROBUST_AUTH_SERVER", out var server))
+             {
+                 Server = server;

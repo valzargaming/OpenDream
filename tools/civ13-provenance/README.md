@@ -38,6 +38,13 @@ Windows/Linux CI resolves the published CEF library path without loading it,
 executes the production resource-discovery body, and rejects the historical
 resource finder and a missing module dependency file. These are path-contract
 tests; authenticated joining and native loading require the guarded client test.
+Named launcher startup also clears inherited auth state, requires exactly one
+requested username and a successful matching saved lookup before auto-connect,
+and stops on missing/failed/mismatched lookup. The command and controller both
+fail closed; the client front-end strips inherited user ID/token variables.
+CI exercises actual auth manager, command and connection-gate source through
+inert row/console/connection adapters, including historical gate, inherited-state
+and returned-identity omission controls. It never opens an account database.
 Spatial verb production-body assertions and two intended historical failures
 also run before the final rebuild. A Runtime DLL candidate is now retained
 with its exact source/hash receipt for the server authorization change.

@@ -213,6 +213,9 @@ try:
              "--robust", str(ROOT/"RobustToolbox"), "--bundle", str(OUT/"auth-webview"),
              "--output", str(OUT/"native-path-proof")], "native-module-paths",
             expected="PASS native module path controls")
+        run([sys.executable, "tools/civ13-provenance/named-auth/run.py", "--dotnet", args.dotnet,
+             "--robust", str(ROOT/"RobustToolbox"), "--output", str(OUT/"named-auth-proof")],
+            "named-auth-contract", expected="PASS fail-closed named launcher contract")
         validation_source = ROOT/"tools/civ13-provenance/client-validation"
         run([sys.executable, str(validation_source/"verify.py"), "--dotnet", args.dotnet,
              "--robust", str(ROOT/"RobustToolbox"), "--output", str(OUT/"client-validation-proof")],
@@ -230,6 +233,7 @@ try:
                                              "command": "launchauth", "metadata_contract": "passed",
                                              "publication_trimming": False, "shared_dependency_hash_agreement": "passed",
                                              "native_path_contract": "passed; target native loading not run",
+                                             "named_launch_contract": "passed; account/database target not accessed",
                                              "credentials_accessed": False, "authenticated_join": "not run"}
         receipt["authentication_bundle_files"] = {str(path.relative_to(OUT)):
                                                    {"sha256": digest(path), "bytes": path.stat().st_size}

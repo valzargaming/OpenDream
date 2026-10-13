@@ -89,6 +89,8 @@ def validate(proposal,lease,private_selector,root):
         raise ValueError('Exact successful package required')
     if bundle['authentication_loader'].get('native_path_contract')!='passed; target native loading not run':
         raise ValueError('Module native-path contract is missing')
+    if bundle['authentication_loader'].get('named_launch_contract')!='passed; account/database target not accessed':
+        raise ValueError('Fail-closed named-auth contract is missing')
     expected_files={}
     for name,expected in bundle['authentication_bundle_files'].items():
         path=Path(name.replace('\\','/'))
@@ -108,6 +110,9 @@ def validate(proposal,lease,private_selector,root):
              auth_command(private_selector)]
     environment=dict(os.environ)
     environment.pop('CIV13_AUTH_EXPECTED_USERNAME',None)
+    # The named saved lookup must be the sole source of connection credentials.
+    environment.pop('ROBUST_AUTH_USERID',None)
+    environment.pop('ROBUST_AUTH_TOKEN',None)
     environment['DOTNET_ROOT']=str(executable.parent)
     environment['ROBUST_MODULE_ROBUST_CLIENT_WEBVIEW']=str(profile/'webview')
     return command,environment,end
