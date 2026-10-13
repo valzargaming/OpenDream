@@ -29,6 +29,15 @@ are hashed separately. This does not read accounts or prove authenticated join.
 Both bundles are published from one rebuilt Tools dependency graph with the
 Client-only ILLink publication rewrite disabled; shared dependency hashes must
 agree exactly. No separately rebuilt or rewritten Client variant is mixed in.
+The declared Robust patch also resolves optional-module unmanaged dependencies
+from that module's own `.deps.json`, using an absolute native-library path and
+dependency-directory search scoped to the load. CEF resource discovery probes
+beside its resolved native library. Loader ANGLE and WebView CEF bundles remain
+separate; this does not claim OS-level native isolation or a successful CEF load.
+Windows/Linux CI resolves the published CEF library path without loading it,
+executes the production resource-discovery body, and rejects the historical
+resource finder and a missing module dependency file. These are path-contract
+tests; authenticated joining and native loading require the guarded client test.
 Spatial verb production-body assertions and two intended historical failures
 also run before the final rebuild. A Runtime DLL candidate is now retained
 with its exact source/hash receipt for the server authorization change.
