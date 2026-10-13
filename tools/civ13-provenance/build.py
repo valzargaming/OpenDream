@@ -73,6 +73,7 @@ receipt = {"engine_head": git("rev-parse", "HEAD"), "engine_tree": git("rev-pars
            "sdk_required": "10.0.401", "build": "not run", "installed": False,
            "graphical_acceptance": "not run", "runtime_acceptance": "not run"}
 try:
+    subprocess.run(["git", "diff", "--exit-code", "HEAD", "--", ".", ":!RobustToolbox"], cwd=ROOT, check=True)
     if receipt["robust_head"] != ROBUST:
         raise RuntimeError("RobustToolbox revision differs from pinned gitlink")
     patch = ROOT/"tools/civ13-provenance/robust-auth.patch"
@@ -93,8 +94,7 @@ try:
                     "RobustToolbox/Robust.Client/Robust.Client.csproj"]
         if not args.offline:
             for index, project in enumerate(projects):
-                run([args.dotnet, "restore", project, "--disable-parallel", "-p:Configuration="+
-                     ("ClientAuth" if index == 4 else "Release")], "restore-"+str(index))
+                run([args.dotnet, "restore", project, "--disable-parallel", "-p:Configuration=Release"], "restore-"+str(index))
         def probe(project, label, expected=None, failure=None):
             run([args.dotnet, "run", "--project", project, "-c", "Release", "--no-restore",
                  "-p:UseSharedCompilation=false", "-p:BuildInParallel=false"], label, expected, failure)
@@ -122,7 +122,7 @@ try:
         finally:
             target.write_bytes(original)
         for index, project in enumerate(projects[2:]):
-            run([args.dotnet, "build", project, "-c", "ClientAuth" if index == 2 else "Release",
+            run([args.dotnet, "build", project, "-c", "Release",
                  "--no-restore", "--disable-build-servers", "-m:1", "-p:UseSharedCompilation=false",
                  "-p:BuildInParallel=false", "-p:ContinuousIntegrationBuild=true",
                  "-p:PathMap="+str(ROOT)+"=/src"], "build-"+str(index))
@@ -142,11 +142,12 @@ try:
         candidate_shared = OUT/"OpenDreamShared.dll"
         candidate_loader = OUT/"Robust.Client.dll"
         shutil.copy2(server/"OpenDreamShared.dll", candidate_shared)
-        shutil.copy2(ROOT/"RobustToolbox/bin/ClientAuth/Robust.Client.dll", candidate_loader)
+        loader = ROOT/"RobustToolbox/bin/Client/Robust.Client.dll"
+        shutil.copy2(loader, candidate_loader)
         receipt["artifacts"] = {str(p.relative_to(ROOT)) if p.is_relative_to(ROOT) else p.name:
                                  {"sha256": digest(p), "bytes": p.stat().st_size}
                                  for p in [archive, candidate_shared, candidate_loader, client/"OpenDreamClient.dll", client/"OpenDreamShared.dll",
-                                           server/"OpenDreamShared.dll", ROOT/"RobustToolbox/bin/ClientAuth/Robust.Client.dll"]}
+                                           server/"OpenDreamShared.dll", loader]}
         receipt["build"] = "passed"
     receipt["checks"] = checks
 except BaseException as error:
