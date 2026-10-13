@@ -6,11 +6,12 @@ only the current native observation and throws before ClientConnect when absent.
 Each menu attempt starts a new observation; cancellation, replacement, disconnect
 and faults clear it. CID is retained as digit text without numeric conversion.
 
-The registered provider is deliberately unavailable. The real native observer,
-native helper packaging, channel report transport and server DM client/mob gate
-are not installed. This source stage refuses every game connection until those
-pieces are implemented. Do not ship it as a playable launcher or treat the injected
-observer tests as native acquisition or DreamDaemon CID parity evidence.
+The production provider now lives in the trusted Robust.Client engine, with
+internal file/process capabilities and operator paths captured before content
+loads. The native helper, channel transport and server admission gate are present
+in source. Genuine native account/CID, rendering, admin admission and save
+acceptance remain unproved; the path is not activated on Gaia. Do not treat these
+injected observer tests as native acquisition or DreamDaemon CID parity evidence.
 
 Run `tests/native_client_identity/run.py` with a verified Python interpreter and
 .NET 10. It links the production coordinator into a standalone injected-observer

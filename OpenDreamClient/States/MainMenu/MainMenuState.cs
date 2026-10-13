@@ -33,7 +33,8 @@ public sealed partial class MainMenuState : State {
 
     protected override void Startup() {
         _mainMenuControl = new MainMenuControl(_resourceCache, _configurationManager);
-        _mainMenuControl.AddressBox.Text = _nativeIdentity.StartupAddress;
+        if (!string.IsNullOrEmpty(_nativeIdentity.StartupAddress))
+            _mainMenuControl.AddressBox.Text = _nativeIdentity.StartupAddress;
         _userInterfaceManager.StateRoot.AddChild(_mainMenuControl);
 
         _mainMenuControl.QuitButton.OnPressed += QuitButtonPressed;
