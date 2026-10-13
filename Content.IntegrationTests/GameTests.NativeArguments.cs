@@ -11,6 +11,46 @@ namespace Content.IntegrationTests;
 
 public sealed partial class GameTests {
     private static void NativeArgumentsReleaseOwnedValues(DreamManager manager, DreamObjectTree tree, DreamRefManager refs) {
+        Assert.That(tree.TryGetGlobalProc("arglist_failure_owner_probe", out var failureProc), Is.True);
+        Assert.That(tree.TryGetGlobalProc("arglist_overwrite_owner_probe", out var overwriteProc), Is.True);
+        var arglistOriginal = tree.CreateObject(tree.Datum);
+        var arglistReplacement = tree.CreateObject(tree.Datum);
+        var arglistOriginalId = arglistOriginal.RefId;
+        var arglistReplacementId = arglistReplacement.RefId;
+        try {
+            for (var iteration = 0; iteration < 1000; iteration++) {
+                foreach (var namedFirst in new[] { 0, 1 }) {
+                    using (var result = DreamThread.Run(failureProc!, manager.WorldInstance, null,
+                               new DreamValue(arglistOriginal), new DreamValue(namedFirst))) {
+                        Assert.That(result.MustGetValueAsFloat(), Is.EqualTo(1), "Actual arglist conversion rejects its invalid key");
+                    }
+                    Assert.That(arglistOriginal.RefCount, Is.EqualTo(1), "Failed arglist conversion releases temporary owners");
+                    using (var result = DreamThread.Run(overwriteProc!, manager.WorldInstance, null,
+                               new DreamValue(arglistOriginal), new DreamValue(arglistReplacement), new DreamValue(namedFirst))) {
+                        Assert.That(result.MustGetValueAsDreamObject(), Is.SameAs(arglistReplacement), "Arglist keeps existing last assignment semantics");
+                    }
+                    Assert.That(arglistOriginal.RefCount, Is.EqualTo(1), "Arglist overwritten slot releases previous owner");
+                    Assert.That(arglistReplacement.RefCount, Is.EqualTo(1), "Arglist replacement releases after caller disposal");
+                    using (var result = DreamThread.Run(overwriteProc!, manager.WorldInstance, null,
+                               new DreamValue(arglistOriginal), new DreamValue(arglistOriginal), new DreamValue(namedFirst))) {
+                        Assert.That(result.MustGetValueAsDreamObject(), Is.SameAs(arglistOriginal), "Arglist same-value replacement remains alive");
+                    }
+                    Assert.That(arglistOriginal.RefCount, Is.EqualTo(1), "Arglist same-value replacement balances owners");
+                    Assert.That(arglistOriginal.Deleted || arglistReplacement.Deleted, Is.False);
+                }
+            }
+        } finally {
+            arglistOriginal.DecRef();
+            arglistReplacement.DecRef();
+        }
+        Assert.That(arglistOriginal.Deleted && arglistReplacement.Deleted, Is.True);
+        using (var located = refs.LocateRef(arglistOriginalId))
+            Assert.That(located.IsNull, Is.True, "Arglist original leaves actual reference bucket");
+        using (var located = refs.LocateRef(arglistReplacementId))
+            Assert.That(located.IsNull, Is.True, "Arglist replacement leaves actual reference bucket");
+        Assert.That(manager.LastDMException, Is.Null);
+        TestContext.Progress.WriteLine("Arglist ownership: 2000 caught conversion failures, 2000 overwritten slots and 2000 same-value assignments released owners");
+
         foreach (var name in new[] { "native_argument_failure_probe", "native_argument_rethrow_probe", "native_argument_success_probe" }) {
             Assert.That(tree.TryGetGlobalProc(name, out var proc), Is.True);
             var payload = tree.CreateObject(tree.Datum);

@@ -1297,37 +1297,44 @@ public sealed class DMProcState : ProcState {
                                              proc == _state.Proc.DreamManager.ImageFactoryProc;
 
                     Array.Fill(arguments, DreamValue.Null);
-                    for (int i = 0; i < listValues.Count; i++) {
-                        var value = listValues[i];
+                    try {
+                        for (int i = 0; i < listValues.Count; i++) {
+                            var value = listValues[i];
 
-                        if (argList.ContainsKey(value)) { //Named argument
-                            if (!value.TryGetValueAsString(out var argumentName))
-                                throw new DMException("List contains a non-string key, and cannot be used as an arglist");
+                            if (argList.ContainsKey(value)) { //Named argument
+                                if (!value.TryGetValueAsString(out var argumentName))
+                                    throw new DMException("List contains a non-string key, and cannot be used as an arglist");
 
-                            int argumentIndex = proc.ArgumentNames.IndexOf(argumentName);
-                            if (argumentIndex == -1)
-                                throw new DMException($"{proc} has no argument named \"{argumentName}\"");
+                                int argumentIndex = proc.ArgumentNames.IndexOf(argumentName);
+                                if (argumentIndex == -1)
+                                    throw new DMException($"{proc} has no argument named \"{argumentName}\"");
 
-                            arguments[argumentIndex] = argList.GetValue(value);
-                        } else { //Ordered argument
-                            // image() or new /image() will skip the loc arg if the second arg is a string
-                            // Really don't like this but it's BYOND behavior
-                            // Note that the way we're doing it leads to different argument placement when there are no named args
-                            // Hopefully nothing depends on that though
-                            if (isImageConstructor && i == 1 && value.Type == DreamValue.DreamValueType.String)
-                                skippingArg = true;
+                                ref var argument = ref arguments[argumentIndex];
+                                var incoming = argList.GetValue(value);
+                                argument.Dispose();
+                                argument = incoming;
+                            } else { //Ordered argument
+                                // image() or new /image() will skip the loc arg if the second arg is a string
+                                // Really don't like this but it's BYOND behavior
+                                // Note that the way we're doing it leads to different argument placement when there are no named args
+                                // Hopefully nothing depends on that though
+                                if (isImageConstructor && i == 1 && value.Type == DreamValue.DreamValueType.String)
+                                    skippingArg = true;
 
-                            // TODO: Verify ordered args precede all named args
-                            arguments[skippingArg ? i + 1 : i] = value;
-                            value.IncRef();
+                                // TODO: Verify ordered args precede all named args
+                                ref var argument = ref arguments[skippingArg ? i + 1 : i];
+                                value.IncRef();
+                                argument.Dispose();
+                                argument = value;
+                            }
                         }
+
+                        return new DreamProcArguments(arguments);
+                    } finally {
+                        // Temporary owners must be released even if a later key is invalid.
+                        foreach (var arg in arguments)
+                            arg.Dispose();
                     }
-
-                    var procArgs = new DreamProcArguments(arguments);
-                    foreach (var arg in arguments)
-                        arg.Dispose();
-
-                    return procArgs;
                 }
                 default:
                     throw new DMException($"Invalid arguments type {_info.Type}");

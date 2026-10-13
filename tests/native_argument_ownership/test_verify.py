@@ -106,5 +106,17 @@ class VerifierTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 verify(path, '', 1, 'Async returned value acquires an awaited owner', **options)
 
+    def test_arglist_assertion_rejects_mixed_runtime_failure(self):
+        root = fixture()
+        marker = 'Failed arglist conversion releases temporary owners'
+        root.find('.//t:ErrorInfo/t:Message', NS).text = marker + '\nAssert.That(arglistOriginal.RefCount, Is.EqualTo(1))\nExpected: 1\nBut was: 2\n'
+        with tempfile.TemporaryDirectory() as directory:
+            path = pathlib.Path(directory) / 'fixture.trx'
+            ET.ElementTree(root).write(path)
+            options = dict(expressions=('arglistOriginal.RefCount',))
+            self.assertTrue(verify(path, '', 1, marker, **options))
+            with self.assertRaises(ValueError):
+                verify(path, '[ERRO] unrelated engine failure', 1, marker, **options)
+
 
 if __name__ == '__main__': unittest.main()

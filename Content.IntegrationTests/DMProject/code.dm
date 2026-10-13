@@ -131,3 +131,28 @@ var/global/list/areas_by_type = list()
 	world.log << "IntegrationTests successful, /world/New() exiting..."
 /proc/async_return_ownership_probe(payload)
 	return payload
+
+/proc/arglist_first_owner_probe(first)
+	return first
+
+/proc/arglist_second_owner_probe(first, second)
+	return second
+
+/proc/arglist_failure_owner_probe(payload, named_first)
+	var/list/arguments
+	if(named_first)
+		arguments = list(first = payload, unknown_argument = payload)
+	else
+		arguments = list(payload, unknown_argument = payload)
+	try
+		arglist_first_owner_probe(arglist(arguments))
+	catch(var/exception/error)
+		if(error.name != "/proc/arglist_first_owner_probe has no argument named \"unknown_argument\"")
+			throw error
+		return 1
+	return 0
+
+/proc/arglist_overwrite_owner_probe(original, replacement, named_first)
+	if(named_first)
+		return arglist_second_owner_probe(arglist(list(second = original, replacement)))
+	return arglist_first_owner_probe(arglist(list(original, first = replacement)))
