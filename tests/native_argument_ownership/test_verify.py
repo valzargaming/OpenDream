@@ -88,5 +88,23 @@ class VerifierTests(unittest.TestCase):
     def test_compile_or_crash_exit(self):
         self.check(fixture(), exit_code=2)
 
+    def test_explicit_async_expression_delta_and_stack(self):
+        root = fixture()
+        message = root.find('.//t:ErrorInfo/t:Message', NS)
+        message.text = 'Async returned value acquires an awaited owner\nAssert.That(observed, Is.EqualTo(2))\nExpected: 2\nBut was: 1\n'
+        root.find('.//t:ErrorInfo/t:StackTrace', NS).text = 'at AsyncReturnsOwnValues in GameTests.AsyncReturns.cs:line 40'
+        with tempfile.TemporaryDirectory() as directory:
+            path = pathlib.Path(directory) / 'fixture.trx'
+            ET.ElementTree(root).write(path)
+            options = dict(expressions=('observed',), expected=2, actual=1,
+                           fixture_method='AsyncReturnsOwnValues', fixture_file='GameTests.AsyncReturns.cs')
+            self.assertTrue(verify(path, '', 1, 'Async returned value acquires an awaited owner', **options))
+            with self.assertRaises(ValueError):
+                verify(path, '[ERRO] unrelated engine failure', 1, 'Async returned value acquires an awaited owner', **options)
+            message.text += '\nSecond unrelated assertion'
+            ET.ElementTree(root).write(path)
+            with self.assertRaises(ValueError):
+                verify(path, '', 1, 'Async returned value acquires an awaited owner', **options)
+
 
 if __name__ == '__main__': unittest.main()

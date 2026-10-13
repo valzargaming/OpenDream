@@ -1,0 +1,47 @@
+name: Async return ownership omission controls
+on:
+  pull_request:
+    paths: ['OpenDreamRuntime/Procs/AsyncNativeProc.cs', 'Content.IntegrationTests/GameTests.AsyncReturns.cs', 'Content.IntegrationTests/DMProject/code.dm', 'tests/async_return_ownership/**', 'tests/native_argument_ownership/verify.py', '.github/workflows/async-return-ownership.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  omission:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        control: [baseline, acquire, replacement, dispose, reentry]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          submodules: recursive
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python tests/async_return_ownership/control.py '${{ matrix.control }}'
+      - run: python -m unittest discover -s tests/native_argument_ownership -p test_verify.py -v
+      - run: dotnet build --configuration Release --property WarningLevel=4 /m
+      - name: Verify one intended connected failure
+        shell: bash
+        run: |
+          set +e
+          COMPlus_gcServer=1 dotnet test --no-build Content.IntegrationTests/Content.IntegrationTests.csproj --filter 'FullyQualifiedName=Content.IntegrationTests.GameTests.NoRuntimesTest' --logger 'trx;LogFileName=async-return.trx' --results-directory async-return-results -v n > async-return-control.log 2>&1
+          result=$?
+          set -e
+          tail -80 async-return-control.log
+          python tests/async_return_ownership/control.py '${{ matrix.control }}' --verify async-return-control.log --trx async-return-results/async-return.trx --exit-code "$result"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: async-return-${{ matrix.control }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            async-return-control.log
+            async-return-results/async-return.trx
+          retention-days: 14

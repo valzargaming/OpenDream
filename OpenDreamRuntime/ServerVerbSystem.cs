@@ -187,7 +187,7 @@ public sealed partial class ServerVerbSystem : VerbSystem {
         using var _ = Profiler.BeginZone("DM Execution", color: (uint)Color.LightPink.ToArgb());
 
         DreamThread.Run($"Execute {name} by {usr.Session!.Name}", async state => {
-            await state.Call(verb, src, usr.Mob, arguments);
+            using var verbResult = await state.Call(verb, src, usr.Mob, arguments);
             return DreamValue.Null;
         }).Dispose();
     }

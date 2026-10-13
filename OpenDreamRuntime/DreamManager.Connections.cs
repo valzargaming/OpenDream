@@ -159,11 +159,13 @@ public sealed partial class DreamManager {
                         var topicProc = WorldInstance.GetProc("Topic");
 
                         var result = await state.Call(topicProc, WorldInstance, null, new DreamValue(topic), new DreamValue(remoteAddress));
+                        // The reply consumer and scheduler each receive an owner.
+                        result.IncRef();
                         tcs.SetResult(result);
                         return result;
                     }).Dispose();
 
-                    var topicResponse = await tcs.Task;
+                    using var topicResponse = await tcs.Task;
                     if (topicResponse.IsNull) {
                         return;
                     }
