@@ -1,0 +1,51 @@
+name: Client prompt ownership omission controls
+on:
+  pull_request:
+    paths: ['OpenDreamRuntime/DreamConnection.cs', 'OpenDreamRuntime/Objects/Types/DreamObjectClient.cs', 'Content.IntegrationTests/GameTests.ClientPrompts.cs', 'tests/client_prompt_ownership/**', '.github/workflows/client-prompt-ownership.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  omission:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        control: [baseline, finally, negative-index, filter-index, stat-replace, eye-release, prompt-cancel]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          submodules: recursive
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Apply one omission in disposable CI checkout
+        run: python tests/client_prompt_ownership/control.py '${{ matrix.control }}'
+      - name: Reject mixed intended and unrelated verifier failures
+        run: python -m unittest discover -s tests/native_argument_ownership -p test_verify.py -v
+      - name: Compile actual engine and connected tests
+        run: dotnet build --configuration Release --property WarningLevel=4 /m
+      - name: Verify intended connected prompt failure
+        shell: bash
+        run: |
+          set +e
+          COMPlus_gcServer=1 dotnet test --no-build Content.IntegrationTests/Content.IntegrationTests.csproj --filter 'FullyQualifiedName=Content.IntegrationTests.GameTests.NoRuntimesTest' --logger 'trx;LogFileName=client-prompt.trx' --results-directory client-prompt-results -v n > client-prompt-control.log 2>&1
+          result=$?
+          set -e
+          tail -80 client-prompt-control.log
+          python tests/client_prompt_ownership/control.py '${{ matrix.control }}' --verify client-prompt-control.log --trx client-prompt-results/client-prompt.trx --exit-code "$result"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: client-prompt-${{ matrix.control }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            client-prompt-control-source.json
+            client-prompt-control.log
+            client-prompt-results/client-prompt.trx
+          retention-days: 14
