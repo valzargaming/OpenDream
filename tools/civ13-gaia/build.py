@@ -28,6 +28,7 @@ parser.add_argument("--game", type=Path, required=True)
 parser.add_argument("--output", type=Path, required=True)
 parser.add_argument("--dotnet", default="dotnet")
 parser.add_argument("--timeout", type=int, default=1200)
+parser.add_argument("--stale-output-control", action="store_true")
 args = parser.parse_args()
 game = args.game.resolve()
 out = args.output.resolve()
@@ -68,8 +69,17 @@ try:
     run([sys.executable, str(ENGINE/"tools/civ13-provenance/build.py"), "--prepare-only",
          "--output", str(out/"engine-source-proof")], "engine-input-contract")
     run([args.dotnet, "restore", "DMCompiler/DMCompiler.csproj", "--disable-parallel", "-p:Configuration=Release"], "compiler-restore")
+    marker = b"CIV13_INVALID_STALE_COMPILER_CONTROL"
+    if args.stale_output_control:
+        stale = ENGINE/"bin/DMCompiler/DMCompiler.dll"
+        stale.parent.mkdir(parents=True, exist_ok=True)
+        stale.write_bytes(marker)
+        receipt["stale_output_control"] = {"path": str(stale.relative_to(ENGINE)), "marker_sha256": sha(stale)}
+    run([args.dotnet, "build", "DMCompiler/DMCompiler.csproj", "-c", "Release", "-t:Rebuild", "--no-restore",
+         "--disable-build-servers", "-m:1", "-p:UseSharedCompilation=false", "-p:BuildInParallel=false",
+         "-p:ContinuousIntegrationBuild=true", "-p:PathMap="+str(ENGINE)+"=/src"], "compiler-rebuild")
     compiler_dir = out/"compiler"
-    run([args.dotnet, "publish", "DMCompiler/DMCompiler.csproj", "-c", "Release", "--no-restore",
+    run([args.dotnet, "publish", "DMCompiler/DMCompiler.csproj", "-c", "Release", "--no-build", "--no-restore",
          "--disable-build-servers", "-m:1", "-p:UseSharedCompilation=false", "-p:BuildInParallel=false",
          "-p:ContinuousIntegrationBuild=true", "-p:PathMap="+str(ENGINE)+"=/src",
          "-o", str(compiler_dir)], "compiler-publish")
@@ -87,6 +97,10 @@ try:
     receipt["staged_dme_sha256"] = sha(staged)
     receipt["map_sha256"] = sha(game/MAP)
     compiler = compiler_dir/"DMCompiler.dll"
+    if args.stale_output_control:
+        assert compiler.read_bytes() != marker, "Stale compiler survived rebuild/publish"
+        receipt["stale_output_control"]["replacement_sha256"] = sha(compiler)
+        receipt["stale_output_control"]["passed"] = True
     receipt["compiler_sha256"] = sha(compiler)
     log = run([args.dotnet, str(compiler), "--version=516.1681", str(staged)], "gaia-compile", game)
     generated = staged.with_suffix(".json")

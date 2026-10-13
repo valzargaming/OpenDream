@@ -11,6 +11,8 @@ The compiler is built at the exact engine PR head, RobustToolbox is pinned at
 516.1681. No additional preprocessor defines are injected; OPENDREAM comes from
 the compiler. The receipt retains immutable source trees and hashes, DME/map
 override, compiler bundle hashes, invocation, warnings and generated JSON hash.
+The compiler is explicitly rebuilt before publication. CI seeds an invalid
+stale compiler output and requires its replacement plus successful compilation.
 
 No server/client is launched and no existing installation, saves or config is
 changed. The old installed `FA0C1762...` JSON is not retrospectively attributed
