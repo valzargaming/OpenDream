@@ -248,7 +248,7 @@ public sealed partial class DreamManager {
     public DreamObjectException CreateException(Exception e, string file, int line) {
         var obj = _objectTree.CreateObject<DreamObjectException>(_objectTree.Exception);
         if (e is DMThrowException throwException)
-            obj.Name = throwException.Value;
+            obj.Name = throwException.TakeValue();
         else
             obj.Name = new DreamValue(e.Message);
         obj.Line = new DreamValue(line);

@@ -1,4 +1,30 @@
 //Setup code - put whatever you need for testing here.
+/proc/exception_discard_probe(payload)
+	try
+		throw payload
+	catch
+		return 1
+
+/proc/exception_bound_probe(payload)
+	try
+		throw payload
+	catch(var/caught)
+		return caught
+
+/proc/exception_nested_probe(payload)
+	try
+		try
+			throw payload
+		catch(var/caught)
+			if(caught != payload)
+				CRASH("Nested catch changed thrown value")
+			throw caught
+	catch(var/rethrown)
+		return rethrown
+
+/proc/exception_uncaught_probe(payload)
+	throw payload
+
 /proc/spawn_pool_reuse_probe(count, datum/payload)
 	var/datum/captured = payload
 	var/list/completed = list(0)
