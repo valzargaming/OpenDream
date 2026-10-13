@@ -136,8 +136,7 @@ public sealed class DreamObjectClient : DreamObject {
                     throw new DMException($"Cannot set eye to non-movable {value}"); // TODO: You can set it to a turf
                 }
 
-                newEye?.IncRef();
-                Connection.Eye?.DecRef();
+                // DreamConnection.Eye owns the reference transition.
                 Connection.Eye = newEye as DreamObjectMovable;
                 break;
             }
