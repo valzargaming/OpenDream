@@ -79,11 +79,15 @@ def smoke(package, dotnet, receipt):
                        if k.upper() != 'ROBUST_DISABLE_SANDBOX' and not k.upper().startswith('ROBUST_AUTH_')
                        and not k.upper().startswith('ROBUST_CVAR_')}
         environment['ROBUST_MODULE_ROBUST_CLIENT_WEBVIEW'] = str(isolated / receipt['webview'])
-        command = [dotnet, str(isolated / receipt['loader']), '--self-contained', '--headless', '--exec', 'quit']
+        command = [dotnet, str(isolated / receipt['loader']), '--self-contained', '--headless', '+quit']
         try:
             result = subprocess.run(command, cwd=isolated, env=environment, text=True,
                                     capture_output=True, timeout=60)
         except subprocess.TimeoutExpired as error:
+            def decoded(value):
+                return value.decode('utf-8', errors='replace') if isinstance(value, bytes) else value or ''
+            (package / 'standalone-startup.log').write_text(
+                decoded(error.stdout) + decoded(error.stderr), encoding='utf-8')
             raise RuntimeError('Sandboxed client startup did not exit within 60 seconds') from error
         text = result.stdout + result.stderr
         (package / 'standalone-startup.log').write_text(text, encoding='utf-8')

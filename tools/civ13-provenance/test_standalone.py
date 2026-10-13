@@ -3,6 +3,8 @@ from pathlib import Path
 import tempfile
 import unittest
 import zipfile
+import subprocess
+from unittest.mock import patch
 
 spec = importlib.util.spec_from_file_location('standalone', Path(__file__).with_name('standalone.py'))
 standalone = importlib.util.module_from_spec(spec)
@@ -57,6 +59,24 @@ class StandalonePackageTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'Unsafe'):
             standalone.package_layout(self.package, self.source)
         self.assertFalse((self.root/'outside.dll').exists())
+
+    def test_smoke_uses_pinned_cli_quit_syntax(self):
+        receipt = standalone.package_layout(self.package, self.source)
+        response = subprocess.CompletedProcess([], 0, 'PASS native identity content sandbox type checks', '')
+        with patch.object(standalone.subprocess, 'run', return_value=response) as launch:
+            result = standalone.smoke(self.package, 'fake-dotnet', receipt)
+        self.assertEqual(launch.call_args.args[0][-3:], ['--self-contained', '--headless', '+quit'])
+        self.assertEqual(result['sandboxed_headless_startup'], 'passed')
+        self.assertEqual(result['authenticated_join'], 'not run')
+
+    def test_timeout_retains_both_outputs(self):
+        receipt = standalone.package_layout(self.package, self.source)
+        error = subprocess.TimeoutExpired(['fake-dotnet'], 60, output=b'partial stdout', stderr=b'partial stderr')
+        with patch.object(standalone.subprocess, 'run', side_effect=error):
+            with self.assertRaisesRegex(RuntimeError, 'within 60 seconds'):
+                standalone.smoke(self.package, 'fake-dotnet', receipt)
+        self.assertEqual((self.package/'standalone-startup.log').read_text(encoding='utf-8'),
+                         'partial stdoutpartial stderr')
 
 
 if __name__ == '__main__':
