@@ -213,6 +213,16 @@ try:
              "--robust", str(ROOT/"RobustToolbox"), "--bundle", str(OUT/"auth-webview"),
              "--output", str(OUT/"native-path-proof")], "native-module-paths",
             expected="PASS native module path controls")
+        validation_source = ROOT/"tools/civ13-provenance/client-validation"
+        run([sys.executable, str(validation_source/"verify.py"), "--dotnet", args.dotnet,
+             "--robust", str(ROOT/"RobustToolbox"), "--output", str(OUT/"client-validation-proof")],
+            "client-front-end", expected="PASS pinned parser identity binding")
+        if os.name == "nt":
+            run([sys.executable, str(validation_source/"test-client-job.py"), str(OUT/"client-job-proof")],
+                "client-job-controls", expected='"controls": 6')
+        shutil.copytree(validation_source, OUT/"client-validation-source", ignore=shutil.ignore_patterns("__pycache__"))
+        receipt["client_validation_source_inventory"] = {p.name: {"sha256": digest(p), "bytes": p.stat().st_size}
+                                                         for p in sorted(validation_source.glob("*.py"))}
         loader = OUT/"auth-loader/Robust.Client.dll"
         loader_metadata(loader, "loader-tools-positive")
         shutil.copy2(loader, candidate_loader)

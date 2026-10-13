@@ -89,6 +89,11 @@ finally:
     deps.write_bytes(original)
 receipt={'checks':checks,'production_cef_source_sha256':hashlib.sha256(cef_source.read_bytes()).hexdigest(),
          'production_module_source_sha256':hashlib.sha256(module_source.read_bytes()).hexdigest(),
+         'runner_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+         'generated_source_inventory':{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in (program,project)},
+         'module_dll_sha256':hashlib.sha256(module.read_bytes()).hexdigest(),
+         'module_deps_sha256':hashlib.sha256(deps.read_bytes()).hexdigest(),
+         'log_inventory':{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in output.glob('*.log')},
          'target_assembly_loaded':False,'native_library_loaded':False,'accounts_accessed':False,
          'positive_paths':'passed','historical_and_missing_dependency_controls':'passed'}
 (output/'receipt.json').write_text(json.dumps(receipt,indent=2))
