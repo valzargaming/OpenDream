@@ -23,7 +23,11 @@ public sealed class UnavailableNativeIdentityProvider : INativeIdentityProvider 
 /// Client-thread coordinator. No username/config/CLI input is an identity source.
 /// The native report remains client-reported, without spoof-resistance claims.
 /// </summary>
-public sealed class NativeIdentityCoordinator(INativeIdentityProvider provider) : IDisposable {
+public sealed class NativeIdentityCoordinator(INativeIdentityProvider provider, TimeProvider? time = null) : IDisposable {
+    public static readonly TimeSpan Lifetime = TimeSpan.FromSeconds(60);
+    private readonly TimeProvider _time = time ?? TimeProvider.System;
+    private long _started;
+    private bool Expired => _time.GetElapsedTime(_started) >= Lifetime;
     private CancellationTokenSource? _cancellation;
     private Task<NativeIdentityReport?>? _pending;
     private NativeIdentityRequest _request;
@@ -37,7 +41,8 @@ public sealed class NativeIdentityCoordinator(INativeIdentityProvider provider) 
         ObjectDisposedException.ThrowIf(_disposed, this);
         Clear();
         _request = new NativeIdentityRequest(Guid.NewGuid(), Convert.ToHexString(RandomNumberGenerator.GetBytes(32)));
-        _cancellation = new CancellationTokenSource(TimeSpan.FromSeconds(60));
+        _started = _time.GetTimestamp();
+        _cancellation = new CancellationTokenSource(Lifetime);
         try {
             _pending = provider.ObserveAsync(_request, _cancellation.Token);
         } catch {
@@ -48,7 +53,7 @@ public sealed class NativeIdentityCoordinator(INativeIdentityProvider provider) 
     // Poll from the client frame, keeping UI and connection effects on its own thread.
     public bool Poll() {
         if (_pending == null) return true;
-        if (_cancellation!.IsCancellationRequested) {
+        if (Expired || _cancellation!.IsCancellationRequested) {
             Clear();
             return true;
         }
@@ -68,6 +73,7 @@ public sealed class NativeIdentityCoordinator(INativeIdentityProvider provider) 
 
     public bool TryAuthorizeHandshake(out NativeIdentityReport identity) {
         identity = default;
+        if (Expired) Clear();
         if (_disposed || _handshakeUsed || _identity is not { } observed) return false;
         _handshakeUsed = true;
         identity = observed;

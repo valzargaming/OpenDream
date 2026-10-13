@@ -64,6 +64,16 @@ static class Probe {
         coordinator.Begin(); provider.Last.Completion.SetException(new IOException("injected observer error"));
         coordinator.Poll(); Check(!Login(coordinator, out _), "provider fault blocks handshake");
         coordinator.Dispose(); Check(!Login(coordinator, out _), "disposed coordinator blocks handshake");
+        var clock = new Clock();
+        var timedProvider = new Provider();
+        using var timed = new NativeIdentityCoordinator(timedProvider, clock);
+        timed.Begin(); timedProvider.Complete("NativeAccount", "001");
+        clock.Advance(60);
+        timed.Poll();
+        Check(!Login(timed, out _), "expired observation cannot authorize handshake");
+        timed.Begin(); timedProvider.Complete("NativeAccount", "001"); timed.Poll();
+        clock.Advance(60);
+        Check(!Login(timed, out _), "expired observation cannot authorize handshake");
         Console.WriteLine("NATIVE CLIENT IDENTITY PASS: " + _assertions);
     }
     sealed class Provider : INativeIdentityProvider {
@@ -76,5 +86,11 @@ static class Probe {
     }
     sealed record Observation(NativeIdentityRequest Request, CancellationToken Cancellation) {
         public readonly TaskCompletionSource<NativeIdentityReport?> Completion = new(TaskCreationOptions.RunContinuationsAsynchronously);
+    }
+    sealed class Clock : TimeProvider {
+        private long _timestamp;
+        public override long TimestampFrequency => 1000;
+        public override long GetTimestamp() => _timestamp;
+        public void Advance(long seconds) => _timestamp += seconds * 1000;
     }
 }

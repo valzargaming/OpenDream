@@ -16,7 +16,9 @@ Run `tests/native_client_identity/run.py` with a verified Python interpreter and
 .NET 10. It links the production coordinator into a standalone injected-observer
 probe and verifies 1000 reconnect/account-switch cycles, pending failures,
 one-use login, malformed reports, late replacement, guest rejection and disposal.
-Four omission controls must compile and fail their designated runtime assertion.
+Five omission controls must compile and fail their designated runtime assertion.
+Monotonic expiry checks cover completion and handshake at the exact deadline,
+independent of cancellation timer scheduling.
 Source checks pin the UI and Connecting event wiring. Full engine CI compilation
 checks integration signatures; actual console/autoconnect/native behavior remains
 unverified until an exclusive native/client runtime turn is granted.

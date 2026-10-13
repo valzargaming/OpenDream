@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        probe: [positive, name, reuse, reconnect, binding]
+        probe: [positive, name, reuse, reconnect, binding, deadline]
     steps:
       - uses: actions/checkout@v4
         with:
