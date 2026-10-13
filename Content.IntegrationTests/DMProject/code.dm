@@ -156,3 +156,26 @@ var/global/list/areas_by_type = list()
 	if(named_first)
 		return arglist_second_owner_probe(arglist(list(second = original, replacement)))
 	return arglist_first_owner_probe(arglist(list(original, first = replacement)))
+
+/proc/proc_initialization_boundary_probe(first)
+	return args.len
+
+/proc/proc_initialization_null_probe(first)
+
+/proc/proc_initialization_locals_probe(first)
+	var/local_payload = first
+	return args.len + (local_payload == first ? 0 : 1)
+
+/proc/proc_initialization_arglist_probe(payload, native)
+	var/list/arguments = new/list(native ? 129 : 257)
+	arguments[1] = payload
+	try
+		if(native)
+			sleep(arglist(arguments))
+		else
+			proc_initialization_boundary_probe(arglist(arguments))
+	catch(var/exception/error)
+		if(native)
+			return error.name == "Destination is too short. (Parameter 'destination')"
+		return error.name == "Index was outside the bounds of the array."
+	return 0

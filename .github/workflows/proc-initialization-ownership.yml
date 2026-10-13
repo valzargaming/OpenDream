@@ -1,0 +1,59 @@
+name: Procedure initialization ownership controls
+on:
+  pull_request:
+    paths: ['OpenDreamRuntime/Procs/AsyncNativeProc.cs', 'OpenDreamRuntime/Procs/DMProc.cs', 'Content.IntegrationTests/GameTests.ProcInitialization.cs', 'Content.IntegrationTests/GameTests.cs', 'Content.IntegrationTests/DMProject/code.dm', 'tests/proc_initialization/**', '.github/workflows/proc-initialization-ownership.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  ownership:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        control: [positive, async-input, dm-input, async-baseline, dm-baseline]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          submodules: recursive
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.401
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Apply exactly one omission to this disposable checkout
+        if: matrix.control != 'positive'
+        run: python tests/proc_initialization/control.py '${{ matrix.control }}'
+      - name: Verify strict structured-result rejection contracts
+        run: |
+          python -m unittest discover -s tests/native_argument_ownership -p test_verify.py -v
+          python -m unittest discover -s tests/proc_initialization -p test_verify.py -v
+      - name: Build real engine and connected tests
+        run: dotnet build --configuration Release --property WarningLevel=4 -m:1 -p:UseSharedCompilation=false --disable-build-servers
+      - name: Verify actual production initialization ownership
+        shell: bash
+        run: |
+          set +e
+          COMPlus_gcServer=1 dotnet test --no-build Content.IntegrationTests/Content.IntegrationTests.csproj --filter 'FullyQualifiedName=Content.IntegrationTests.GameTests.NoRuntimesTest' --logger 'trx;LogFileName=initialization.trx' --results-directory initialization-results -v n > initialization.log 2>&1
+          result=$?
+          set -e
+          tail -80 initialization.log
+          if [ '${{ matrix.control }}' = positive ]; then
+            test "$result" -eq 0
+            grep -F 'Proc initialization: 1000' initialization.log
+          else
+            python tests/proc_initialization/control.py '${{ matrix.control }}' --verify initialization.log --trx initialization-results/initialization.trx --exit-code "$result"
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: proc-initialization-${{ matrix.control }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            proc-initialization-control-source.json
+            initialization.log
+            initialization-results/initialization.trx
+          retention-days: 14

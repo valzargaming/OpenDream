@@ -120,6 +120,13 @@ public sealed class DMProc : DreamProc {
             return nullState;
         }
 
+        // Arguments share this frame's fixed storage with the compiled locals.
+        // Reject before acquiring instance/usr owners, a stack rental or a pool slot.
+        if (Math.Max(arguments.Count, ArgumentNames?.Count ?? 0) > DMProcState.LocalVariableCapacity - LocalCount) {
+            arguments.Dispose();
+            throw new IndexOutOfRangeException();
+        }
+
         if (!DMProcState.Pool.TryPop(out var state)) {
             state = new DMProcState();
         }
@@ -394,7 +401,8 @@ public sealed class DMProcState : ProcState {
     private readonly Stack<int> _catchVarIndex = new();
 
     /// Contains both arguments (at index 0) and local vars (at index ArgumentCount)
-    private readonly DreamValue[] _localVariables = new DreamValue[256];
+    internal const int LocalVariableCapacity = 256;
+    private readonly DreamValue[] _localVariables = new DreamValue[LocalVariableCapacity];
 
     /// Static initializer for maintainer friendly OpcodeHandlers to performance friendly _opcodeHandlers
     static unsafe DMProcState() {
