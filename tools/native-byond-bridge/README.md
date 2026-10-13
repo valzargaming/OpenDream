@@ -2,7 +2,9 @@
 
 The Windows client uses a separately compiled, finite native BYOND world to observe
 the logged-in native client's read-only key and computer_id. Connecting opens the
-registered `byond://` handler. BYOND must already be installed and logged in. The
+registered `byond://` handler. The connection screen explains that this may leave
+the current native BYOND game before the player connects. BYOND must already be
+installed and logged in. The
 observer rejects guests, accepts only loopback clients and never reads passwords or
 account credential storage. This is a client report, without spoof-resistance claims.
 

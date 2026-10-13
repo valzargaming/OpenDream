@@ -25,6 +25,8 @@
                                   HorizontalExpand="True" />
                     </BoxContainer>
                     <Control MinSize="0 2" />
+                    <Label Text="Connect opens a temporary BYOND world." />
+                    <Label Text="This may leave your current BYOND game." />
                     <Button Name="ConnectButtonProtected"
                             Text="Connect"
                             TextAlign="Center" />

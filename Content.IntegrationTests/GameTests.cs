@@ -105,7 +105,7 @@ public sealed partial class GameTests : ContentIntegrationTest {
             }
         };
         var serverOptions = new ServerContentIntegrationOption();
-        serverOptions.CVarOverrides[OpenDreamCVars.RequireNativeIdentity.Name] = true;
+        serverOptions.CVarOverrides[OpenDreamCVars.RequireNativeIdentity.Name] = "true";
         var (client, server) = await StartConnectedServerClientPair(clientOptions, serverOptions);
         await RunTicksSync(client, server, 1000);
         Assert.That(server.IsAlive);
