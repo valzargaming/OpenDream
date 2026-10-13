@@ -1,6 +1,8 @@
+#nullable enable
 using System;
 using System.IO;
 using NUnit.Framework;
+using OpenDreamRuntime;
 using OpenDreamRuntime.Objects;
 using OpenDreamRuntime.Objects.Types;
 using OpenDreamRuntime.Procs;
