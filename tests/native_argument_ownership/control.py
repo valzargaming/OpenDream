@@ -3,12 +3,14 @@ import argparse
 import json
 import pathlib
 import subprocess
+from verify import verify
 
 root = pathlib.Path(__file__).resolve().parents[2]
 parser = argparse.ArgumentParser()
 parser.add_argument('control', choices=['baseline', 'sync-finally', 'async-replace'])
 parser.add_argument('--verify', type=pathlib.Path)
 parser.add_argument('--exit-code', type=int)
+parser.add_argument('--trx', type=pathlib.Path)
 args = parser.parse_args()
 markers = {
     'baseline': 'Native call argument ownership balanced: native_argument_failure_probe',
@@ -17,8 +19,9 @@ markers = {
 }
 if args.verify:
     log = args.verify.read_text(errors='replace')
-    if args.exit_code != 1 or markers[args.control] not in log or 'Failed NoRuntimesTest' not in log:
-        raise SystemExit('Control did not fail its intended real-engine ownership assertion')
+    if not args.trx:
+        raise SystemExit('Structured TRX result required')
+    verify(args.trx, log, args.exit_code, markers[args.control])
     print('INTENDED NATIVE ARGUMENT OMISSION REJECTED:', args.control)
     raise SystemExit(0)
 paths = ['OpenDreamRuntime/Procs/NativeProc.cs', 'OpenDreamRuntime/Procs/AsyncNativeProc.cs']
