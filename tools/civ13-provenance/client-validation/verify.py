@@ -6,6 +6,7 @@ from datetime import datetime,timezone,timedelta
 import hashlib
 import importlib.util
 import json
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -58,7 +59,8 @@ assembly.write_bytes(b'INERT_NOT_AN_ASSEMBLY')
 shutil.copyfile(helper,fixture/'client-job.py')
 stage={'source_head':head,'profile':str(profile),'process_launched':False,
        'files':{p.relative_to(profile).as_posix():{'sha256':front.file_hash(p),'bytes':p.stat().st_size} for p in profile.rglob('*') if p.is_file()}}
-bundle={'engine_head':head,'build':'passed','authentication_loader':{'native_path_contract':'passed; target native loading not run'},
+bundle={'engine_head':head,'build':'passed','authentication_loader':{'native_path_contract':'passed; target native loading not run',
+                                                                 'named_launch_contract':'passed; account/database target not accessed'},
         'authentication_bundle_files':{'auth-loader/Robust.Client.dll':stage['files']['loader/Robust.Client.dll'],
                                        'auth-webview/Robust.Client.WebView.dll':stage['files']['webview/Robust.Client.WebView.dll']},
         'artifacts':{'Content.Client-provenance.zip':stage['files']['Content.Client.zip']}}
@@ -71,7 +73,11 @@ lease={'scope':'baseline-auth-observation-only','main_and_capture_grant_confirme
        'session_config_paths_reviewed':True,'absolute_end_utc':(datetime.now(timezone.utc)+timedelta(seconds=180)).isoformat(),
        'staged_receipt':'stage.json','guard_sha256':front.REVIEWED_GUARD_SHA256,'package_receipt':'package.json',
        'independently_reviewed_package_receipt_sha256':front.file_hash(fixture/'package.json')}
-command,_,_=front.validate(proposal,lease,names[0],fixture)
+os.environ['ROBUST_AUTH_USERID']='INERT INHERITED USER'
+os.environ['ROBUST_AUTH_TOKEN']='INERT INHERITED TOKEN'
+command,child_env,_=front.validate(proposal,lease,names[0],fixture)
+assert 'ROBUST_AUTH_USERID' not in child_env and 'ROBUST_AUTH_TOKEN' not in child_env
+os.environ.pop('ROBUST_AUTH_USERID');os.environ.pop('ROBUST_AUTH_TOKEN')
 assert command[-1]==front.auth_command(names[0]) and names[0] not in command
 failures=[]
 def refuse(label,change):
@@ -91,6 +97,13 @@ refuse('wrong-scope',lambda p,l:l.update(scope='save-or-gameplay'))
 refuse('expired-deadline',lambda p,l:l.update(absolute_end_utc=(datetime.now(timezone.utc)-timedelta(seconds=1)).isoformat()))
 refuse('excessive-deadline',lambda p,l:l.update(absolute_end_utc=(datetime.now(timezone.utc)+timedelta(seconds=300)).isoformat()))
 refuse('escaping-review-path',lambda p,l:l.update(staged_receipt='../stage.json'))
+package_bytes=(fixture/'package.json').read_bytes()
+missing_contract=copy.deepcopy(bundle)
+missing_contract['authentication_loader'].pop('named_launch_contract')
+(fixture/'package.json').write_text(json.dumps(missing_contract))
+try:
+    refuse('missing-named-contract',lambda p,l:l.update(independently_reviewed_package_receipt_sha256=front.file_hash(fixture/'package.json')))
+finally:(fixture/'package.json').write_bytes(package_bytes)
 original=assembly.read_bytes()
 assembly.write_bytes(b'CORRUPTED_INERT_BYTES')
 try: refuse('staged-file-hash',lambda p,l:None)
