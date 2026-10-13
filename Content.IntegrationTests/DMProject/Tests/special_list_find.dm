@@ -6,7 +6,8 @@
 	return args.Find(b)
 
 /datum/unit_test/special_list_find/RunTest()
-	var/turf/T = locate(2, 2, 1)
+	// Keep the exact contents-index checks separate from filter_vars' objects.
+	var/turf/T = locate(3, 3, 1)
 	var/obj/first = new(T)
 	var/obj/second = new(T)
 
