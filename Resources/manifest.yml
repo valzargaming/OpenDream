@@ -5,3 +5,4 @@ windowIconSet: /OpenDream/Logo/icon
 splashLogo: /OpenDream/Logo/logo.png
 defaultWindowTitle: OpenDream
 multiWindow: true
+autoConnect: false

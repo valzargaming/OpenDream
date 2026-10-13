@@ -62,14 +62,7 @@ public sealed partial class EntryPoint : GameClient {
         IoCManager.BuildGraph();
         IoCManager.InjectDependencies(this);
         // Subscribe before UI transitions. BaseClient sends the login name after this event.
-        _baseClient.RunLevelChanged += (_, args) => {
-            if (args.NewLevel == Robust.Client.ClientRunLevel.Connecting) {
-                _nativeIdentity.AuthorizeHandshake(name => _baseClient.PlayerNameOverride = name);
-            } else if (args.NewLevel is Robust.Client.ClientRunLevel.Initialize or Robust.Client.ClientRunLevel.Error) {
-                _baseClient.PlayerNameOverride = null;
-                _nativeIdentity.Clear();
-            }
-        };
+        _baseClient.RunLevelChanged += NativeIdentityRunLevelChanged;
 
         _configurationManager.OverrideDefault(CVars.NetPredict, false);
         _configurationManager.OverrideDefault(CVars.ResAutoScaleEnabled, false); // Fixes weird scaling when sizing windows too small
@@ -84,6 +77,21 @@ public sealed partial class EntryPoint : GameClient {
         IoCManager.Resolve<ILocalizationManager>().LoadCulture(new CultureInfo("en-US"));
 
         IoCManager.Resolve<IClyde>().SetWindowTitle("OpenDream");
+    }
+
+    private void NativeIdentityRunLevelChanged(object? sender, Robust.Client.RunLevelChangedEventArgs args) {
+        if (args.NewLevel == Robust.Client.ClientRunLevel.Connecting) {
+            _nativeIdentity.AuthorizeHandshake(name => _baseClient.PlayerNameOverride = name);
+        } else if (args.NewLevel is Robust.Client.ClientRunLevel.Initialize or Robust.Client.ClientRunLevel.Error) {
+            _baseClient.PlayerNameOverride = null;
+            _nativeIdentity.Clear();
+        }
+    }
+
+    public override void Shutdown() {
+        _baseClient.RunLevelChanged -= NativeIdentityRunLevelChanged;
+        _nativeIdentity.Dispose();
+        base.Shutdown();
     }
 
     public override void PostInit() {

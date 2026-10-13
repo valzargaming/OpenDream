@@ -21,6 +21,7 @@ xaml = (root / 'OpenDreamClient/States/MainMenu/MainMenuControl.xaml').read_text
 entry = (root / 'OpenDreamClient/EntryPoint.cs').read_text()
 assert 'UserNameBox' not in menu and 'CVars.PlayerName' not in menu
 assert 'UsernameBox' not in xaml and 'NativeAccountProtected' in xaml
+assert 'autoConnect: false' in (root / 'Resources/manifest.yml').read_text()
 assert '_nativeIdentity.AuthorizeHandshake(name => _baseClient.PlayerNameOverride = name)' in entry
 assert entry.index('_baseClient.RunLevelChanged +=') < entry.index('DreamUserInterfaceStateManager>().Initialize()')
 with tempfile.TemporaryDirectory(prefix='native-client-identity-') as directory:

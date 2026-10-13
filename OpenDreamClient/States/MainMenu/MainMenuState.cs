@@ -33,6 +33,10 @@ public sealed partial class MainMenuState : State {
 
     protected override void Startup() {
         _mainMenuControl = new MainMenuControl(_resourceCache, _configurationManager);
+        if (_controllerProxy.LaunchState.ConnectEndpoint is { } endpoint) {
+            var host = endpoint.Host.Contains(':') ? $"[{endpoint.Host}]" : endpoint.Host;
+            _mainMenuControl.AddressBox.Text = $"{host}:{endpoint.Port}";
+        }
         _userInterfaceManager.StateRoot.AddChild(_mainMenuControl);
 
         _mainMenuControl.QuitButton.OnPressed += QuitButtonPressed;
