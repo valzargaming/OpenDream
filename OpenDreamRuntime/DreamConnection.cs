@@ -43,15 +43,20 @@ public sealed partial class DreamConnection {
 
             var oldMob = _mob;
             var oldConnection = value?.Connection;
-            SetClientMob(value);
+            oldMob?.IncRef();
+            try {
+                SetClientMob(value);
 
-            if(oldConnection is not null) {
-                oldConnection.Client?.Delete(); // TODO: This should tell you why you disconnected
-                _mob!.SpawnProc("Logout").Dispose();
+                if(oldConnection is not null) {
+                    oldConnection.Client?.Delete(); // TODO: This should tell you why you disconnected
+                    _mob!.SpawnProc("Logout").Dispose();
+                }
+
+                oldMob?.SpawnProc("Logout").Dispose();
+                _mob?.SpawnProc("Login", usr: _mob).Dispose();
+            } finally {
+                oldMob?.DecRef();
             }
-
-            oldMob?.SpawnProc("Logout").Dispose();
-            _mob?.SpawnProc("Login", usr: _mob).Dispose();
         }
     }
 
@@ -361,7 +366,9 @@ public sealed partial class DreamConnection {
     }
 
     public async Task<DreamValue> PromptList(DreamValueType types, IDreamList list, string title, string message, DreamValue defaultValue) {
+        if (Session == null) return DreamValue.Null;
         List<DreamValue> listValues = new();
+        var promptId = 0;
         try {
             List<string> promptValues = new();
             foreach (var value in list.CopyToArray()) {
@@ -382,7 +389,7 @@ public sealed partial class DreamConnection {
             if (promptValues.Count == 0)
                 return DreamValue.Null;
 
-            var task = MakePromptTask(out var promptId);
+            var task = MakePromptTask(out promptId);
             var msg = new MsgPromptList {
                 PromptId = promptId,
                 Title = title,
@@ -396,6 +403,7 @@ public sealed partial class DreamConnection {
 
             // The client returns the index of the selected item, this needs turned back into the DreamValue.
             using var selectedIndex = await task;
+            if (Session == null) return DreamValue.Null;
             if (selectedIndex.TryGetValueAsInteger(out int index) && index >= 0 && index < listValues.Count) {
                 var selected = listValues[index];
 
@@ -412,6 +420,7 @@ public sealed partial class DreamConnection {
                 return listValues[0];
             }
         } finally {
+            if (promptId != 0) _promptEvents.Remove(promptId);
             // Includes empty, filtered, cancelled, disconnected and exceptional exits.
             foreach (var value in listValues)
                 value.Dispose();

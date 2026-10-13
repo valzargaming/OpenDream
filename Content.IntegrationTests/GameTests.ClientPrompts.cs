@@ -101,14 +101,17 @@ public sealed partial class GameTests {
             connection.Eye = eye;
             connection.StatObj = new DreamValue(payload);
             var pending = connection.PromptList(DreamValueType.Null, list, "", "", DreamValue.Null);
+            var nonCancellablePending = connection.PromptList(DreamValueType.Anything, list, "", "", DreamValue.Null);
             var plainPending = connection.Prompt(DreamValueType.Text, "", "", "");
             connection.HandleDisconnection();
-            var unfinished = pending.IsCompleted && plainPending.IsCompleted ? 0 : 1;
+            var unfinished = pending.IsCompleted && plainPending.IsCompleted && nonCancellablePending.IsCompleted ? 0 : 1;
             Assert.That(unfinished, Is.EqualTo(0), "Disconnect completes pending prompts");
             using var disconnected = pending.GetAwaiter().GetResult();
             using var plainDisconnected = plainPending.GetAwaiter().GetResult();
+            using var nonCancellableDisconnected = nonCancellablePending.GetAwaiter().GetResult();
             Assert.That(disconnected.IsNull, Is.True);
             Assert.That(plainDisconnected.IsNull, Is.True);
+            Assert.That(nonCancellableDisconnected.IsNull, Is.True);
             Assert.That(payload.RefCount, Is.EqualTo(2), "Disconnect releases StatObj and prompt snapshot owners");
             var retainedEye = eye.RefCount - eyeReferences;
             Assert.That(retainedEye, Is.EqualTo(0), "Disconnect releases custom Eye owner");
@@ -118,6 +121,8 @@ public sealed partial class GameTests {
             Assert.That(payload.RefCount, Is.EqualTo(2), "Repeated disconnect does not release twice");
             using var afterDisconnect = connection.Prompt(DreamValueType.Text, "", "", "").GetAwaiter().GetResult();
             Assert.That(afterDisconnect.IsNull, Is.True);
+            using var afterDisconnectList = connection.PromptList(DreamValueType.Anything, list, "", "", DreamValue.Null).GetAwaiter().GetResult();
+            Assert.That(afterDisconnectList.IsNull, Is.True);
             Assert.That(callbacks.Count, Is.Zero);
         } finally {
             connection.HandleDisconnection();
