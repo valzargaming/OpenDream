@@ -169,7 +169,7 @@ public sealed partial class DreamConnection {
             try {
                 var statProc = Client.GetProc("Stat");
 
-                await state.Call(statProc, Client, Mob);
+                using var statResult = await state.Call(statProc, Client, Mob);
                 if (Session.Status == SessionStatus.InGame) {
                     var msg = new MsgUpdateStatPanels(_statPanels);
                     Session?.Channel.SendMessage(msg);

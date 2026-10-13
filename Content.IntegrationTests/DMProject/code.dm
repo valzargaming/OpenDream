@@ -50,6 +50,30 @@ var/global/exception_ownership_expected_payload
 			completed[1]++
 	return completed[1]
 
+/proc/native_argument_failure_probe(payload)
+	try
+		clamp(payload, 0, 1)
+	catch(var/exception/error)
+		if(error.name != "Clamp expects a number or list")
+			throw error
+		return 1
+	return 0
+
+/proc/native_argument_rethrow_probe(payload)
+	try
+		try
+			clamp(payload, 0, 1)
+		catch(var/exception/error)
+			throw error
+	catch(var/exception/error)
+		if(error.name != "Clamp expects a number or list")
+			throw error
+		return 1
+	return 0
+
+/proc/native_argument_success_probe(payload)
+	return !isnull(payload)
+
 /proc/cancellation_depth_probe(payload)
 	var/local_payload = payload
 	. = payload
@@ -105,3 +129,30 @@ var/global/list/areas_by_type = list()
 		TEST.RunTest()
 		del(TEST) //and clean up
 	world.log << "IntegrationTests successful, /world/New() exiting..."
+/proc/async_return_ownership_probe(payload)
+	return payload
+
+/proc/arglist_first_owner_probe(first)
+	return first
+
+/proc/arglist_second_owner_probe(first, second)
+	return second
+
+/proc/arglist_failure_owner_probe(payload, named_first)
+	var/list/arguments
+	if(named_first)
+		arguments = list(first = payload, unknown_argument = payload)
+	else
+		arguments = list(payload, unknown_argument = payload)
+	try
+		arglist_first_owner_probe(arglist(arguments))
+	catch(var/exception/error)
+		if(error.name != "/proc/arglist_first_owner_probe has no argument named \"unknown_argument\"")
+			throw error
+		return 1
+	return 0
+
+/proc/arglist_overwrite_owner_probe(original, replacement, named_first)
+	if(named_first)
+		return arglist_second_owner_probe(arglist(list(second = original, replacement)))
+	return arglist_first_owner_probe(arglist(list(original, first = replacement)))

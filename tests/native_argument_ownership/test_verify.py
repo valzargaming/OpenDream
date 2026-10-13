@@ -1,0 +1,122 @@
+import pathlib
+import tempfile
+import unittest
+import xml.etree.ElementTree as ET
+from verify import NS, verify
+
+MARKER = 'Native call argument ownership balanced: native_argument_failure_probe'
+URI = NS['t']
+
+
+def node(parent, name, attrs=None, text=None):
+    child = ET.SubElement(parent, '{' + URI + '}' + name, attrs or {})
+    child.text = text
+    return child
+
+
+def fixture():
+    root = ET.Element('{' + URI + '}TestRun')
+    results = node(root, 'Results')
+    result = node(results, 'UnitTestResult', {'testName': 'NoRuntimesTest', 'outcome': 'Failed', 'testId': 'one'})
+    output = node(result, 'Output')
+    error = node(output, 'ErrorInfo')
+    node(error, 'Message', text=MARKER + '\nAssert.That(payload.RefCount, Is.EqualTo(1))\n  Expected: 1\n  But was:  2\n')
+    node(error, 'StackTrace', text='at NativeArgumentsReleaseOwnedValues in GameTests.NativeArguments.cs:line 25')
+    definition = node(node(root, 'TestDefinitions'), 'UnitTest', {'id': 'one'})
+    node(definition, 'TestMethod', {'className': 'Content.IntegrationTests.GameTests', 'name': 'NoRuntimesTest'})
+    summary = node(root, 'ResultSummary')
+    node(summary, 'Counters', {'total': '1', 'executed': '1', 'passed': '0', 'failed': '1', 'error': '0'})
+    return root
+
+
+class VerifierTests(unittest.TestCase):
+    def check(self, root, accepted=False, log='Failed NoRuntimesTest', exit_code=1):
+        with tempfile.TemporaryDirectory() as directory:
+            path = pathlib.Path(directory) / 'fixture.trx'
+            ET.ElementTree(root).write(path)
+            if accepted:
+                self.assertTrue(verify(path, log, exit_code, MARKER))
+            else:
+                with self.assertRaises(ValueError): verify(path, log, exit_code, MARKER)
+
+    def test_exact_expected_assertion(self):
+        self.check(fixture(), accepted=True)
+
+    def test_single_thread_assertion_wrapper(self):
+        root = fixture()
+        message = root.find('.//t:ErrorInfo/t:Message', NS)
+        message.text = 'Multiple failures or warnings in test:\n  1) ' + message.text
+        self.check(root, accepted=True)
+
+    def test_multiple_thread_assertion_wrapper(self):
+        root = fixture()
+        message = root.find('.//t:ErrorInfo/t:Message', NS)
+        message.text = 'Multiple failures or warnings in test:\n  1) ' + message.text + '\n 2) unrelated failure'
+        self.check(root)
+
+    def test_intended_marker_plus_unrelated_test_failure(self):
+        root = fixture()
+        node(root.find('t:Results', NS), 'UnitTestResult', {'testName': 'OtherTest', 'outcome': 'Failed', 'testId': 'two'})
+        root.find('t:ResultSummary/t:Counters', NS).set('failed', '2')
+        self.check(root)
+
+    def test_intended_marker_plus_unrelated_runtime_error(self):
+        self.check(fixture(), log='Failed NoRuntimesTest\n[ERRO] dream: unrelated engine failure')
+
+    def test_intended_marker_plus_additional_assertion_message(self):
+        root = fixture()
+        message = root.find('.//t:ErrorInfo/t:Message', NS)
+        message.text += '\nUnrelated assertion failed'
+        self.check(root)
+
+    def test_wrong_test_or_method(self):
+        root = fixture()
+        root.find('t:Results/t:UnitTestResult', NS).set('testName', 'OtherTest')
+        self.check(root)
+
+    def test_runner_error(self):
+        root = fixture()
+        root.find('t:ResultSummary/t:Counters', NS).set('error', '1')
+        self.check(root)
+
+    def test_incorrect_reference_delta(self):
+        root = fixture()
+        message = root.find('.//t:ErrorInfo/t:Message', NS)
+        message.text = message.text.replace('But was:  2', 'But was:  100')
+        self.check(root)
+
+    def test_compile_or_crash_exit(self):
+        self.check(fixture(), exit_code=2)
+
+    def test_explicit_async_expression_delta_and_stack(self):
+        root = fixture()
+        message = root.find('.//t:ErrorInfo/t:Message', NS)
+        message.text = 'Async returned value acquires an awaited owner\nAssert.That(observed, Is.EqualTo(2))\nExpected: 2\nBut was: 1\n'
+        root.find('.//t:ErrorInfo/t:StackTrace', NS).text = 'at AsyncReturnsOwnValues in GameTests.AsyncReturns.cs:line 40'
+        with tempfile.TemporaryDirectory() as directory:
+            path = pathlib.Path(directory) / 'fixture.trx'
+            ET.ElementTree(root).write(path)
+            options = dict(expressions=('observed',), expected=2, actual=1,
+                           fixture_method='AsyncReturnsOwnValues', fixture_file='GameTests.AsyncReturns.cs')
+            self.assertTrue(verify(path, '', 1, 'Async returned value acquires an awaited owner', **options))
+            with self.assertRaises(ValueError):
+                verify(path, '[ERRO] unrelated engine failure', 1, 'Async returned value acquires an awaited owner', **options)
+            message.text += '\nSecond unrelated assertion'
+            ET.ElementTree(root).write(path)
+            with self.assertRaises(ValueError):
+                verify(path, '', 1, 'Async returned value acquires an awaited owner', **options)
+
+    def test_arglist_assertion_rejects_mixed_runtime_failure(self):
+        root = fixture()
+        marker = 'Failed arglist conversion releases temporary owners'
+        root.find('.//t:ErrorInfo/t:Message', NS).text = marker + '\nAssert.That(arglistOriginal.RefCount, Is.EqualTo(1))\nExpected: 1\nBut was: 2\n'
+        with tempfile.TemporaryDirectory() as directory:
+            path = pathlib.Path(directory) / 'fixture.trx'
+            ET.ElementTree(root).write(path)
+            options = dict(expressions=('arglistOriginal.RefCount',))
+            self.assertTrue(verify(path, '', 1, marker, **options))
+            with self.assertRaises(ValueError):
+                verify(path, '[ERRO] unrelated engine failure', 1, marker, **options)
+
+
+if __name__ == '__main__': unittest.main()

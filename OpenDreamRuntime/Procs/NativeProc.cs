@@ -102,9 +102,10 @@ public sealed unsafe class NativeProc : DreamProc {
     [MustDisposeResource]
     public DreamValue Call(DreamThread thread, DreamObject? src, DreamObject? usr, [HandlesResourceDisposal] DreamProcArguments arguments) {
         var bundle = new Bundle(this, arguments);
-        var result = _handler(bundle, src, usr); // TODO: Include this call in the thread's stack in error traces
-
-        arguments.Dispose();
-        return result;
+        try {
+            return _handler(bundle, src, usr); // TODO: Include this call in the thread's stack in error traces
+        } finally {
+            arguments.Dispose();
+        }
     }
 }

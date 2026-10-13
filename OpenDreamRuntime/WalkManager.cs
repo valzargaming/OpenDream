@@ -50,7 +50,7 @@ public sealed partial class WalkManager {
                     break;
 
                 DreamObjectTurf? newLoc = DreamProcNativeHelpers.GetStep(_atomManager, _dreamMapManager, movable, (AtomDirection)dir);
-                await state.CallNoWait(moveProc, movable, null, new(newLoc), new(dir));
+                using var moveResult = await state.CallNoWait(moveProc, movable, null, new(newLoc), new(dir));
             }
 
             return DreamValue.Null;
@@ -79,7 +79,7 @@ public sealed partial class WalkManager {
 
                 var dir = DreamProcNativeHelpers.GetRandomDirection(_dreamManager);
                 DreamObjectTurf? newLoc = DreamProcNativeHelpers.GetStep(_atomManager, _dreamMapManager, movable, dir);
-                await state.CallNoWait(moveProc, movable, null, new(newLoc), new((int)dir));
+                using var moveResult = await state.CallNoWait(moveProc, movable, null, new(newLoc), new((int)dir));
             }
 
             return DreamValue.Null;
@@ -111,7 +111,7 @@ public sealed partial class WalkManager {
                     continue;
 
                 DreamObjectTurf? newLoc = DreamProcNativeHelpers.GetStep(_atomManager, _dreamMapManager, movable, dir);
-                await state.CallNoWait(moveProc, movable, null, new(newLoc), new((int)dir));
+                using var moveResult = await state.CallNoWait(moveProc, movable, null, new(newLoc), new((int)dir));
             }
 
             return DreamValue.Null;
@@ -149,7 +149,7 @@ public sealed partial class WalkManager {
 
                 var dir = enumerator.Current;
                 var newLoc = DreamProcNativeHelpers.GetStep(_atomManager, _dreamMapManager, movable, dir);
-                await state.CallNoWait(moveProc, movable, null, new(newLoc), new((int)dir));
+                using var moveResult = await state.CallNoWait(moveProc, movable, null, new(newLoc), new((int)dir));
             }
 
             return DreamValue.Null;
