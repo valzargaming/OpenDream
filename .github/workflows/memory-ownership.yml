@@ -53,3 +53,15 @@ jobs:
           name: repeated-ownership-receipts
           path: ${{ runner.temp }}/memory-root-receipts
           if-no-files-found: ignore
+      - name: Savefile failure cleanup
+        shell: bash
+        run: |
+          set -euo pipefail
+          python tests/savefile_cleanup/run.py --dotnet "$(command -v dotnet)" --output "$RUNNER_TEMP/savefile-cleanup-receipts" --work "$RUNNER_TEMP/savefile-cleanup-work" --all-controls
+      - name: Upload savefile cleanup receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: savefile-cleanup-receipts
+          path: ${{ runner.temp }}/savefile-cleanup-receipts
+          if-no-files-found: ignore

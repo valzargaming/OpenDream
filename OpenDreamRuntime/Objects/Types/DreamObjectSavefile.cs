@@ -124,12 +124,13 @@ public sealed class DreamObjectSavefile : DreamObject {
     }
 
     protected override void HandleDeletion() {
-        if (Resource is null)
-            return; // Seemingly a long-standing issue, I don't know how to fix this, and it only now appears due to the fact objects always Del() now.
-                    // Why we can get here? who knows lol
-
-        Close();
-        base.HandleDeletion();
+        try {
+            Close();
+        } finally {
+            // Initialize can fail before assigning a resource, or clear it after
+            // malformed input. Neither that nor a flush failure may retain the ref.
+            base.HandleDeletion();
+        }
     }
 
     protected override bool TryGetVar(string varName, out DreamValue value) {
@@ -236,27 +237,33 @@ public sealed class DreamObjectSavefile : DreamObject {
     }
 
     public void Close() {
-        // We need to avoid Flush() recreating a nonexistent file
-        if (File.Exists(Resource!.ResourcePath)) Flush();
-        if (_isTemporary && Resource?.ResourcePath != null) {
-            File.Delete(Resource.ResourcePath);
-        }
+        try {
+            if (Resource is null)
+                return;
 
-        //check to see if the file is still in use by another savefile datum
-        if (Resource?.ResourcePath != null) {
-            var fineToDelete = true;
-            foreach (var savefile in Savefiles) {
-                if (savefile == this || savefile.Resource!.ResourcePath != Resource.ResourcePath) continue;
-                fineToDelete = false;
-                break;
+            // We need to avoid Flush() recreating a nonexistent file
+            if (File.Exists(Resource.ResourcePath)) Flush();
+            if (_isTemporary) {
+                File.Delete(Resource.ResourcePath);
+            }
+        } finally {
+            // Even a failed flush must detach this closed handle. Other open
+            // handles keep their shared directory until the last one closes.
+            if (Resource?.ResourcePath != null) {
+                var fineToDelete = true;
+                foreach (var savefile in Savefiles) {
+                    if (savefile == this || savefile.Resource?.ResourcePath != Resource.ResourcePath) continue;
+                    fineToDelete = false;
+                    break;
+                }
+
+                if (fineToDelete)
+                    SavefileDirectories.Remove(Resource.ResourcePath);
             }
 
-            if (fineToDelete)
-                SavefileDirectories.Remove(Resource.ResourcePath);
+            Savefiles.Remove(this);
+            SavefilesToFlush.Remove(this);
         }
-
-        Savefiles.Remove(this);
-        SavefilesToFlush.Remove(this);
     }
 
     public void Flush() {
