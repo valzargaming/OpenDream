@@ -129,6 +129,7 @@ public sealed partial class GameTests {
         Assert.That(payload.Deleted, Is.True);
         using var located = refs.LocateRef(id);
         Assert.That(located.IsNull, Is.True);
+        Assert.That(manager.LastDMException, Is.Null, "Async return fixture produces no engine runtime errors");
         TestContext.Progress.WriteLine("Async return ownership: 2000 connected Call/CallNoWait deliveries, 2000 reentrant calls, 1000 pending-return replacements/cancellations and 1000 live canceled-TCS refused deliveries passed");
         });
     }
