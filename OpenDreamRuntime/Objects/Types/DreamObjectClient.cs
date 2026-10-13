@@ -126,8 +126,7 @@ public sealed class DreamObjectClient : DreamObject {
                 break;
             }
             case "statobj":
-                value.IncRef();
-                Connection.StatObj.DecRef();
+                // DreamConnection.StatObj owns all replacement paths, including mob changes.
                 Connection.StatObj = value;
                 break;
             case "eye": {

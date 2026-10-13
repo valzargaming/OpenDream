@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using DMCompiler.Bytecode;
@@ -66,11 +67,18 @@ public sealed partial class DreamConnection {
     }
 
     [ViewVariables]
-    public DreamValue StatObj { get; set; } // This can be just any DreamValue. Only atoms will function though.
+    public DreamValue StatObj {
+        get;
+        set {
+            value.IncRef();
+            field.Dispose();
+            field = value;
+        }
+    } // This can be just any DreamValue. Only atoms will function though.
 
     [ViewVariables] private string? _outputStatPanel;
     [ViewVariables] private string? _selectedStatPanel;
-    [ViewVariables] private readonly Dictionary<int, Action<DreamValue>> _promptEvents = new();
+    [ViewVariables] private readonly Dictionary<int, TaskCompletionSource<DreamValue>> _promptEvents = new();
     [ViewVariables] private int _nextPromptEvent = 1;
     private readonly Dictionary<string, DreamResource> _permittedBrowseRscFiles = new();
     private DreamObjectMob? _mob;
@@ -107,21 +115,31 @@ public sealed partial class DreamConnection {
     }
 
     public void HandleDisconnection() {
-        if (Session == null || Client == null) // Already disconnected?
-            return;
-
         _verbSystem?.RemoveConnectionFromRepeatingVerbs(this);
         Session = null;
-
-        // The client still has a reference to the mob when deleted, so we do this first
-        Client.DecRef();
-        Client.Delete();
+        var client = Client;
         Client = null;
-
-        if(Mob is not null) {
-            var oldMob = Mob;
-            SetClientMob(null, true);
-            oldMob.SpawnProc("Logout").Dispose();
+        try {
+            // The client still has a reference to the mob when deleted, so we do this first.
+            client?.DecRef();
+            client?.Delete();
+            if (Mob is not null) {
+                var oldMob = Mob;
+                SetClientMob(null, true);
+                oldMob.SpawnProc("Logout").Dispose();
+            }
+        } finally {
+            Eye = null;
+            StatObj = DreamValue.Null;
+            _statPanels.Clear();
+            _outputStatPanel = null;
+            _selectedStatPanel = null;
+            _permittedBrowseRscFiles.Clear();
+            // Remove callbacks before completing tasks, whose continuations can reenter.
+            var prompts = _promptEvents.Values.ToArray();
+            _promptEvents.Clear();
+            foreach (var prompt in prompts)
+                prompt.TrySetResult(DreamValue.Null);
         }
     }
 
@@ -220,8 +238,8 @@ public sealed partial class DreamConnection {
         if (!TryConvertPromptResponse(message.Type, message.Value, out var value))
             throw new Exception($"Invalid prompt response '{value}'");
 
-        promptEvent.Invoke(value);
         _promptEvents.Remove(message.PromptId);
+        if (!promptEvent.TrySetResult(value)) value.Dispose();
     }
 
     public void HandleMsgSoundQueryResponse(MsgSoundQueryResponse message) {
@@ -247,8 +265,8 @@ public sealed partial class DreamConnection {
             sound.DecRef();
         }
 
-        promptEvent.Invoke(new DreamValue(allSounds));
         _promptEvents.Remove(message.PromptId);
+        if (!promptEvent.TrySetResult(new DreamValue(allSounds))) allSounds.DecRef();
     }
 
     public void HandleMsgTopic(MsgTopic pTopic) {
@@ -343,61 +361,60 @@ public sealed partial class DreamConnection {
     }
 
     public async Task<DreamValue> PromptList(DreamValueType types, IDreamList list, string title, string message, DreamValue defaultValue) {
-        DreamValue[] listValues = list.CopyToArray();
-        foreach (var value in listValues)
-            value.IncRef();
+        List<DreamValue> listValues = new();
+        try {
+            List<string> promptValues = new();
+            foreach (var value in list.CopyToArray()) {
+                if (types.HasFlag(DreamValueType.Obj) && !value.TryGetValueAsDreamObject<DreamObjectMovable>(out _))
+                    continue;
+                if (types.HasFlag(DreamValueType.Mob) && !value.TryGetValueAsDreamObject<DreamObjectMob>(out _))
+                    continue;
+                if (types.HasFlag(DreamValueType.Turf) && !value.TryGetValueAsDreamObject<DreamObjectTurf>(out _))
+                    continue;
+                if (types.HasFlag(DreamValueType.Area) && !value.TryGetValueAsDreamObject<DreamObjectArea>(out _))
+                    continue;
 
-        List<string> promptValues = new(listValues.Length);
-        foreach (var value in listValues) {
-            if (types.HasFlag(DreamValueType.Obj) && !value.TryGetValueAsDreamObject<DreamObjectMovable>(out _))
-                continue;
-            if (types.HasFlag(DreamValueType.Mob) && !value.TryGetValueAsDreamObject<DreamObjectMob>(out _))
-                continue;
-            if (types.HasFlag(DreamValueType.Turf) && !value.TryGetValueAsDreamObject<DreamObjectTurf>(out _))
-                continue;
-            if (types.HasFlag(DreamValueType.Area) && !value.TryGetValueAsDreamObject<DreamObjectArea>(out _))
-                continue;
+                value.IncRef();
+                listValues.Add(value);
+                promptValues.Add(value.Stringify());
+            }
 
-            promptValues.Add(value.Stringify());
-        }
+            if (promptValues.Count == 0)
+                return DreamValue.Null;
 
-        if (promptValues.Count == 0)
-            return DreamValue.Null;
+            var task = MakePromptTask(out var promptId);
+            var msg = new MsgPromptList {
+                PromptId = promptId,
+                Title = title,
+                Message = message,
+                CanCancel = (types & DreamValueType.Null) == DreamValueType.Null,
+                DefaultValue = defaultValue.Stringify(),
+                Values = promptValues.ToArray()
+            };
 
-        var task = MakePromptTask(out var promptId);
-        var msg = new MsgPromptList {
-            PromptId = promptId,
-            Title = title,
-            Message = message,
-            CanCancel = (types & DreamValueType.Null) == DreamValueType.Null,
-            DefaultValue = defaultValue.Stringify(),
-            Values = promptValues.ToArray()
-        };
+            Session?.Channel.SendMessage(msg);
 
-        Session?.Channel.SendMessage(msg);
+            // The client returns the index of the selected item, this needs turned back into the DreamValue.
+            using var selectedIndex = await task;
+            if (selectedIndex.TryGetValueAsInteger(out int index) && index >= 0 && index < listValues.Count) {
+                var selected = listValues[index];
 
-        // The client returns the index of the selected item, this needs turned back into the DreamValue.
-        var selectedIndex = await task;
-        if (selectedIndex.TryGetValueAsInteger(out int index) && index < listValues.Length) {
-            var selected = listValues[index];
+                selected.IncRef();
+                return selected;
+            }
 
-            selected.IncRef();
+            // Client returned an invalid value.
+            // Return the first value in the list, or null if cancellable
+            if (msg.CanCancel) {
+                return DreamValue.Null;
+            } else {
+                listValues[0].IncRef();
+                return listValues[0];
+            }
+        } finally {
+            // Includes empty, filtered, cancelled, disconnected and exceptional exits.
             foreach (var value in listValues)
-                value.DecRef();
-
-            return selected;
-        }
-
-        // Client returned an invalid value.
-        // Return the first value in the list, or null if cancellable
-        if (msg.CanCancel) {
-            return DreamValue.Null;
-        } else {
-            listValues[0].IncRef();
-            foreach (var value in listValues)
-                value.DecRef();
-
-            return listValues[0];
+                value.Dispose();
         }
     }
 
@@ -444,10 +461,11 @@ public sealed partial class DreamConnection {
     private Task<DreamValue> MakePromptTask(out int promptId) {
         TaskCompletionSource<DreamValue> tcs = new();
         promptId = _nextPromptEvent++;
-
-        _promptEvents.Add(promptId, response => {
-            tcs.TrySetResult(response);
-        });
+        if (Session == null) {
+            tcs.SetResult(DreamValue.Null);
+            return tcs.Task;
+        }
+        _promptEvents.Add(promptId, tcs);
 
         return tcs.Task;
     }

@@ -111,6 +111,7 @@ public sealed partial class GameTests : ContentIntegrationTest {
             EyeAssignmentOwnsExactlyOneReference(tree);
             CompletedSpawnsReuseStates(manager, tree);
             CancelledThreadsReleaseOwnedFrames(manager, tree);
+            ClientPromptsReleaseOwnedValues(manager, tree, server.ResolveDependency<DreamRefManager>());
         });
     }
 }
