@@ -104,7 +104,7 @@ namespace OpenDreamRuntime.Procs {
             }
 
             public override void Cancel() {
-                _callTcs?.SetCanceled();
+                _callTcs?.TrySetCanceled();
             }
 
             public override void Dispose() {
@@ -154,7 +154,11 @@ namespace OpenDreamRuntime.Procs {
                     _callTcs = null;
                     _callResult = null;
 
-                    callTcs.SetResult(callResult);
+                    // Cancellation may have completed the TCS while its async
+                    // continuation is still pending. A refused transfer keeps
+                    // the owner here, rather than stranding it in a thrown call.
+                    if (callTcs?.TrySetResult(callResult) != true)
+                        callResult.Dispose();
                 }
 
                 // SetResult runs the continuation synchronously. It may finish

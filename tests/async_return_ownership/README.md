@@ -8,8 +8,14 @@ Another 1000 production frames acquire real DM return values, replace the pendin
 value, then cancel/pop before delivery. This is a controlled frame boundary test,
 not a live gameplay cancellation scenario.
 
-Five remote controls restore the immutable pre-fix AsyncNativeProc or omit
-acquisition, pending replacement release, disposal release or reentry scheduling.
+Another 1000 connected CallNoWait tasks cancel their actual live TCS before a
+real DM return, hold the async frame open through refused delivery and then drain
+through connected game ticks. Refused delivery releases its owned value and
+repeated cancellation is idempotent.
+
+Six remote controls restore the immutable pre-fix AsyncNativeProc or omit
+acquisition, pending replacement release, disposal release, reentry scheduling
+or refused-delivery release.
 The shared strict verifier requires exactly one intended NUnit assertion with
 its complete expression, delta and actual fixture stack. Existing native-argument
 verifier defaults and unrelated-error guards remain unchanged.

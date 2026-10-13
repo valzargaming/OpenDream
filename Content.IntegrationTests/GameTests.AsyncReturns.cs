@@ -86,6 +86,42 @@ public sealed partial class GameTests {
                 Assert.That(payload.RefCount, Is.EqualTo(1), "Canceled pending async return releases its owner");
             }
             });
+
+            // Real CallNoWait creates a live TCS. Cancel before the real DM
+            // callee returns, holding the async task open through refused delivery.
+            for (var iteration = 0; iteration < 1000; iteration++) {
+                var cleanup = new TaskCompletionSource<bool>();
+                var canceled = false;
+                var finished = false;
+                await onServer(() => {
+                    using var initial = DreamThread.Run("canceled live async delivery", async state => {
+                        var pending = state.CallNoWait(proc!, manager.WorldInstance, null, new DreamValue(payload));
+                        state.Thread.CancelAll();
+                        state.Thread.CancelAll(); // Cancellation is idempotent.
+                        try {
+                            using var unexpected = await pending;
+                        } catch (OperationCanceledException) {
+                            canceled = true;
+                        }
+                        await cleanup.Task;
+                        finished = true;
+                        return DreamValue.Null;
+                    });
+                    Assert.That(canceled, Is.True, "Actual awaited CallNoWait TCS was canceled");
+                    Assert.That(payload.RefCount, Is.EqualTo(1), "Canceled live async delivery releases refused owner");
+                    cleanup.SetResult(true);
+                });
+                var done = false;
+                for (var tick = 0; tick < 100 && !done; tick++) {
+                    await advanceTicks(1);
+                    await onServer(() => done = finished);
+                }
+                await onServer(() => {
+                    Assert.That(finished, Is.True, "Canceled live async continuation drains");
+                    Assert.That(payload.RefCount, Is.EqualTo(1));
+                    Assert.That(payload.Deleted, Is.False);
+                });
+            }
         } finally {
             await onServer(() => payload.DecRef());
         }
@@ -93,7 +129,7 @@ public sealed partial class GameTests {
         Assert.That(payload.Deleted, Is.True);
         using var located = refs.LocateRef(id);
         Assert.That(located.IsNull, Is.True);
-        TestContext.Progress.WriteLine("Async return ownership: 2000 connected Call/CallNoWait deliveries, 2000 reentrant calls and 1000 pending-return replacements/cancellations passed");
+        TestContext.Progress.WriteLine("Async return ownership: 2000 connected Call/CallNoWait deliveries, 2000 reentrant calls, 1000 pending-return replacements/cancellations and 1000 live canceled-TCS refused deliveries passed");
         });
     }
 }

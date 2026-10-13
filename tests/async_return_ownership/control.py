@@ -8,7 +8,7 @@ sys.path.insert(0, str(root / 'tests/native_argument_ownership'))
 from verify import verify
 
 parser = argparse.ArgumentParser()
-parser.add_argument('control', choices=['baseline', 'acquire', 'replacement', 'dispose', 'reentry'])
+parser.add_argument('control', choices=['baseline', 'acquire', 'replacement', 'dispose', 'reentry', 'refused-release'])
 parser.add_argument('--verify', type=pathlib.Path)
 parser.add_argument('--trx', type=pathlib.Path)
 parser.add_argument('--exit-code', type=int)
@@ -19,6 +19,7 @@ cases = {
     'replacement': ('Replacing pending return releases its prior owner', 'payload.RefCount', 2, 3),
     'dispose': ('Canceled pending async return releases its owner', 'payload.RefCount', 1, 2),
     'reentry': ('Reentrant async call preserves the earlier awaited owner', 'reentrant', 3, 0),
+    'refused-release': ('Canceled live async delivery releases refused owner', 'payload.RefCount', 1, 2),
 }
 if args.verify:
     marker, expression, expected, actual = cases[args.control]
@@ -43,6 +44,10 @@ else:
     elif args.control == 'dispose':
         old = '                _callTcs = null!;\n                _callResult?.Dispose();'
         new = '                _callTcs = null!;'
+    elif args.control == 'refused-release':
+        old = '''                    if (callTcs?.TrySetResult(callResult) != true)
+                        callResult.Dispose();'''
+        new = '                    callTcs?.TrySetResult(callResult);'
     else:
         old = '''                if (_callProcNotify != null) {
                     var callProcNotify = _callProcNotify;
