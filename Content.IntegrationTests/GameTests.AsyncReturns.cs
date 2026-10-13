@@ -122,6 +122,35 @@ public sealed partial class GameTests {
                     Assert.That(payload.Deleted, Is.False);
                 });
             }
+            // Complete immediately after canceling a real CallNoWait task while
+            // Resume still guards reentry. Its callee was created, but has not
+            // been pushed: disposal must release that frame's argument owner.
+            await onServer(() => {
+                for (var iteration = 0; iteration < 1000; iteration++) {
+                    var pendingOwners = 0;
+                    var canceled = false;
+                    var finished = false;
+                    using var completed = DreamThread.Run("canceled unpushed async callee", async state => {
+                        var pending = state.CallNoWait(proc!, manager.WorldInstance, null, new DreamValue(payload));
+                        pendingOwners = payload.RefCount;
+                        state.Thread.CancelAll();
+                        state.Thread.CancelAll();
+                        try {
+                            using var unexpected = await pending;
+                        } catch (OperationCanceledException) {
+                            canceled = true;
+                        }
+                        finished = true;
+                        return DreamValue.Null;
+                    });
+                    Assert.That(pendingOwners, Is.EqualTo(2), "Actual unpushed callee owns its argument");
+                    Assert.That(canceled, Is.True, "Unpushed callee TCS cancellation is observed");
+                    Assert.That(finished, Is.True, "Canceled unpushed callee continuation completes immediately");
+                    Assert.That(completed.IsNull, Is.True);
+                    Assert.That(payload.RefCount, Is.EqualTo(1), "Canceled unpushed async callee releases its argument owner");
+                    Assert.That(payload.Deleted, Is.False);
+                }
+            });
         } finally {
             await onServer(() => payload.DecRef());
         }
@@ -131,6 +160,7 @@ public sealed partial class GameTests {
         Assert.That(located.IsNull, Is.True);
         Assert.That(manager.LastDMException, Is.Null, "Async return fixture produces no engine runtime errors");
         TestContext.Progress.WriteLine("Async return ownership: 2000 connected Call/CallNoWait deliveries, 2000 reentrant calls, 1000 pending-return replacements/cancellations and 1000 live canceled-TCS refused deliveries passed");
+        TestContext.Progress.WriteLine("Pending async callee ownership: 1000 immediately canceled unpushed DM callees released their argument owners");
         });
     }
 }

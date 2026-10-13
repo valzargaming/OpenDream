@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        control: [baseline, acquire, replacement, dispose, reentry, refused-release]
+        control: [baseline, acquire, replacement, dispose, reentry, refused-release, pending-baseline, pending-callee]
     steps:
       - uses: actions/checkout@v4
         with:

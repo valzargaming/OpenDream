@@ -13,9 +13,16 @@ real DM return, hold the async frame open through refused delivery and then drai
 through connected game ticks. Refused delivery releases its owned value and
 repeated cancellation is idempotent.
 
-Six remote controls restore the immutable pre-fix AsyncNativeProc or omit
+Another 1000 real CallNoWait requests cancel their TCS and complete immediately
+before Resume can push the newly created DM callee. The pending frame owns its
+argument until that transfer; disposal must release it when no transfer occurs.
+Exact counts and final reference-bucket retirement cover this path without a
+live player or server cancellation claim.
+
+Eight remote controls restore immutable pre-fix AsyncNativeProc versions or omit
 acquisition, pending replacement release, disposal release, reentry scheduling
-or refused-delivery release.
+or refused-delivery release. The pending-callee controls restore exact merge
+512112435a6f326fa6f0dd80adfdd00b3aca2f9b or remove only pending-callee disposal.
 The shared strict verifier requires exactly one intended NUnit assertion with
 its complete expression, delta and actual fixture stack. Existing native-argument
 verifier defaults and unrelated-error guards remain unchanged.
