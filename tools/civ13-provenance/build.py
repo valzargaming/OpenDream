@@ -34,6 +34,10 @@ def dependency_inventory(directory):
         actual = git("rev-parse", "HEAD", cwd=child)
         if actual != expected:
             raise RuntimeError("Dependency gitlink mismatch: " + str(child))
+        if subprocess.run(["git", "diff", "--quiet", "--ignore-submodules=all", "HEAD", "--", "."],
+                          cwd=child, timeout=60).returncode:
+            raise RuntimeError("Tracked nested dependency inputs differ from pinned head: " + str(child))
+        reject_untracked_inputs(child)
         result.append({"path": str(child.relative_to(ROOT)), "head": actual,
                        "sources": source_inventory(child)})
         result.extend(dependency_inventory(child))
