@@ -91,8 +91,12 @@ public sealed partial class GameTests {
                 connection.StatObj = new DreamValue(payload);
                 connection.Mob = newMob;
                 Assert.That(payload.RefCount, Is.EqualTo(2), "Mob change releases previous StatObj owner");
-                Assert.That(newMob.RefCount, Is.EqualTo(mobReferences + 2), "Mob and StatObj have separate owners");
+                // The real /mob/Login() places the mob on a turf, which owns another reference.
+                Assert.That(newMob.Loc, Is.Not.Null, "Production Login places the mob in the world");
+                Assert.That(newMob.RefCount, Is.EqualTo(mobReferences + 3), "Mob, StatObj and world location have separate owners");
                 connection.Mob = originalMob;
+                Assert.That(newMob.RefCount, Is.EqualTo(mobReferences + 1), "Mob change preserves only the world location owner");
+                newMob.SetLoc(null);
                 Assert.That(newMob.RefCount, Is.EqualTo(mobReferences));
             } finally {
                 newMob.DecRef();
