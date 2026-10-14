@@ -14,4 +14,4 @@ OpenDreamShared/OpenDreamCVars.cs text eol=lf
 Content.IntegrationTests/ListPoolCapacityTests.cs text eol=lf
 OpenDreamRuntime/Objects/DreamObject.cs text eol=lf
 OpenDreamRuntime/Objects/DreamObjectTree.cs text eol=lf
-OpenDreamRuntime/DreamRefManager.cs text eol=lf
+OpenDreamRuntime/Objects/DreamRefManager.cs text eol=lf

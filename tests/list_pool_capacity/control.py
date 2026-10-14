@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[2]
 BASE = '8b46fd2a6dda5095df1d0fc8db7fd029cd186ba4'
 LIST = 'OpenDreamRuntime/Objects/Types/DreamList.cs'
 PATHS = [LIST, 'OpenDreamRuntime/Objects/DreamObject.cs',
-         'OpenDreamRuntime/Objects/DreamObjectTree.cs', 'OpenDreamRuntime/DreamRefManager.cs',
+         'OpenDreamRuntime/Objects/DreamObjectTree.cs', 'OpenDreamRuntime/Objects/DreamRefManager.cs',
          'OpenDreamRuntime/DreamValue.cs', 'OpenDreamRuntime/DreamManager.cs',
          'OpenDreamShared/OpenDreamCVars.cs', 'Content.IntegrationTests/ListPoolCapacityTests.cs']
 
