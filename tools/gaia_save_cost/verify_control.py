@@ -10,20 +10,33 @@ NEEDLES={
  'late-write':'Assert.That(shardPaths.Select(DiskSha).ToArray(), Is.EqualTo(sealedHashes)',
  'cap':'Assert.That(snapshot.GetProperty("capExcluded").GetInt64(), Is.Zero)',
 }
+
+def result_for_test(trx,expected):
+    root=ET.parse(trx).getroot()
+    elements=lambda name:[x for x in root.iter() if x.tag.split('}')[-1]==name]
+    results=elements('UnitTestResult');definitions=elements('UnitTest')
+    assert len(results)==len(definitions)==1,'exactly one actual test result and definition required'
+    result,definition=results[0],definitions[0]
+    assert result.attrib.get('testId') and result.attrib['testId']==definition.attrib.get('id'),'TRX definition ID mismatch'
+    methods=[x for x in definition if x.tag.split('}')[-1]=='TestMethod']
+    assert len(methods)==1
+    method=methods[0]
+    assert method.attrib.get('className','')+'.'+method.attrib.get('name','')==expected,'wrong TRX class or method'
+    assert result.attrib.get('testName')==method.attrib['name'],'wrong TRX result name'
+    assert method.attrib.get('adapterTypeName')=='executor://nunit3testexecutor/'
+    return result
 def verify(case,source,trx,log):
     text=Path(log).read_text(encoding='utf-8-sig')
     if case!='reader-rejection':assert 'GAIA_CONTROL_CASE:'+case in text,'actual DM case marker missing'
-    results=[x for x in ET.parse(trx).getroot().iter() if x.tag.endswith('UnitTestResult')]
-    assert len(results)==1
-    result=results[0]
+    expected=TEST if case!='reader-rejection' else 'Content.IntegrationTests.GaiaSaveCostReaderControlTests.RejectWrongShardPayload'
+    result=result_for_test(trx,expected)
     if case=='reader-rejection':
-        assert result.attrib['testName']=='Content.IntegrationTests.GaiaSaveCostReaderControlTests.RejectWrongShardPayload'
         assert result.attrib['outcome']=='Passed' and 'GAIA_READER_REJECTION_COMPLETE' in text
     elif case in ['close','yield']:
-        assert result.attrib['testName']==TEST and result.attrib['outcome']=='Passed'
+        assert result.attrib['outcome']=='Passed'
         assert 'GAIA_SAVE_STOPPED_AUDIT ' in text
     else:
-        assert result.attrib['testName']==TEST and result.attrib['outcome']=='Failed'
+        assert result.attrib['outcome']=='Failed'
         lines=Path(source).read_text().splitlines()
         selected=[i+1 for i,x in enumerate(lines) if NEEDLES[case] in x]
         assert len(selected)==1

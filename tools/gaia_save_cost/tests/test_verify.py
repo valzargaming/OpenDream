@@ -32,7 +32,9 @@ class VerifyTests(unittest.TestCase):
             log+=['GAIA_SAVE_SCALARS '+json.dumps(dict(label=x,engineThread=1)) for x in ['before','logical-completion','after-before-seal','stopped-audit']]
             if mutation:mutation(p,profile,guard,pins,log)
             (p/'host.log').write_text('\n'.join(log))
-            (p/'test.trx').write_text('<TestRun><UnitTestResult testName="'+v.TEST+'" outcome="Passed"/></TestRun>')
+            cls,method=v.TEST.rsplit('.',1)
+            (p/'test.trx').write_text('<TestRun><UnitTestResult testId="fixture-id" testName="'+method+'" outcome="Passed"/>'
+                '<UnitTest id="fixture-id"><TestMethod className="'+cls+'" name="'+method+'" adapterTypeName="executor://nunit3testexecutor/"/></UnitTest></TestRun>')
             (p/'guard.json').write_text(json.dumps(guard));(p/'pins.json').write_text(json.dumps(pins))
             return v.verify(p,p/'host.log',p/'test.trx',p/'guard.json',p/'pins.json')
     def test_positive(self):self.assertTrue(self.run_case()['both_shards_unchanged_through_owned_process_exit'])

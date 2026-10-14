@@ -3,8 +3,10 @@
 Invocation is registered in registry.json. Root-owned guarded caller must invoke
 this only after all owned processes have exited and before deleting storage.
 """
-import argparse,hashlib,json,xml.etree.ElementTree as ET
+import argparse,hashlib,json,importlib.util
 from pathlib import Path
+_spec=importlib.util.spec_from_file_location('gaia_control',Path(__file__).with_name('verify_control.py'))
+_control=importlib.util.module_from_spec(_spec);_spec.loader.exec_module(_control)
 HEAD='5075c426b2f6f37dccb14b0902bb98780bbd62e1'
 GAME='9be2a4d6fd42d52c4dc4a75a526b635f5854aee6cce8ab5193f439e82b3fc278'
 TEST='Content.IntegrationTests.GaiaSaveCostHostTests.FullGaiaSaveWindow'
@@ -29,8 +31,7 @@ def verify(root,log_path,trx_path,guard_path,pins_path):
     assert {'test_binary','runtime_binary','sdk_executable','full_game_json','host_source','compiler_binary'} <= {x['role'] for x in pins['files']}
     for item in pins['files']:assert sha(item['path'])==item['sha256'],item['role']
     assert next(x for x in pins['files'] if x['role']=='host_source')['sha256']==HOST_SOURCE_SHA
-    results=[x for x in ET.parse(trx_path).getroot().iter() if x.tag.endswith('UnitTestResult')]
-    assert len(results)==1 and results[0].attrib['outcome']=='Passed' and results[0].attrib['testName']==TEST
+    assert _control.result_for_test(trx_path,TEST).attrib['outcome']=='Passed'
     profiles=rows(log,'GAIA_SAVE_PROFILE ');assert len(profiles)==1
     profile=profiles[0]
     assert profile['captureEnd']=='Completed' and not profile['captureActive'] and profile['capExcluded']==0
