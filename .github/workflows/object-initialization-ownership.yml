@@ -33,13 +33,13 @@ jobs:
           receipt = {'head': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(), 'sha256': {p: hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest() for p in paths}}
           pathlib.Path('object-initialization-candidate.json').write_text(json.dumps(receipt, indent=2))
           PY
-      - name: Apply exactly one omission to this disposable checkout
-        if: matrix.control != 'positive'
-        run: python tests/object_initialization/control.py '${{ matrix.control }}' --root .
       - name: Verify strict structured-result rejection contracts
         run: |
           python -m unittest discover -s tests/native_argument_ownership -p test_verify.py -v
           python -m unittest discover -s tests/object_initialization -p test_verify.py -v
+      - name: Apply exactly one omission to this disposable checkout
+        if: matrix.control != 'positive'
+        run: python tests/object_initialization/control.py '${{ matrix.control }}' --root .
       - name: Build real engine and connected tests
         run: dotnet build --configuration Release --property WarningLevel=4 -m:1 -p:UseSharedCompilation=false --disable-build-servers
       - name: Verify actual production object initialization ownership
