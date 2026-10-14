@@ -38,14 +38,15 @@
     }
   ],
   "expected_sources": {
-    ".github/workflows/world-realtime-clock.yml": "d9d8bcf568291783e6f9fe8fba1207f1967da358525a10186e75dffb10c1adb8",
+    ".github/workflows/world-realtime-clock.yml": "5788016feab66353cfecf3926c79e77379efc48bb0a11348fad8ff00f4d9e3ac",
     "Content.IntegrationTests/DMProject/Fixtures/world-realtime-clock.dm": "b60bf77f951e54685f69c7dc72c7ccc10d898502b8c3537fb00ccba2be7e04ba",
-    "Content.IntegrationTests/WorldRealtimeClockTests.cs": "38c474d7af4e8db6f91f92c467e5261f45a9a66827327ab348916f20dd5ccd47",
+    "Content.IntegrationTests/WorldRealtimeClockTests.cs": "241e9b62c445431c81212b4977e326e78ee1dbbfdd5f95bab2c7ac21eb44bc9f",
     "OpenDreamRuntime/Objects/Types/DreamObjectWorld.cs": "2d95ca68c9be03cde5eb1aa1982677ebc24840873f0907466839419182851db9",
     "tests/world_realtime_clock/control.py": "871022764e26af306b38be96c78df77e93da790e201f404c937771c7cd0285c9",
     "tests/world_realtime_clock/controls.json": "a7214fe4115f813791f7107d05e67b4398b9600fb6dfae98bceb3d8708e0dc3f",
     "tests/world_realtime_clock/test_controls.py": "771ebaac304e3451295e39bed5489ba89dbae706bba8c0d9e572eb04b94dde56",
     "tests/world_realtime_clock/verify.py": "28cc975f5b092bcb723cb94745e3b21af1ed7029a6f1ccca79eccf5309bd481c",
-    "tests/world_realtime_clock/README.md": "778dc3a85dfc668b2cd4e05b7b3d6b1a42fb5abe15f4b7faaeeea3a731a9bdad"
+    "tests/world_realtime_clock/README.md": "0118ab3d9a182f2558a906440b5c3097604867aae53870c1695f3d76412a992b",
+    "tests/string_format_decoder/verify.py": "1e1bf99ca675404f5e40083541ffbffc76351c16a9e26e4760a63493c3debf88"
   }
 }

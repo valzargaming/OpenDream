@@ -20,8 +20,11 @@ bounds. The strict verifier rejects missing/skipped tests, frozen or repeating
 component clocks, invalid host timing, wrong test identities and unrelated
 errors. This bounded smoke does not establish general clock monotonicity.
 
-The workflow retains original build/test logs, actual exit codes, source
-receipts and TRX results. Pure controls can be run without launching an engine:
+Both modes also run the unchanged NoRuntimesTest in a separate host, including
+the existing 200-disposal savefile lifecycle checks. The workflow retains
+original build/test logs, actual exit codes, source receipts, built DLL/PDB
+files with DLL hashes, and TRX results. Pure controls can be run without
+launching an engine:
 
 ```text
 <verified-python> -m unittest discover -s tests/world_realtime_clock -p test_*.py -v

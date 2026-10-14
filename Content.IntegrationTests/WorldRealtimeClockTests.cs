@@ -19,6 +19,7 @@ public sealed class WorldRealtimeClockTests : ContentIntegrationTest {
 
     [Test]
     public async Task UtcEpochDeciseconds() {
+        var originalDirectory = Directory.GetCurrentDirectory();
         var temporary = Path.Combine(Path.GetTempPath(), "opendream-realtime-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(temporary);
         try {
@@ -51,6 +52,8 @@ public sealed class WorldRealtimeClockTests : ContentIntegrationTest {
                 TestContext.Out.WriteLine("WORLD_REALTIME_COMPLETE: public and compiled UTC epoch bounds with float precision");
             });
         } finally {
+            // Loading the compiled fixture changes the process working directory.
+            Directory.SetCurrentDirectory(originalDirectory);
             Directory.Delete(temporary, recursive: true);
         }
     }
