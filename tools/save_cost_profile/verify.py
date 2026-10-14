@@ -32,6 +32,24 @@ def logs_clean(text, method):
     # Any conventional runner ERROR/Fatal lines bypassing classifier are rejected.
     require(re.search(r"^.*\[(?:Error|Fatal)\].*$", text, re.M) is None or all(line.startswith("SAVE_COST_ACTUAL_LOG ") for line in text.splitlines() if re.search(r"\[(?:Error|Fatal)\]", line)), "unclassified error line")
 
+def without_authenticated_stdout_copy(log, stdout, negative):
+    # VSTest's normal console logger repeats failed-test stdout with one leading
+    # space per line. Remove only an exact copy of this selected TRX row; the
+    # original stdout and remaining console diagnostics are checked separately.
+    text = log.replace("\r\n", "\n")
+    header = "  Standard Output Messages:\n"
+    count = text.count(header)
+    require(count <= 1 and (negative or count == 0), "unexpected console stdout-copy block")
+    if count:
+        expected = header + "".join(" " + line + "\n" for line in stdout.splitlines())
+        start = text.index(header)
+        require(text[start:start + len(expected)] == expected, "console stdout copy differs from selected TRX stdout")
+        end = start + len(expected)
+        require(text[end:].startswith("\n\nResults File: "), "unexpected console stdout-copy boundary")
+        text = text[:start] + text[end:]
+    return text
+
+
 def verify(path, method, mode, exit_code, log):
     controls = json.loads(Path(__file__).with_name("controls.json").read_text())
     negative = mode not in ("positive", "original")
@@ -53,7 +71,7 @@ def verify(path, method, mode, exit_code, log):
     # Inspect both channels independently so duplicate capture is not mistaken
     # for duplicate actual log events, and neither channel can hide other errors.
     logs_clean(stdout, method)
-    logs_clean(log, method)
+    logs_clean(without_authenticated_stdout_copy(log, stdout, negative), method)
     outcome = "Failed" if negative else "Passed"
     summary = "Test Run Failed." if negative else "Test Run Successful."
     require(re.search(r"\b" + outcome + " " + re.escape(method) + r"(?:\s|\[)", log) is not None and summary in log, "original log lacks selected result")
