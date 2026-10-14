@@ -12,12 +12,16 @@ permissions:
   contents: read
 jobs:
   output:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 25
     strategy:
       fail-fast: false
       matrix:
-        mode: [positive, baseline, platform-newline]
+        include:
+          - {os: ubuntu-latest, mode: positive}
+          - {os: windows-latest, mode: positive}
+          - {os: ubuntu-latest, mode: baseline}
+          - {os: ubuntu-latest, mode: platform-newline}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -31,6 +35,7 @@ jobs:
         with:
           python-version: '3.13'
       - name: Authenticate production sources and control
+        shell: bash
         env:
           HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
@@ -61,6 +66,7 @@ jobs:
           printf '%s\n' "$code" > output-results/test-exit-code.txt
           tail -70 output-results/output.log
       - name: Authenticate post-build source and exact expected outcomes
+        shell: bash
         env:
           HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
@@ -68,13 +74,14 @@ jobs:
           python tests/resource_output_allocation/verify.py output-results '${{ matrix.mode }}'
       - name: Hash original source, logs, TRX and binaries
         if: always()
+        shell: bash
         run: |
           find output-results -type f -print0 | sort -z | xargs -0 sha256sum > output-sha256.txt
           mv output-sha256.txt output-results/
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: resource-output-${{ matrix.mode }}-${{ github.event.pull_request.head.sha || github.sha }}
+          name: resource-output-${{ matrix.os }}-${{ matrix.mode }}-${{ github.event.pull_request.head.sha || github.sha }}
           path: output-results/
           if-no-files-found: error
           retention-days: 14

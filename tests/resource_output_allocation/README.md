@@ -6,7 +6,8 @@ separately, avoiding the full-size `text + CRLF` temporary string. Cache invalid
 and successful profiling occur after writer disposal. Flush cadence, JSON schema,
 virtual Output dispatch and complete-tree serialization remain unchanged.
 
-The external workflow builds the real integration assembly with pinned .NET SDK
+The external workflow tests the candidate on Linux and Windows, and both negative
+controls on Linux. It builds the real integration assembly with pinned .NET SDK
 10.0.401 and the committed RobustToolbox submodule. It runs three explicit NUnit
 tests with the actual resource, profiler, compiler and isolated runtime:
 
