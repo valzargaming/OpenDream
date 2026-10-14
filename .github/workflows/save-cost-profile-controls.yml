@@ -3,6 +3,8 @@ on:
   pull_request:
     paths:
       - '.github/workflows/save-cost-profile-controls.yml'
+      - 'tools/save_cost_profile/controls.json'
+      - 'tools/save_cost_profile/test_control_mutation.py'
       - 'tools/save_cost_profile/verify.py'
       - 'tools/save_cost_profile/test_stdout_copy.py'
   workflow_dispatch:
