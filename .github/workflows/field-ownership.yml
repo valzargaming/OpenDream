@@ -1,0 +1,65 @@
+name: Field ownership regression
+on:
+  pull_request:
+    paths:
+      - OpenDreamRuntime/Procs/DMProc.cs
+      - Content.IntegrationTests/GameTests.cs
+      - Content.IntegrationTests/GameTests.FieldOwnership.cs
+      - tests/field_ownership/**
+      - .github/workflows/field-ownership.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  field-ownership:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [positive, baseline, omitted-release]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          submodules: recursive
+      - name: Verify exact head
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.401
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Verify pure verifier
+        run: python -m unittest discover -s tests/field_ownership -p 'test_*.py' -v
+      - name: Verify frozen originals and record exact source preparation
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: python tests/field_ownership/control.py '${{ matrix.mode }}' --expected-head "$EXPECTED_HEAD" --receipt field-results/source-receipt.json
+      - name: Verify SDK and full build
+        run: |
+          test "$(dotnet --version)" = '10.0.401'
+          dotnet build OpenDream.slnx --configuration Release --property WarningLevel=4 -m:1 -p:UseSharedCompilation=false --disable-build-servers
+      - name: Production-method ownership tests and strict receipt
+        shell: bash
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set +e
+          COMPlus_gcServer=1 dotnet test Content.IntegrationTests/Content.IntegrationTests.csproj --configuration Release --no-build --filter 'FullyQualifiedName=Content.IntegrationTests.GameTests.NoRuntimesTest' --logger 'trx;LogFileName=field.trx' --results-directory field-results -v n > field-results/field.log 2>&1
+          code=$?
+          set -e
+          tail -80 field-results/field.log
+          python tests/field_ownership/control.py '${{ matrix.mode }}' --expected-head "$EXPECTED_HEAD" --receipt field-results/source-receipt.json --verify
+          python tests/field_ownership/verify.py field-results/field.trx '${{ matrix.mode }}' "$code" --log field-results/field.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: field-ownership-${{ matrix.mode }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: field-results/
+          if-no-files-found: error
+          retention-days: 14
