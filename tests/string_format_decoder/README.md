@@ -5,7 +5,7 @@ formatted input uses a local builder. The same U+FF00-U+FFFF code units are
 removed. Savefile serialization, append, Clear, dirty scheduling and Close remain
 unchanged. Formatting still allocates O(input length) temporary storage.
 
-The separate public StringFormatDecoderTests class exercises all UTF-16 code
+The separate explicit StringFormatDecoderTests class exercises all UTF-16 code
 units, seeded random and large mixed strings, concurrent calls, warmed
 unformatted allocations and post-GC capacity retention. The retention fixture
 uses a non-inlined helper so the large input leaves scope, verifies its weak
@@ -42,7 +42,12 @@ CRLF to LF is the only permitted transformation; whitespace, BOM and lone CR
 are preserved. Receipts retain raw/canonical SHA-256 and Git blob identity, plus
 original and prepared source files. Artifacts preserve full build/test/runtime
 logs, original TRX, SDK information, source receipts and tested DLL/PDBs.
-No existing GameTests/DM project/source pin is changed.
+No existing GameTests/DM project/source pin is changed. The explicit fixture is
+selected by the focused workflow with NUnit.ExplicitMode=Relaxed. This keeps its
+engine server in a separate test host from the ordinary GameTests run because
+BYOND API native-library initialization is process-global. The strict verifier
+requires all seven positive tests or all six baseline tests, so a skipped fixture
+cannot pass as regression evidence.
 
 ## Optional standalone seam benchmark
 

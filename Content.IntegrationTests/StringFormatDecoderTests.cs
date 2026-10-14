@@ -15,6 +15,7 @@ using static OpenDreamRuntime.Objects.Types.DreamObjectSavefile;
 namespace Content.IntegrationTests;
 
 [TestFixture, NonParallelizable]
+[Explicit("Requires a separate test host because BYOND API initialization is process-global")]
 public sealed class StringFormatDecoderTests : ContentIntegrationTest {
     private static string Oracle(string input) => new(input.Where(c => c < '\uFF00').ToArray());
 

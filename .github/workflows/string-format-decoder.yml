@@ -60,7 +60,7 @@ jobs:
             filter="$filter&FullyQualifiedName!~ConcurrentCallsPreserveContent"
           fi
           set +e
-          dotnet test Content.IntegrationTests/Content.IntegrationTests.csproj --configuration Release --no-build --filter "$filter" --logger 'trx;LogFileName=decoder.trx' --results-directory decoder-results -v n > decoder-results/test.log 2>&1
+          dotnet test Content.IntegrationTests/Content.IntegrationTests.csproj --configuration Release --no-build --filter "$filter" --logger 'trx;LogFileName=decoder.trx' --results-directory decoder-results -v n -- NUnit.ExplicitMode=Relaxed > decoder-results/test.log 2>&1
           code=$?
           set -e
           printf '%s\n' "$code" > decoder-results/test-exit-code.txt
