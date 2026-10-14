@@ -45,6 +45,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          python -m unittest discover -s tests/memory_roots -p test_source.py
           python tests/memory_roots/run.py --dotnet "$(command -v dotnet)" --output "$RUNNER_TEMP/memory-root-receipts" --work "$RUNNER_TEMP/memory-root-work" --all-controls
       - name: Upload repeated ownership receipts
         if: always()

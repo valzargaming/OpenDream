@@ -12,6 +12,7 @@ BASELINE = '2e057d36085b0a26d7993f5f8468a8b2c7d1a921'
 PRODUCTION = 'OpenDreamRuntime/Objects/Types/DreamList.cs'
 BASELINE_BLOB = 'd1d3269785bb5fe8a38fcaa95e01e972296b12d8'
 BASELINE_HASH = '872ec67089489fc1f3fdd044a8635131bda293efc96a1648b8a1a8a4083dd48e'
+COMPOSED_CANDIDATE_HASH = '380196bc158ade1044094bb414b46bb36266e43e6f6cff5bfa12c9b6e6edb156'
 CANDIDATE_HASH = 'c5c3baed5e30333ce63fcd38e2be40d5b3cc07bda4c900171e8da84d0a588e55'
 FIXTURE_HASHES = {'Content.IntegrationTests/GameTests.cs': 'f53a97e17fd7f8f249a2bdb05d3ed8c7b1cfa887e29e490dc6884823668ba27c', 'Content.IntegrationTests/GameTests.NumericLists.cs': '9f944b642cc6ec06c01e8085ffec2bcbb757a391496da4c40b114b11a97d542d', 'tests/native_argument_ownership/verify.py': 'ff9ba7da2224604cd45d170e15aa3131061ef7aef56a367ea93f204e278be960'}
 OPTIONS = {
@@ -55,13 +56,31 @@ def verify_positive(trx, log, exit_code):
     if marker not in combined: raise ValueError('Missing completed production fixture marker')
     return True
 
+# Exact additive pool-cap composition. Frozen numeric originals remain authenticated.
+CAP_DECL = b'    // Bound idle backing storage without limiting the size of live DM lists.\n    private const int MaximumPooledCapacity = 65_536;\n'
+OLD_GUARD = b'_values.Capacity > DreamManager.ListPoolThreshold && ListPool.Count < DreamManager.ListPoolSize'
+CAP_GUARD = b'_values.Capacity > DreamManager.ListPoolThreshold && _values.Capacity <= MaximumPooledCapacity\n            && ListPool.Count < DreamManager.ListPoolSize'
+POOL_DECL = b'    private static readonly Stack<List<DreamValue>> ListPool = new();\n'
+
+def compose_pool_cap(original):
+    if original.count(POOL_DECL) != 1 or original.count(OLD_GUARD) != 1 or b'MaximumPooledCapacity' in original:
+        raise ValueError('Unexpected frozen pool source')
+    return original.replace(POOL_DECL, POOL_DECL + CAP_DECL, 1).replace(OLD_GUARD, CAP_GUARD, 1)
+
+def frozen_candidate(source):
+    if source.count(CAP_DECL) != 1 or source.count(CAP_GUARD) != 1:
+        raise ValueError('Missing exact pool-cap composition')
+    original = source.replace(CAP_DECL, b'', 1).replace(CAP_GUARD, OLD_GUARD, 1)
+    if digest(original) != CANDIDATE_HASH or compose_pool_cap(original) != source or digest(source) != COMPOSED_CANDIDATE_HASH:
+        raise ValueError('Not the exact reviewed candidate plus pool cap')
+    return original
+
 def mutation(source, control, baseline_bytes=None):
-    if digest(source) != CANDIDATE_HASH:
-        raise ValueError('Not the exact reviewed production candidate')
+    frozen_candidate(source)
     if control == 'positive': return source
     if control == 'baseline':
         if baseline_bytes is None or digest(baseline_bytes) != BASELINE_HASH: raise ValueError('Wrong immutable baseline')
-        return baseline_bytes
+        return compose_pool_cap(baseline_bytes)
     if control != 'replace-acquire-omit': raise ValueError('Unknown control')
     target=b'                value.IncRef();\n                oldValue.DecRef();'
     if source.count(target)!=1: raise ValueError('Mutation target is not unique')
@@ -70,14 +89,15 @@ def mutation(source, control, baseline_bytes=None):
 def receipt(control, head, source, mutated, fixture_hashes):
     return dict(control=control, baseline_commit=BASELINE, baseline_git_blob=BASELINE_BLOB,
         baseline_sha256=BASELINE_HASH, actual_checkout_head=head, production_path=PRODUCTION,
-        reviewed_candidate_sha256=digest(source), mutated_sha256=digest(mutated),
+        reviewed_candidate_sha256=digest(source), frozen_candidate_sha256=CANDIDATE_HASH,
+        pool_cap_composition_sha256=digest(CAP_DECL + CAP_GUARD), mutated_sha256=digest(mutated),
         fixture_sha256=fixture_hashes, expected_assertion=OPTIONS.get(control),
         scope='file-only source mutation; engine execution recorded separately in TRX/log')
 
 def check_receipt(data, control, current_source, fixture_hashes, expected_mutated=None):
     expected = dict(control=control, baseline_commit=BASELINE, baseline_git_blob=BASELINE_BLOB,
         baseline_sha256=BASELINE_HASH, production_path=PRODUCTION,
-        reviewed_candidate_sha256=CANDIDATE_HASH, fixture_sha256=FIXTURE_HASHES,
+        reviewed_candidate_sha256=COMPOSED_CANDIDATE_HASH, frozen_candidate_sha256=CANDIDATE_HASH, pool_cap_composition_sha256=digest(CAP_DECL + CAP_GUARD), fixture_sha256=FIXTURE_HASHES,
         expected_assertion=OPTIONS.get(control))
     if any(data.get(key) != value for key,value in expected.items()):
         raise ValueError('Wrong control provenance')
@@ -87,6 +107,8 @@ def check_receipt(data, control, current_source, fixture_hashes, expected_mutate
         raise ValueError('Fixture source changed')
     if data.get('mutated_sha256') != digest(current_source):
         raise ValueError('Mutation receipt does not match current source')
+    if len(data.get('reviewed_candidate_sha256', '')) != 64:
+        raise ValueError('Missing composed candidate hash')
     if expected_mutated is not None and digest(current_source) != digest(expected_mutated):
         raise ValueError('Unexpected mutation bytes')
     return True

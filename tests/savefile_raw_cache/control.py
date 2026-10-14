@@ -34,6 +34,11 @@ def mutate(raw, path, mode):
         if mode == 'drop-inmemory': text = text.replace(GUARD, '        ResourceData = null; // Deliberate loss of in-memory resource data.')
     return text.encode()
 
+def authenticate_dependencies(root, spec):
+    import runpy
+    helper = root/'tests/list_pool_capacity/dependency_composition.py'
+    runpy.run_path(str(helper))['validate'](root, spec)
+
 def prepare(root, mode, head, receipt, verify=False):
     assert mode in MODES and git(root, 'rev-parse', 'HEAD').decode().strip() == head
     changed = git(root, 'diff', '--name-only', 'HEAD').decode().splitlines()
@@ -42,6 +47,7 @@ def prepare(root, mode, head, receipt, verify=False):
     raw_manifest = git(root, 'show', head+':'+manifest_path)
     assert (root/manifest_path).read_bytes() == raw_manifest
     manifest = json.loads(raw_manifest)
+    authenticate_dependencies(root, manifest)
     records = {}
     for path, expected in manifest['sources'].items():
         committed = git(root, 'show', head+':'+path)

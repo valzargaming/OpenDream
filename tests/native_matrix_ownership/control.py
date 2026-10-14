@@ -15,12 +15,17 @@ def mutate(raw,mode,path,controls):
  assert sha(result)==c['baseline_sha256' if omitted else 'candidate_sha256']
  return result
 def git(root,*args):return subprocess.run(['git','-C',str(root),*args],check=True,capture_output=True).stdout
+def authenticate_dependencies(root, spec):
+    import runpy
+    helper = root/'tests/list_pool_capacity/dependency_composition.py'
+    runpy.run_path(str(helper))['validate'](root, spec)
+
 def prepare(root,mode,head):
  assert len(head)==40 and all(c in '0123456789abcdef' for c in head)
  assert git(root,'rev-parse','HEAD').decode().strip()==head
  manifest_path='tests/native_matrix_ownership/source-manifest.json'
  raw=(root/manifest_path).read_bytes();assert raw==git(root,'cat-file','blob',head+':'+manifest_path)
- spec=json.loads(raw);controls=json.loads((root/'tests/native_matrix_ownership/controls.json').read_text())
+ spec=json.loads(raw);authenticate_dependencies(root,spec);controls=json.loads((root/'tests/native_matrix_ownership/controls.json').read_text())
  assert spec['historical_creator_base']=='644a0eca75c7a5a5d74b16de04ec589cf0ac1faa'
  historical=git(root,'cat-file','blob',spec['historical_creator_base']+':'+NATIVE)
  assert sha(historical)==spec['historical_native_root_sha256']=='ce29b09ba46d16edb858f8569290651a75436815cdea18f3055b554bc3abe3fa'
@@ -37,6 +42,7 @@ def prepare(root,mode,head):
 def verify(root,receipt,mode,head):
  assert git(root,'rev-parse','HEAD').decode().strip()==head
  raw=(root/'tests/native_matrix_ownership/source-manifest.json').read_bytes();spec=json.loads(raw)
+ authenticate_dependencies(root,spec)
  assert receipt['head']==head and receipt['mode']==mode and receipt['manifest_sha256']==sha(raw)
  assert receipt['sources']==spec['expected_sources'] and set(receipt['prepared'])=={NATIVE,OBJECT}
  controls=json.loads((root/'tests/native_matrix_ownership/controls.json').read_text())

@@ -46,7 +46,7 @@ def verify_archive(results,profile='assoc'):
  return raw
 def load(path,name):
  spec=importlib.util.spec_from_file_location(name,path);module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);return module
-def verify_build(build,profile,mode,prepared_source_sha256=None):
+def verify_build(build,profile,mode,prepared_source_sha256=None,warning_sources=None):
  # Cold full-solution builds already emitted this exact diagnostic set at the
  # authenticated historical head. Accept its bounded source-bound successor;
  # unknown warnings, changed multiplicity/source, and all errors remain fatal.
@@ -64,7 +64,11 @@ def verify_build(build,profile,mode,prepared_source_sha256=None):
  case=spec['cases'][profile][mode]
  assert prepared_source_sha256==case['prepared_source_sha256'],'warning diagnostics require exact reviewed prepared sources'
  normalized=[line.replace('/home/runner/work/OpenDream/OpenDream/','') for line in warning_lines]
- assert len(normalized)==1044 and Counter(normalized)==Counter(case['warnings']),'unknown or changed inherited warning diagnostic'
+ expected=case['warnings']
+ if warning_sources is not None:
+  coordinates=load(here/'warning_coordinates.py','warning_coordinate_composition')
+  expected=coordinates.compose(expected,warning_sources)
+ assert len(normalized)==1044 and Counter(normalized)==Counter(expected),'unknown or changed inherited warning diagnostic'
  return {'warnings':522,'inherited':True,'historical_run':spec['historical_run']}
 
 def replay(results,profile,mode):
@@ -74,7 +78,8 @@ def replay(results,profile,mode):
  build=raw['build.log'].decode('utf-8');assert code('build-exit-code.txt')==0
  prepared=results/'prepared-source'
  pins={p.name:sha(p.read_bytes()) for p in prepared.iterdir() if p.is_file()} if prepared.is_dir() else None
- build_observation=verify_build(build,profile,mode,pins)
+ warning_sources=results/'warning-source'
+ build_observation=verify_build(build,profile,mode,pins,warning_sources if warning_sources.exists() else None)
  assert '10.0.401' in raw['sdk-info.log'].decode('utf-8')
  here=Path(__file__).resolve().parent
  if profile=='assoc':

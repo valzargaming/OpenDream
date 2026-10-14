@@ -33,7 +33,7 @@
     "tests/savefile_raw_cache/README.md": "ae15b64cc43e79e3356ebb9fc39642fe5b81bc31d3a183824fb5ea42e085a63e",
     "tests/savefile_raw_cache/archive_logs.py": "b9e837eb21dccfb828fe1d47647ee4f85c6e136908d8156de6f4f95ed9af97d7",
     "tests/savefile_raw_cache/capture.py": "78f8f8ae50b0c27f2bfa34a776f301904a784665774e672b2e50b9d3b388b23b",
-    "tests/savefile_raw_cache/control.py": "52f025b0303da87865b4055d685c5eb18022bc38c85a3889c9cbe5134717ca81",
+    "tests/savefile_raw_cache/control.py": "80c455582312e0726b40db0cef367d8a2be07f1fb8d8a37107239ec308af1348",
     "tests/savefile_raw_cache/test_archives.py": "07079e2eca4b681d591e5cab0f641108712d58e50659b750971dbf7a40d89182",
     "tests/savefile_raw_cache/test_controls.py": "92a2319ca42af6e994304b723f841a48f19d0e1a945662fcd49a9fbaeec06a35",
     "tests/savefile_raw_cache/test_parser.py": "cf094ffe65f10572a0ee5a74ca3e2c4c6b4200113b0ecb528874a5c22f885d1c",
@@ -49,12 +49,31 @@
     "tools/save_cost_profile/control.py": "f4279a3ca58a016abd73bac3590c4d159f25169a7497ebc9044a00649b3cb570",
     "tools/save_cost_profile/manifest.json": "6e088c16acd60ef2a5cb2b9601bcba258e356a6f8bbd4952fc0d3906596f4363",
     "tools/save_cost_profile/test_source_composition.py": "862a5f4da6dd1175c2bd69c9edc96aa7538f16d2e2508668cdda9bdb84334e82",
-    ".gitattributes": "58af3dc05d8ab0532982e769ad40ec02b51cfcd648fc4faac9f5884c3f2d2a4d",
+    ".gitattributes": "011eed8c7cc4815654e15578bd7e60474ca4f7c5cd4bfdc848ea716eb92a6d9f",
     "tests/resource_output_allocation/control.py": "fe519e31ab6aa3ab2cf74e75f47578fcbe868d1335f9e2c46f9cc6315343d49a",
     "tests/resource_output_allocation/test_controls.py": "06417904b9c46b77e08e61f913a1f850fe5cc98c700d843fd7ecb4c86beb632e",
     "tests/savefile_resource_bytes/source-manifest.json": "4f3e7028fb4be3350f0a930dcd03a7c535ad42acdeea02df20a6340415b9febb",
     "tests/string_format_decoder/source-manifest.json": "d6aec468ada0382e0121e2ea5e9e4fba44273e964e2fd5fb2ec6e707cddbb150",
     "Content.IntegrationTests/SetupCompileDM.cs": "b36fbd0d33ae6a14a2d8e9fc65784b1520aaa8fc2747c02e00c58a14468526b9",
-    "DMCompiler/DMCompiler.csproj": "0f323d9bd962d7fea71bdabb3252952a4202d142b587587bc01a7f80703f3bbc"
+    "DMCompiler/DMCompiler.csproj": "0f323d9bd962d7fea71bdabb3252952a4202d142b587587bc01a7f80703f3bbc",
+    "tests/list_pool_capacity/dependency_composition.py": "0b58dedd30ff517e2e22408fa43fcb36d6d5f1e936a8906013411aa8f37473fe",
+    "tests/list_pool_capacity/frozen_dependencies/list-original.cs": "c5c3baed5e30333ce63fcd38e2be40d5b3cc07bda4c900171e8da84d0a588e55",
+    "tests/list_pool_capacity/frozen_dependencies/numeric-original.py": "acc92ade2f46f0911a5ece1d1691de19a183dc09540afeca1bda4e002b440a5a",
+    "tests/list_pool_capacity/frozen_dependencies/numeric-composed.py": "20127d2a5fadfbce3ae3561b77b3ba5bb6e2651c07a7527ed6bcc886d4a22104",
+    "tests/list_pool_capacity/frozen_dependencies/attributes-base.txt": "bc56fc6d4eccdb7efc0a9d3e89ac0fcc5945ec22c2749c0ef5038f3d672500a5",
+    "tests/list_pool_capacity/frozen_dependencies/attributes-list.txt": "fdb9c3c71829da1aca39dcbc6ab59bc82ba552872b3401afcadc02beabea4cfc",
+    "tests/list_pool_capacity/frozen_dependencies/attributes-cache.txt": "58af3dc05d8ab0532982e769ad40ec02b51cfcd648fc4faac9f5884c3f2d2a4d",
+    "tests/list_pool_capacity/frozen_dependencies/project-original.txt": "aeaee5ef044c58f1c79da81a3ad2a4efd3f0583c577aa19af16a711d1828706f",
+    "tests/list_pool_capacity/frozen_dependencies/project-composed.txt": "7d2ed2e3871ebe160b8b2324d980ea9192725b226dca2d1d752236ae490114a3",
+    "tests/list_pool_capacity/frozen_dependencies/missing-original.py": "a30b8e1f59f23e34288340651d279c198913f3e11039ec593b2317ce0a6c7497",
+    "tests/list_pool_capacity/frozen_dependencies/missing-composed.py": "ef7052ca814fac0a75f534ba93821a79020a1c8b9f83515c3c1ffc3955d20fac"
+  },
+  "dependency_compositions": {
+    ".gitattributes": {
+      "original_sha256": "58af3dc05d8ab0532982e769ad40ec02b51cfcd648fc4faac9f5884c3f2d2a4d",
+      "candidate_sha256": "011eed8c7cc4815654e15578bd7e60474ca4f7c5cd4bfdc848ea716eb92a6d9f",
+      "original_commit": "383c5c98b3a1a4a4cd28ae029a624fbf00190cad",
+      "composition_commit": "12fc9410a7f68b89d2dd796fa9f77900bbb076d1"
+    }
   }
 }
