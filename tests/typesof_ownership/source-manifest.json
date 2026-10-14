@@ -1,0 +1,47 @@
+{
+  "base_commit": "644a0eca75c7a5a5d74b16de04ec589cf0ac1faa",
+  "original_inputs": [
+    {
+      "path": "OpenDreamRuntime/Procs/Native/DreamProcNativeRoot.cs",
+      "sha256": "ce29b09ba46d16edb858f8569290651a75436815cdea18f3055b554bc3abe3fa",
+      "git_blob_oid": "3757e0dc78e1c2fe260ee9ca1b70c0a9f3c309f9"
+    }
+  ],
+  "expected_sources": {
+    "Content.IntegrationTests/Content.IntegrationTests.csproj": "aeaee5ef044c58f1c79da81a3ad2a4efd3f0583c577aa19af16a711d1828706f",
+    "Content.IntegrationTests/ContentIntegrationTest.cs": "11440e100252e5f0c634a160c168cd7bb7646948613425746a84f759413e8ddb",
+    "Content.IntegrationTests/GameTests.cs": "f53a97e17fd7f8f249a2bdb05d3ed8c7b1cfa887e29e490dc6884823668ba27c",
+    "Directory.Packages.props": "7392daa4c44a429ccd0feb736ac7a5429f104f35993c79adca09429ae8738d56",
+    "global.json": "b48d6da8fa62c0da7cc8a2da4ea036ac55836660a448ba533135abb5b8451b73",
+    "OpenDreamRuntime/DreamManager.cs": "a5f27183dc4013ce2f23cb10934ec330339501065d133ac388b385f152de19f7",
+    "OpenDreamRuntime/DreamThread.cs": "57099ffb22c3426183d5ede75cd9c7dc0bddbfd850549df6dfa50c164e5dc082",
+    "OpenDreamRuntime/DreamValue.cs": "383070fb0046a3940e0c3638916ac5fbf6e28fbb82201490113e7de9c4acb71a",
+    "OpenDreamRuntime/Objects/DreamObject.cs": "1d3006d536a0ae846ed4aaebf42256c45baea7af44de91f3b1b475f23945a5ff",
+    "OpenDreamRuntime/Objects/DreamObjectTree.cs": "857c77edd837c0d470c49e49ac79ced31c192c8df09cd1ee2fd21d0dfbc0c550",
+    "OpenDreamRuntime/Objects/DreamRefManager.cs": "b3865a4e99022445794fb19bf0f14d57c17d1c811748c55d8fe19388d2698697",
+    "OpenDreamRuntime/Objects/Types/DreamList.cs": "c5c3baed5e30333ce63fcd38e2be40d5b3cc07bda4c900171e8da84d0a588e55",
+    "OpenDreamRuntime/Objects/Types/DreamObjectException.cs": "928c20e62b2c1dfd47e4787c0e6e51ededfcc086baf03790b9d67d752cbe0a16",
+    "OpenDreamRuntime/Procs/DMOpcodeHandlers.cs": "c467c88732460adcf3349ec6e5608cd8fd9e3208e889c8452c01cc7445673121",
+    "OpenDreamRuntime/Procs/DMProc.cs": "90d11d9bd08ccc768cce7c085678594b792758cd822dcc9a2f3d34958ca687fc",
+    "OpenDreamRuntime/Procs/DreamProcArguments.cs": "775cfc452bc49a6f5393759353a66ee09e16c54c9711683dea1af4f7bd5a1ee9",
+    "OpenDreamRuntime/Procs/NativeProc.cs": "f9a12077fcaa1a3454d36db2b2f385d46c75ca2fd183f121351c25a60caaff15",
+    "tests/string_format_decoder/verify.py": "1e1bf99ca675404f5e40083541ffbffc76351c16a9e26e4760a63493c3debf88",
+    ".github/workflows/typesof-ownership.yml": "369778964f9207c10732881066794e0d921fae45c9838c7b27fd64bccabc1c6e",
+    "Content.IntegrationTests/DMProject/Fixtures/typesof-ownership.dm": "f60b5e6c9606313cbe03240177d2c2453d588d395db3c370b667b3204fbf3b30",
+    "Content.IntegrationTests/TypesOfOwnershipTests.cs": "56ba9b0467b379b862ad5cf2ff29a96da085d469c45fcbca3f25d15caa6b9fad",
+    "OpenDreamRuntime/Procs/Native/DreamProcNativeRoot.cs": "b55a81a8cac15ad87b3a029271ca2f6ca6c1abd8efbdef2b34f376431b699039",
+    "tests/typesof_ownership/archive_logs.py": "2e5eacfa0294591c599fc8e6ad07d77cedd0daf81ebc732c70f0ff5a1fc776fb",
+    "tests/typesof_ownership/control.py": "2975408b70b86d2a82d9cd2354fff55dd62dceb8a98f07f1a4c2fcc1e8d7a821",
+    "tests/typesof_ownership/controls.json": "b80b7a56f66a0783c0b35190e27616f36f76d67159ac7bbcae01dcccf56cdf01",
+    "tests/typesof_ownership/expected-rejection-observations.json": "f01193aec88981350e223e44926ead3c00cded2af9684e39076e3d8ade4f2935",
+    "tests/typesof_ownership/extract_logs.py": "4f4a8b5b440e61e70158ec1a4b43f7b42e3af9aae6e49ceff1ca4d9419d105cf",
+    "tests/typesof_ownership/original-native-root.raw.txt": "ce29b09ba46d16edb858f8569290651a75436815cdea18f3055b554bc3abe3fa",
+    "tests/typesof_ownership/README.md": "e535912e79af4c99696d73aaf53764b64988a198d7ceb5c7b16f7a4a8d9fcdc8",
+    "tests/typesof_ownership/test_archive_logs.py": "581e6e388f36c0c29e8bd20d102bea11a28f5705c30841efad6f58e3a948c60e",
+    "tests/typesof_ownership/test_controls.py": "3ee3c1d6e1892db17bc30b638fbd8f796d13de3f51f86e372698317682bfd463",
+    "tests/typesof_ownership/test_source_controls.py": "a3e08a92f995b4be870ef1c5698cb69fe87914ae61b4e8cbdc67529e7b45ee01",
+    "tests/typesof_ownership/verify.py": "33aab35e97db50ff661cdea467b38a3e790db834601aa18d82932e3335b45078",
+    "Content.IntegrationTests/SetupCompileDM.cs": "b36fbd0d33ae6a14a2d8e9fc65784b1520aaa8fc2747c02e00c58a14468526b9",
+    "tests/typesof_ownership/composed-baseline-native-root.txt": "ba5b23261d1b897c167e4a9e86963362f2c98b727f3e63c0897be6f0914a6263"
+  }
+}

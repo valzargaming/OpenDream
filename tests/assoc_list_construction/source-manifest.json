@@ -14,7 +14,7 @@
     }
   ],
   "expected_sources": {
-    ".github/workflows/assoc-list-construction.yml": "073793f0d80388e3876531c4309e87a3ece2e637458fe0db6988cb7e1124376c",
+    ".github/workflows/assoc-list-construction.yml": "6de2aff11d2294b22478320d12c72057839bdda7b0092381053f759715ab1629",
     ".github/workflows/check-test-parity.yml": "933a567d3508b64f37a6ac4e82b8f3dca4212eb037dd26d478e7efef9e808dbf",
     "Content.IntegrationTests/AssocListConstructionTests.cs": "27da87650e4d44e9adb36f25dc50d187add1cecf45062d2ffd4bccf14808a41c",
     "Content.IntegrationTests/DMProject/Fixtures/assoc-list-construction.dm": "072ca012a493d871f9bfd161d699ed8abf02726928c1067fb94025dc08a6936d",
@@ -33,7 +33,8 @@
     "tests/range_ownership/controls.json": "c12a3cb8b1270ec6fbae39c35f7810dc445d7de38c3ccfd0aefdb84498079466",
     "tests/object_initialization/control.py": "96103c3b3f281c9074dfc9093124bea014a29e80c4df90e34b867818d8993966",
     "tests/native_argument_ownership/verify.py": "ff9ba7da2224604cd45d170e15aa3131061ef7aef56a367ea93f204e278be960",
-    "tests/assoc_list_construction/archive_logs.py": "6a8ccbe495dba3dc62c17fab4700ec07d01134621fdf32bb8b8964aebdd09846",
-    "tests/assoc_list_construction/test_archive_logs.py": "c048b4c010d2df8c19ed2749a4eec8a18f608b20eed230a649adfa8e769a97fb"
+    "tests/assoc_list_construction/archive_logs.py": "446186876b8c9c6a067aa6ae98be70723671592cf45066d16bdc3eb4a02a4b36",
+    "tests/assoc_list_construction/test_archive_logs.py": "c048b4c010d2df8c19ed2749a4eec8a18f608b20eed230a649adfa8e769a97fb",
+    "tests/assoc_list_construction/test_archive_profiles.py": "1e2875944e419ebbdb6eeaf108346035fa82327a69361cc6063cec4dd4d4555b"
   }
 }
