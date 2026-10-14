@@ -1,0 +1,14 @@
+{
+  "OpenDreamRuntime/Procs/Native/DreamProcNativeRoot.cs": {
+    "candidate_sha256": "b55a81a8cac15ad87b3a029271ca2f6ca6c1abd8efbdef2b34f376431b699039",
+    "baseline_sha256": "061565040f9074b67cee70adc5da47fdc16e0666d607fe9c6879db471e1189a5",
+    "candidate": "                try {\n                    matrix.InitSpawn(new DreamProcArguments(bundle.Arguments));\n                } catch {\n                    matrix.DecRef();\n                    throw;\n                }\n\n                return new DreamValue(matrix);",
+    "original": "                matrix.InitSpawn(new DreamProcArguments(bundle.Arguments));\n                return new DreamValue(matrix);"
+  },
+  "OpenDreamRuntime/Objects/DreamObject.cs": {
+    "candidate_sha256": "1d3006d536a0ae846ed4aaebf42256c45baea7af44de91f3b1b475f23945a5ff",
+    "baseline_sha256": "0338a6aaa6a8b1391bb2240117756076c2ee23809308dc078c04659fe72b7ed4",
+    "candidate": "            try {\n                Initialize(creationArguments);\n            } finally {\n                creationArguments.Dispose();\n            }",
+    "original": "            Initialize(creationArguments);\n            creationArguments.Dispose();"
+  }
+}

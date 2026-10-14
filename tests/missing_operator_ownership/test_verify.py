@@ -4,7 +4,7 @@ import pathlib
 import tempfile
 import unittest
 import xml.etree.ElementTree as ET
-from control import OPTIONS, FIXTURE_HASHES, CANDIDATE_HASH, BASELINE_HASH, verify, mutation, receipt, check_receipt, verify_positive
+from control import OPTIONS, FIXTURE_HASHES, CANDIDATE_HASH, BASELINE_HASH, COMPOSED_BASELINE_HASH, INITSPAWN_REVIEWED, INITSPAWN_HISTORICAL, verify, mutation, receipt, check_receipt, verify_positive
 
 NS='http://microsoft.com/schemas/VisualStudio/TeamTest/2010'
 def tag(name): return '{'+NS+'}'+name
@@ -45,10 +45,11 @@ class OracleTests(unittest.TestCase):
         baseline=source.replace(b'        if (!TryGetProc(operatorName, out var proc)) {\n            arguments.Dispose();\n',b'        if (!TryGetProc(operatorName, out var proc)) {\n')
         baseline=mutation(source,'divide-reuse').replace(b'        if (!TryGetProc(operatorName, out var proc)) {\n            arguments.Dispose();\n',b'        if (!TryGetProc(operatorName, out var proc)) {\n')
         for control in ['positive',*OPTIONS]:
-            changed=mutation(source,control,baseline)
+            changed=mutation(source,control,baseline.replace(INITSPAWN_REVIEWED,INITSPAWN_HISTORICAL))
+            self.assertEqual(changed.count(INITSPAWN_REVIEWED),1)
             data=receipt(control,'a'*40,source,changed,FIXTURE_HASHES)
             self.assertTrue(check_receipt(data,control,changed,FIXTURE_HASHES,changed))
-            for key in ('baseline_commit','baseline_git_blob','reviewed_candidate_sha256','mutated_sha256','actual_checkout_head','expected_assertion'):
+            for key in ('baseline_commit','baseline_git_blob','composed_baseline_sha256','reviewed_candidate_sha256','mutated_sha256','actual_checkout_head','expected_assertion'):
                 bad=dict(data);bad[key]='wrong'
                 with self.subTest(control=control,key=key),self.assertRaises(ValueError):
                     check_receipt(bad,control,changed,FIXTURE_HASHES,changed)
@@ -61,7 +62,8 @@ class OracleTests(unittest.TestCase):
         narrow=mutation(source,'divide-reuse').replace(
             b'        if (!TryGetProc(operatorName, out var proc)) {\n            arguments.Dispose();\n',
             b'        if (!TryGetProc(operatorName, out var proc)) {\n')
-        self.assertEqual(__import__('hashlib').sha256(narrow).hexdigest(),BASELINE_HASH)
+        self.assertEqual(__import__('hashlib').sha256(narrow).hexdigest(),COMPOSED_BASELINE_HASH)
+        self.assertEqual(__import__('hashlib').sha256(narrow.replace(INITSPAWN_REVIEWED,INITSPAWN_HISTORICAL)).hexdigest(),BASELINE_HASH)
         for changed in (source,narrow,mutation(source,'missing-dispose'),mutation(source,'divide-reuse')):
             self.assertIn(b'InitDreamObjectState.ValidateArguments(arguments);',changed)
         hooks=(root/'Content.IntegrationTests/GameTests.cs').read_text()
@@ -69,6 +71,20 @@ class OracleTests(unittest.TestCase):
                      'ProcInitializationReleasesOwnedValues','SupportedOperatorFallbacksReleaseOwners',
                      'MissingOperatorArgumentsReleaseOwners','ExternalCallRejectionsReleaseArguments'):
             self.assertEqual(hooks.count(name+'('),1)
+
+    def test_composition_rejects_method_and_foreign_byte_changes(self):
+        source=(pathlib.Path(__file__).resolve().parents[2]/'OpenDreamRuntime/Objects/DreamObject.cs').read_bytes()
+        for changed in (source.replace(INITSPAWN_REVIEWED,INITSPAWN_HISTORICAL),
+                        source.replace(b'Initialize(creationArguments);',b'Initialize(default);'),
+                        source+b'// unrelated change\n'):
+            for control in ['positive',*OPTIONS]:
+                with self.subTest(control=control),self.assertRaises(ValueError):mutation(changed,control)
+        narrow=mutation(source,'divide-reuse').replace(
+            b'        if (!TryGetProc(operatorName, out var proc)) {\n            arguments.Dispose();\n',
+            b'        if (!TryGetProc(operatorName, out var proc)) {\n')
+        historical=narrow.replace(INITSPAWN_REVIEWED,INITSPAWN_HISTORICAL)
+        with self.assertRaises(ValueError):mutation(source,'baseline',narrow)
+        self.assertEqual(mutation(source,'baseline',historical),narrow)
 
     def test_positive_shape_and_completion_markers(self):
         root=document(OPTIONS['baseline'])

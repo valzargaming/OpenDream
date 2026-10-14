@@ -1,0 +1,109 @@
+name: Native matrix initialization ownership
+on:
+  pull_request:
+    paths:
+      - OpenDreamRuntime/Procs/Native/DreamProcNativeRoot.cs
+      - OpenDreamRuntime/Objects/DreamObject.cs
+      - Content.IntegrationTests/NativeMatrixOwnershipTests.cs
+      - Content.IntegrationTests/DMProject/Fixtures/native-matrix-*.dm
+      - tests/native_matrix_ownership/**
+      - tests/assoc_list_construction/archive_logs.py
+      - tests/assoc_list_construction/test_archive*.py
+      - .github/workflows/native-matrix-ownership.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  native-matrix-ownership:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [positive, baseline, omit-creator, omit-arguments]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          submodules: recursive
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.401
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Pure parser and source controls
+        run: |
+          python -m unittest discover -s tests/native_matrix_ownership -p 'test_*.py' -v
+          python -m unittest discover -s tests/assoc_list_construction -p 'test_archive*.py' -v
+      - name: Freeze exact sources and prepare control
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          python tests/native_matrix_ownership/control.py '${{ matrix.mode }}' --expected-head "$EXPECTED_HEAD" --receipt matrix-results/source-receipt.json
+          mkdir -p matrix-results/prepared-source
+          cp OpenDreamRuntime/Procs/Native/DreamProcNativeRoot.cs OpenDreamRuntime/Objects/DreamObject.cs Content.IntegrationTests/NativeMatrixOwnershipTests.cs matrix-results/prepared-source/
+          sha256sum matrix-results/prepared-source/* > matrix-results/prepared-source-sha256.txt
+      - name: Full build with original log
+        shell: bash
+        run: |
+          test "$(dotnet --version)" = '10.0.401'
+          dotnet --info > matrix-results/sdk-info.log
+          set +e
+          dotnet build OpenDream.slnx --configuration Release --property WarningLevel=4 -m:1 -p:UseSharedCompilation=false --disable-build-servers > matrix-results/build.log 2>&1
+          code=$?
+          set -e
+          printf '%s\n' "$code" > matrix-results/build-exit-code.txt
+          tail -80 matrix-results/build.log
+          test "$code" = 0
+          sha256sum bin/Content.IntegrationTests/Content.IntegrationTests.dll bin/Content.IntegrationTests/Content.IntegrationTests.pdb OpenDreamRuntime/bin/Release/net10.0/OpenDreamRuntime.dll OpenDreamRuntime/bin/Release/net10.0/OpenDreamRuntime.pdb > matrix-results/binary-sha256.txt
+          mkdir -p matrix-results/binaries
+          cp bin/Content.IntegrationTests/Content.IntegrationTests.dll bin/Content.IntegrationTests/Content.IntegrationTests.pdb OpenDreamRuntime/bin/Release/net10.0/OpenDreamRuntime.dll OpenDreamRuntime/bin/Release/net10.0/OpenDreamRuntime.pdb matrix-results/binaries/
+      - name: Fast-path compiled DM and ownership observations
+        shell: bash
+        env:
+          MATRIX_OWNERSHIP_MODE: ${{ matrix.mode }}
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set +e
+          COMPlus_gcServer=1 dotnet test Content.IntegrationTests/Content.IntegrationTests.csproj --configuration Release --no-build --filter 'FullyQualifiedName=Content.IntegrationTests.NativeMatrixOwnershipTests.FastRejectionsAndTransfers' --logger 'trx;LogFileName=matrix.trx' --results-directory matrix-results -v n -- NUnit.ExplicitMode=Relaxed > matrix-results/matrix.log 2>&1
+          code=$?
+          set -e
+          printf '%s\n' "$code" > matrix-results/test-exit-code.txt
+          tail -80 matrix-results/matrix.log
+          python tests/native_matrix_ownership/control.py '${{ matrix.mode }}' --expected-head "$EXPECTED_HEAD" --receipt matrix-results/source-receipt.json --verify
+          python tests/native_matrix_ownership/verify.py matrix-results/matrix.trx '${{ matrix.mode }}' "$code" --log matrix-results/matrix.log
+      - name: Constructor-bearing error path in fresh process
+        shell: bash
+        run: |
+          set +e
+          COMPlus_gcServer=1 dotnet test Content.IntegrationTests/Content.IntegrationTests.csproj --configuration Release --no-build --filter 'FullyQualifiedName=Content.IntegrationTests.NativeMatrixOwnershipTests.ConstructorModePreservesRuntimeDelivery' --logger 'trx;LogFileName=constructors.trx' --results-directory matrix-results -v n -- NUnit.ExplicitMode=Relaxed > matrix-results/constructors.log 2>&1
+          code=$?
+          set -e
+          printf '%s\n' "$code" > matrix-results/constructors-exit-code.txt
+          tail -60 matrix-results/constructors.log
+          python tests/native_matrix_ownership/verify.py matrix-results/constructors.trx '${{ matrix.mode }}' "$code" --log matrix-results/constructors.log --constructors
+      - name: Ordinary NoRuntimes in fresh process
+        shell: bash
+        run: |
+          set +e
+          COMPlus_gcServer=1 dotnet test Content.IntegrationTests/Content.IntegrationTests.csproj --configuration Release --no-build --filter 'FullyQualifiedName=Content.IntegrationTests.GameTests.NoRuntimesTest' --logger 'trx;LogFileName=runtime.trx' --results-directory matrix-results -v n > matrix-results/runtime.log 2>&1
+          code=$?
+          set -e
+          printf '%s\n' "$code" > matrix-results/runtime-exit-code.txt
+          tail -60 matrix-results/runtime.log
+          python tests/native_matrix_ownership/runtime_verify.py matrix-results/runtime.trx positive "$code" --log matrix-results/runtime.log --runtime
+      - name: Preserve byte-exact matrix logs in bounded archive
+        if: always()
+        run: python tests/assoc_list_construction/archive_logs.py --results matrix-results --profile matrix --allow-incomplete
+      - name: Replay strict classifiers from archived original bytes
+        if: success()
+        run: python tests/assoc_list_construction/archive_logs.py --results matrix-results --profile matrix --replay --mode '${{ matrix.mode }}'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-matrix-${{ matrix.mode }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: matrix-results/
+          if-no-files-found: error
+          retention-days: 14

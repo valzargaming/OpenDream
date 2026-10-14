@@ -12,7 +12,10 @@ BASELINE = '38c2ca104a2151e4223e1f889e2fc754a921921b'
 PRODUCTION = 'OpenDreamRuntime/Objects/DreamObject.cs'
 BASELINE_BLOB = 'ba857682c8627c530aa70405141024da6ec5e4a8'
 BASELINE_HASH = 'f44279ad182b66f0eed33ad09d2e32a9e2e82a4b71e826f624c15a9f74e6f824'
-CANDIDATE_HASH = '0338a6aaa6a8b1391bb2240117756076c2ee23809308dc078c04659fe72b7ed4'
+CANDIDATE_HASH = '1d3006d536a0ae846ed4aaebf42256c45baea7af44de91f3b1b475f23945a5ff'
+COMPOSED_BASELINE_HASH = '442cde807cb325e745efb05f6f6f4dc16d6f3ef565b7588c6f1978c5c6475b0f'
+INITSPAWN_HISTORICAL = b'            Initialize(creationArguments);\n            creationArguments.Dispose();\n'
+INITSPAWN_REVIEWED = b'            try {\n                Initialize(creationArguments);\n            } finally {\n                creationArguments.Dispose();\n            }\n'
 FIXTURE_HASHES = {'Content.IntegrationTests/GameTests.cs': 'f53a97e17fd7f8f249a2bdb05d3ed8c7b1cfa887e29e490dc6884823668ba27c', 'Content.IntegrationTests/GameTests.MissingOperators.cs': '6889e1105578334707162f77f8b04d737e26e2c3f90944001545480b2d5f46a1', 'Content.IntegrationTests/DMProject/code.dm': '446623e93b65fd8ca3a5d1ca9fe219cf8ca0ef909e97321489dc389dd051d840', 'tests/native_argument_ownership/verify.py': 'ff9ba7da2224604cd45d170e15aa3131061ef7aef56a367ea93f204e278be960'}
 OPTIONS = {
     'baseline': dict(marker='Supported operator releases payload owner: operator_multiply_fallback_probe', expected=1, actual=2),
@@ -64,13 +67,15 @@ def mutation(source, control, baseline_bytes=None):
         if baseline_bytes is None or digest(baseline_bytes) != BASELINE_HASH:
             raise ValueError('Not the immutable baseline bytes')
         # Restore only the two operator portions. Keep constructor validation and
-        # every other production byte from the reviewed current-master candidate.
+        # every other production byte from the reviewed composed candidate.
         restored = mutation(source, 'divide-reuse')
         restored = restored.replace(
             b'        if (!TryGetProc(operatorName, out var proc)) {\n            arguments.Dispose();\n',
             b'        if (!TryGetProc(operatorName, out var proc)) {\n')
-        if restored != baseline_bytes:
-            raise ValueError('Narrow operator baseline does not equal immutable current-master source')
+        if (digest(restored) != COMPOSED_BASELINE_HASH
+                or restored.count(INITSPAWN_REVIEWED) != 1
+                or restored.replace(INITSPAWN_REVIEWED, INITSPAWN_HISTORICAL) != baseline_bytes):
+            raise ValueError('Narrow operator baseline does not preserve reviewed InitSpawn composition')
         return restored
     content = source.decode('utf-8')
     if control == 'missing-dispose':
@@ -92,14 +97,14 @@ def mutation(source, control, baseline_bytes=None):
 
 def receipt(control, head, source, mutated, fixture_hashes):
     return dict(control=control, baseline_commit=BASELINE, baseline_git_blob=BASELINE_BLOB,
-        baseline_sha256=BASELINE_HASH, actual_checkout_head=head, production_path=PRODUCTION,
+        baseline_sha256=BASELINE_HASH, composed_baseline_sha256=COMPOSED_BASELINE_HASH, actual_checkout_head=head, production_path=PRODUCTION,
         reviewed_candidate_sha256=digest(source), mutated_sha256=digest(mutated),
         fixture_sha256=fixture_hashes, expected_assertion=OPTIONS.get(control),
         scope='file-only source mutation; engine execution recorded separately in TRX/log')
 
 def check_receipt(data, control, current_source, fixture_hashes, expected_mutated=None):
     expected = dict(control=control, baseline_commit=BASELINE, baseline_git_blob=BASELINE_BLOB,
-        baseline_sha256=BASELINE_HASH, production_path=PRODUCTION,
+        baseline_sha256=BASELINE_HASH, composed_baseline_sha256=COMPOSED_BASELINE_HASH, production_path=PRODUCTION,
         reviewed_candidate_sha256=CANDIDATE_HASH, fixture_sha256=FIXTURE_HASHES,
         expected_assertion=OPTIONS.get(control))
     if any(data.get(key) != value for key,value in expected.items()):
