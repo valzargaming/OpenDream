@@ -16,9 +16,9 @@
     "tests/string_format_decoder/RunBenchmark.ps1": "730eb24fdccea8b053d382cc22a6892987039f5e0804db7b5a22a7e535b4d8fe",
     "tests/string_format_decoder/test_verify.py": "db5632485c3752bb8c8a91a5718b567d8793ce8cf4cb90ed49d8e8c3392c74c1",
     "tests/string_format_decoder/verify.py": "1e1bf99ca675404f5e40083541ffbffc76351c16a9e26e4760a63493c3debf88",
-    "OpenDreamRuntime/Resources/DreamResource.cs": "b7a72852b8b152693fffae5a7611b5d0379d78607beccd7813d3ebb74731ce9e",
+    "OpenDreamRuntime/Resources/DreamResource.cs": "42f43ce2430d79596aab5fdd119b70a8228f826d4f9f63a24dfb88d9b8b104e6",
     "OpenDreamRuntime/DreamValue.cs": "383070fb0046a3940e0c3638916ac5fbf6e28fbb82201490113e7de9c4acb71a",
-    "OpenDreamRuntime/Objects/Types/DreamObjectSavefile.cs": "151a92e3a2691adf0a85787fa15dbe9ff669f4a94309019d6e7e523993b8ee6d",
+    "OpenDreamRuntime/Objects/Types/DreamObjectSavefile.cs": "565b7d86e547ddf96d28cc33ef85e38bde0c771da69d7f2a88807f805395547f",
     "Content.IntegrationTests/GameTests.cs": "f53a97e17fd7f8f249a2bdb05d3ed8c7b1cfa887e29e490dc6884823668ba27c",
     "Content.IntegrationTests/GameTests.Savefile.cs": "221826b0c3867195b1a828750bd260560f06e97b6e934db211bdb50a89a14020"
   }

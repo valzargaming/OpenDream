@@ -12,6 +12,9 @@ MANAGER = 'OpenDreamRuntime/Resources/DreamResourceManager.cs'
 SAVEFILE = 'OpenDreamRuntime/Objects/Types/DreamObjectSavefile.cs'
 BASE = '5075c426b2f6f37dccb14b0902bb98780bbd62e1'
 
+CACHE_READ_ORIGINAL = b'            var data = Resource.ReadAsString();'
+CACHE_READ = b'            string? data;\n            try {\n                data = Resource.ReadAsString();\n            } finally {\n                Resource.ReleaseFileDataCache();\n            }'
+
 def sha(raw): return hashlib.sha256(raw).hexdigest()
 def blob(raw): return hashlib.sha1(b'blob ' + str(len(raw)).encode() + b'\0' + raw).hexdigest()
 def git(root, *args):
@@ -23,6 +26,9 @@ def mutate(raw, mode, spec):
     if mode == 'baseline':
         original = bytes.fromhex(spec['original_hex'])
         assert sha(original) == spec['original_sha256'] and blob(original) == spec['original_blob']
+        if spec.get("preserve_read_cache"):
+            assert original.count(CACHE_READ_ORIGINAL) == 1 and b"ReleaseFileDataCache" not in original
+            original = original.replace(CACHE_READ_ORIGINAL, CACHE_READ)
         return original
     needle = b'if (data.AsSpan().SequenceEqual(candidate))'
     assert raw.count(needle) == 1, 'unexpected equality guard'
@@ -47,19 +53,19 @@ def prepare(root, mode, head, receipt, verify=False):
             spec = controls['production'][path]
             historical = git(root, 'cat-file', 'blob', BASE+':'+path)
             assert historical.hex() == spec['original_hex'], 'wrong historical bytes'
-            wanted = historical if mode == 'baseline' else mutate(committed, mode, spec) if path == MANAGER else committed
+            wanted = mutate(committed, mode, spec) if mode == 'baseline' or path == MANAGER else committed
         if verify:
             assert actual == wanted, 'prepared source drift: '+path
         else:
             assert actual == committed, 'dirty source: '+path
         records[path] = {'original_sha256':sha(committed), 'prepared_sha256':sha(wanted), 'git_blob':blob(committed)}
-    data = {'schema':1, 'head':head, 'mode':mode, 'base':BASE, 'manifest_sha256':sha(raw_manifest), 'sources':records}
+    data = {'schema':1, 'head':head, 'mode':mode, 'base':BASE, 'manifest_sha256':sha(raw_manifest), 'sources':records, 'baseline_preserves_independent_read_cache':mode=='baseline'}
     if verify:
         assert json.loads(receipt.read_text()) == data, 'receipt drift'
     else:
         for path in controls['production']:
             committed = git(root, 'cat-file', 'blob', head+':'+path)
-            wanted = bytes.fromhex(controls['production'][path]['original_hex']) if mode == 'baseline' else mutate(committed,mode,controls['production'][path]) if path == MANAGER else committed
+            wanted = mutate(committed,mode,controls['production'][path]) if mode == 'baseline' or path == MANAGER else committed
             (root/path).write_bytes(wanted)
         receipt.parent.mkdir(parents=True, exist_ok=True)
         receipt.write_text(json.dumps(data,indent=2)+'\n')
