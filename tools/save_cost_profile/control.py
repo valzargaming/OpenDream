@@ -15,6 +15,12 @@ HOST = "Content.IntegrationTests/SaveCostProfileHostTests.cs"
 SMOKE = "Content.IntegrationTests/Smoke.cs"
 SEAM = "OpenDreamShared/Dream/StringFormatDecoder.cs"
 RUNTIME = [SAVEFILE, RESOURCE, HELPER]
+MANAGER = "OpenDreamRuntime/Resources/DreamResourceManager.cs"
+COMPOSED_SAVEFILE_SHA = "86371fc5b8d2d92c50b0f75ed63afdd1cbf992c533e04e702844e6995cb80185"
+COMPOSED_MANAGER_SHA = "ad62b66bfa26039da65ce38ae282d9edefb9fd7392877ae4dcd765f4c9ad84a3"
+OLD_DECODE = b"DreamResourceManager.CreateResource(Convert.FromBase64String(sfDreamFileValue.Data))"
+NEW_DECODE = b"DreamResourceManager.CreateResourceFromSavefile(Convert.FromBase64String(sfDreamFileValue.Data))"
+PACKAGE_CODE = ("controls.json", "control.py", "verify.py", "ci.py", "test_verify.py", "run_package.py", "control_batch.py", "test_copied_artifact_logging.py", "test_source_composition.py")
 METHODS = ["ActualFlushCountsBytesAndClocks", "CappedFlushStopsCounters", "EnabledCloseAndDirtyFailure",
            "ScopeAndResourceFilterCoverage", "DisabledFlushAndLifecycle", "ModerateFlushWorkload", "EmptyClockCalibration"]
 
@@ -43,7 +49,20 @@ def frozen_inputs():
     assert all(manifest["files"].get(path) == digest for path, digest in required.items()), "reviewed source binding drift"
     return manifest, sha(manifest_raw)
 
-def target_sources(mode):
+def compose_savefile(raw):
+    raw = lf(raw)
+    assert raw.count(OLD_DECODE) == 1 and NEW_DECODE not in raw, "unexpected decode seam"
+    return raw.replace(OLD_DECODE, NEW_DECODE)
+
+def authenticate_savefile(raw, frozen):
+    raw, frozen = lf(raw), lf(frozen)
+    if raw == frozen:
+        return False
+    assert sha(raw) == COMPOSED_SAVEFILE_SHA, "unreviewed composed savefile"
+    assert raw == compose_savefile(frozen), "composition changed prior save-profile methods"
+    return True
+
+def target_sources(mode, composed=False):
     frozen_inputs()
     sources = {HOST: (PACKAGE / "frozen/fixture/SaveCostProfileHostTests.cs").read_bytes()}
     if mode == "original":
@@ -64,6 +83,8 @@ def target_sources(mode):
                 assert sources[path].count(anchor) == 1
                 sources[path] = sources[path].replace(anchor, needle + anchor)
             assert sha(sources[path]) == spec["frozen_v3_sha256"], "mutation differs from reviewed v3 bytes"
+    if composed and mode != "original":
+        sources[SAVEFILE] = compose_savefile(sources[SAVEFILE])
     return sources
 
 def prepare(root, mode, head, receipt):
@@ -73,7 +94,7 @@ def prepare(root, mode, head, receipt):
     assert git(root / "RobustToolbox", "rev-parse", "HEAD").decode().strip() == ROBUST, "wrong Robust pin"
     # Frozen manifest and fixtures must be committed at the tested head.
     prefix = PACKAGE.relative_to(root).as_posix()
-    for path in [".gitattributes", "manifest.json", "controls.json", "control.py", "verify.py", "ci.py", "test_verify.py", "run_package.py", "control_batch.py", "test_copied_artifact_logging.py", *manifest["files"]]:
+    for path in [".gitattributes", "manifest.json", *PACKAGE_CODE, *manifest["files"]]:
         assert (PACKAGE / path).read_bytes() == git(root, "show", head + ":" + prefix + "/" + path), "uncommitted package input"
     originals = {}
     for path in (SAVEFILE, RESOURCE, SEAM):
@@ -82,16 +103,25 @@ def prepare(root, mode, head, receipt):
         originals[path] = sha(committed)
     assert subprocess.run(["git", "-C", str(root), "cat-file", "-e", BASE + ":" + HELPER], capture_output=True).returncode != 0, "helper must be absent at baseline"
     before = {}
+    composed = False
     for path, frozen in [(p, "frozen/candidate/" + p) for p in RUNTIME] + [(HOST, "frozen/fixture/SaveCostProfileHostTests.cs"), (SMOKE, "frozen/fixture/Smoke.cs")]:
         committed = git(root, "show", head + ":" + path)
-        assert lf(committed) == lf((PACKAGE / frozen).read_bytes()), "head source differs from reviewed candidate: " + path
+        if path == SAVEFILE:
+            composed = authenticate_savefile(committed, (PACKAGE / frozen).read_bytes())
+        else:
+            assert lf(committed) == lf((PACKAGE / frozen).read_bytes()), "head source differs from reviewed candidate: " + path
         assert lf((root / path).read_bytes()) == lf(committed), "dirty input: " + path
         before[path] = sha(committed)
+    if composed:
+        committed = git(root, "show", head + ":" + MANAGER)
+        assert sha(lf(committed)) == COMPOSED_MANAGER_SHA, "unreviewed resource manager"
+        assert lf((root / MANAGER).read_bytes()) == lf(committed), "dirty resource manager"
+        before[MANAGER] = sha(committed)
     project = root / "Content.IntegrationTests/Content.IntegrationTests.csproj"
     assert lf(project.read_bytes()) == lf(git(root, "show", head + ":Content.IntegrationTests/Content.IntegrationTests.csproj"))
     assert b"SaveCostHostProfile" in project.read_bytes() and b"SAVECOST_PROFILE" in project.read_bytes()
     outputs = {}
-    for path, raw in target_sources(mode).items():
+    for path, raw in target_sources(mode, composed).items():
         target = root / path
         if raw is None:
             target.unlink(missing_ok=True)
@@ -104,9 +134,9 @@ def prepare(root, mode, head, receipt):
         if raw is not None:
             artifact.write_bytes(raw)
     data = dict(schema=1, mode=mode, head=head, base=BASE, robust=ROBUST, manifest_sha256=manifest_sha,
-                immutable_originals=originals, reviewed_head_sources=before, prepared_sources=outputs,
+                immutable_originals=originals, reviewed_head_sources=before, prepared_sources=outputs, composed_savefile=composed,
                 project_sha256=sha(project.read_bytes()), absent_baseline_helper=True,
-                package_code_sha256={name: sha((PACKAGE / name).read_bytes()) for name in ("controls.json", "control.py", "verify.py", "ci.py", "test_verify.py", "run_package.py", "control_batch.py", "test_copied_artifact_logging.py")})
+                package_code_sha256={name: sha((PACKAGE / name).read_bytes()) for name in PACKAGE_CODE})
     receipt.parent.mkdir(parents=True, exist_ok=True)
     receipt.write_text(json.dumps(data, indent=2) + "\n")
 
@@ -119,9 +149,15 @@ def verify_receipt(root, mode, head, receipt):
     assert git(root / "RobustToolbox", "rev-parse", "HEAD").decode().strip() == ROBUST
     assert data["absent_baseline_helper"] is True
     assert data["immutable_originals"] == {path: sha(git(root, "show", BASE + ":" + path)) for path in (SAVEFILE, RESOURCE, SEAM)}
-    assert data["reviewed_head_sources"] == {path: sha(git(root, "show", head + ":" + path)) for path in (*RUNTIME, HOST, SMOKE)}
-    assert data["package_code_sha256"] == {name: sha((PACKAGE / name).read_bytes()) for name in ("controls.json", "control.py", "verify.py", "ci.py", "test_verify.py", "run_package.py", "control_batch.py", "test_copied_artifact_logging.py")}
-    expected = target_sources(mode)
+    composed = authenticate_savefile(git(root, "show", head + ":" + SAVEFILE), (PACKAGE / "frozen/candidate" / SAVEFILE).read_bytes())
+    assert data["composed_savefile"] == composed, "composition receipt drift"
+    if composed:
+        assert sha(lf(git(root, "show", head + ":" + MANAGER))) == COMPOSED_MANAGER_SHA
+        assert lf((root / MANAGER).read_bytes()) == lf(git(root, "show", head + ":" + MANAGER)), "manager drift"
+    paths = (*RUNTIME, HOST, SMOKE, MANAGER) if composed else (*RUNTIME, HOST, SMOKE)
+    assert data["reviewed_head_sources"] == {path: sha(git(root, "show", head + ":" + path)) for path in paths}
+    assert data["package_code_sha256"] == {name: sha((PACKAGE / name).read_bytes()) for name in PACKAGE_CODE}
+    expected = target_sources(mode, composed)
     assert data["prepared_sources"] == {p: None if raw is None else sha(raw) for p, raw in expected.items()}
     for path, raw in expected.items():
         assert ((root / path).read_bytes() == raw) if raw is not None else not (root / path).exists()
@@ -133,8 +169,8 @@ def verify_receipt(root, mode, head, receipt):
 def restore(root, mode, head, receipt):
     # Restore ONLY this verified generated variant's five known targets.
     # Never reset/stash the checkout or discard an unverified current mutation.
-    verify_receipt(root, mode, head, receipt)
-    for path, raw in target_sources("positive").items():
+    data = verify_receipt(root, mode, head, receipt)
+    for path, raw in target_sources("positive", data["composed_savefile"]).items():
         assert raw is not None
         (root / path).write_bytes(raw)
 

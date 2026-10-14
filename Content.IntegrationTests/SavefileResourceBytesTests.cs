@@ -35,7 +35,7 @@ public sealed class SavefileResourceBytesTests : ContentIntegrationTest {
                 "Isolated DM fixture compilation failed: " + string.Join("\n", compiler.CompilerMessages));
             var options = new ServerContentIntegrationOption();
             options.CVarOverrides[OpenDreamCVars.JsonPath.Name] = json;
-            options.CVarOverrides[OpenDreamCVars.TopicPort.Name] = (ushort)0;
+            options.CVarOverrides[OpenDreamCVars.TopicPort.Name] = "0";
             var server = StartServer(options);
             await server.WaitIdleAsync();
             await server.WaitRunTicks(1);
