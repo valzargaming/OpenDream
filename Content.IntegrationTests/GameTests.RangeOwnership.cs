@@ -25,7 +25,8 @@ public sealed partial class GameTests {
             frame.Push(end);
             Assert.That(frame.Resume(), Is.EqualTo(ProcStatus.Returned));
             Assert.That(frame.DebugStack().Length, Is.Zero);
-            return frame.Result.MustGetValueAsFloat();
+            var result = frame.Result;
+            return result.MustGetValueAsFloat();
         } finally {
             frame.Dispose();
         }

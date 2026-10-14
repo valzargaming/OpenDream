@@ -11,7 +11,7 @@
     ".github/workflows/range-ownership.yml": "2d799b02fe5f7e80b88355d13202fc1540cc293a0e3c3016af6894eb5a4b842b",
     "Content.IntegrationTests/DMProject/code.dm": "446623e93b65fd8ca3a5d1ca9fe219cf8ca0ef909e97321489dc389dd051d840",
     "Content.IntegrationTests/GameTests.cs": "f53a97e17fd7f8f249a2bdb05d3ed8c7b1cfa887e29e490dc6884823668ba27c",
-    "Content.IntegrationTests/GameTests.RangeOwnership.cs": "3e6d632e7fb3d5a40c97fbbf727d64799054a552a3b27fb5c7bb714112b130fb",
+    "Content.IntegrationTests/GameTests.RangeOwnership.cs": "75df4e298ea4218c39a7d863a9e8591972fed045cd0bad842a1196fdc1c6d43d",
     "OpenDreamRuntime/Procs/DMOpcodeHandlers.cs": "bbbed04358c789254f900fb2b4640ccceda052ec64945f21f002384cbd029510",
     "tests/call_ext_ownership/control.py": "1935430e8162a1d2d25f2706bfc540798f996fafc4041147cbcdc881c07b1bf4",
     "tests/field_ownership/source-manifest.json": "6195ddce00151415cf4f0485e9ccd0babcae40bd7a40f9bff8f7d5cc128903e5",
