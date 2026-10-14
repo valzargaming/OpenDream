@@ -11,6 +11,20 @@ from control import (PACKAGE, SAVEFILE, MANAGER, COMPOSED_MANAGER_SHA,
                      compose_savefile, authenticate_savefile, target_sources)
 
 class SourceCompositionTests(unittest.TestCase):
+    def test_exact_resource_composition_and_adversaries(self):
+        frozen = (PACKAGE/'frozen/candidate'/control.RESOURCE).read_bytes()
+        current = (PACKAGE.parents[1]/control.RESOURCE).read_bytes()
+        self.assertFalse(control.authenticate_resource(frozen, frozen))
+        self.assertTrue(control.authenticate_resource(current, frozen))
+        for changed in (current+b'\n', current.replace(b'writer.Write("\\r\\n");', b'writer.WriteLine();'),
+                        current.replace(b'_resourceDataBacking = null;', b'// cache retained')):
+            with self.assertRaises(AssertionError): control.authenticate_resource(changed, frozen)
+        for mode in ['positive', 'original', *json.loads((PACKAGE/'controls.json').read_text())]:
+            before = target_sources(mode, True)
+            after = target_sources(mode, True, True)
+            for path, raw in before.items():
+                self.assertEqual(after[path], control.compose_resource(raw) if path == control.RESOURCE and mode != 'original' else raw)
+
     def setUp(self):
         self.frozen=(PACKAGE/'frozen/candidate'/SAVEFILE).read_bytes()
         self.current=(PACKAGE.parents[1]/SAVEFILE).read_bytes()
@@ -75,9 +89,11 @@ class SourceCompositionTests(unittest.TestCase):
                         control.prepare(root,mode,head,receipt)
                         data=control.verify_receipt(root,mode,head,receipt)
                         self.assertTrue(data['composed_savefile'])
+                        self.assertTrue(data['composed_resource'])
                         self.assertIn(MANAGER,data['reviewed_head_sources'])
                         manager=root/MANAGER;manager.write_bytes(snapshots[MANAGER]+b'changed')
                         with self.assertRaises(AssertionError):control.verify_receipt(root,mode,head,receipt)
                         manager.write_bytes(snapshots[MANAGER])
                         control.restore(root,mode,head,receipt)
                         self.assertEqual((root/SAVEFILE).read_bytes(),snapshots[SAVEFILE])
+                        self.assertEqual((root/control.RESOURCE).read_bytes(),snapshots[control.RESOURCE])
