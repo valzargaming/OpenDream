@@ -85,22 +85,30 @@ namespace OpenDreamRuntime.Procs {
         public static ProcStatus CreateAssociativeList(DMProcState state) {
             var size = state.ReadInt();
             var list = state.Proc.ObjectTree.CreateList(size);
-            var popped = state.PopCount(size * 2);
+            try {
+                var popped = state.PopCount(size * 2);
+                try {
+                    for (int i = 0; i < popped.Length; i += 2) {
+                        var key = popped[i];
+                        var value = popped[i + 1];
 
-            for (int i = 0; i < popped.Length; i += 2) {
-                using var key = popped[i];
-                using var value = popped[i + 1];
-
-                if (key.IsNull) {
-                    list.AddValue(value);
-                } else {
-                    list.SetValue(key, value, allowGrowth: true);
+                        if (key.IsNull) {
+                            list.AddValue(value);
+                        } else {
+                            list.SetValue(key, value, allowGrowth: true);
+                        }
+                    }
+                } finally {
+                    // Dispose before Push can overwrite the popped stack span.
+                    foreach (var value in popped)
+                        value.Dispose();
                 }
-            }
 
-            state.Push(new DreamValue(list));
-            list.DecRef();
-            return ProcStatus.Continue;
+                state.Push(new DreamValue(list));
+                return ProcStatus.Continue;
+            } finally {
+                list.DecRef();
+            }
         }
 
         public static ProcStatus CreateStrictAssociativeList(DMProcState state) {

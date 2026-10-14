@@ -1,0 +1,10 @@
+{
+  "candidate_sha256": "fe68383c725d4aa8c28774f789905fb2b4a77de259001fcdba1fb66976fb9383",
+  "base_sha256": "bbbed04358c789254f900fb2b4640ccceda052ec64945f21f002384cbd029510",
+  "replacements": [
+    [
+      "        public static ProcStatus CreateAssociativeList(DMProcState state) {\n            var size = state.ReadInt();\n            var list = state.Proc.ObjectTree.CreateList(size);\n            try {\n                var popped = state.PopCount(size * 2);\n                try {\n                    for (int i = 0; i < popped.Length; i += 2) {\n                        var key = popped[i];\n                        var value = popped[i + 1];\n\n                        if (key.IsNull) {\n                            list.AddValue(value);\n                        } else {\n                            list.SetValue(key, value, allowGrowth: true);\n                        }\n                    }\n                } finally {\n                    // Dispose before Push can overwrite the popped stack span.\n                    foreach (var value in popped)\n                        value.Dispose();\n                }\n\n                state.Push(new DreamValue(list));\n                return ProcStatus.Continue;\n            } finally {\n                list.DecRef();\n            }\n        }",
+      "        public static ProcStatus CreateAssociativeList(DMProcState state) {\n            var size = state.ReadInt();\n            var list = state.Proc.ObjectTree.CreateList(size);\n            var popped = state.PopCount(size * 2);\n\n            for (int i = 0; i < popped.Length; i += 2) {\n                using var key = popped[i];\n                using var value = popped[i + 1];\n\n                if (key.IsNull) {\n                    list.AddValue(value);\n                } else {\n                    list.SetValue(key, value, allowGrowth: true);\n                }\n            }\n\n            state.Push(new DreamValue(list));\n            list.DecRef();\n            return ProcStatus.Continue;\n        }"
+    ]
+  ]
+}

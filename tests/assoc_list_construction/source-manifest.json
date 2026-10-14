@@ -1,0 +1,25 @@
+{
+  "base_commit": "644a0eca75c7a5a5d74b16de04ec589cf0ac1faa",
+  "original_inputs": [
+    {
+      "path": "OpenDreamRuntime/Procs/DMOpcodeHandlers.cs",
+      "sha256": "bbbed04358c789254f900fb2b4640ccceda052ec64945f21f002384cbd029510",
+      "git_blob_oid": "ff27d331daa32684466e3171078b8a2bcd5270d1"
+    }
+  ],
+  "expected_sources": {
+    ".github/workflows/assoc-list-construction.yml": "f021751e6aa853bf558667b4ba351b31a500d8f8bf6f2a6c80777c8d85bb27f8",
+    ".github/workflows/check-test-parity.yml": "933a567d3508b64f37a6ac4e82b8f3dca4212eb037dd26d478e7efef9e808dbf",
+    "Content.IntegrationTests/AssocListConstructionTests.cs": "b2ffb6db0bbff9a2e1ac8e595093131d2d8e67e80ecac340cab469dbfdfe3f78",
+    "Content.IntegrationTests/DMProject/Fixtures/assoc-list-construction.dm": "de27eeae3bc5bbc8e47c0f7be56eb0cfcb259ecc7396ce27b679fbb0bc21a642",
+    "OpenDreamRuntime/Procs/DMOpcodeHandlers.cs": "fe68383c725d4aa8c28774f789905fb2b4a77de259001fcdba1fb66976fb9383",
+    "tests/assoc_list_construction/README.md": "0943be9d7dbaabf2698d6f7442f5e721c5611c2216067afab45d5f4d866a00be",
+    "tests/assoc_list_construction/control.py": "60839372b62d6cc9a4edb39088a0f1875bb5e9b74a925cea8de7099a31ec5b4b",
+    "tests/assoc_list_construction/controls.json": "4491e13966bee1aa08f6818ae760b1f062c7f1a0e6aa83196c7fa2b91c794fa9",
+    "tests/assoc_list_construction/expected-rejection-observations.json": "c0fad4716a7443d52f068c959d46af9260e54c20acd629109721e6f02370755a",
+    "tests/assoc_list_construction/test_controls.py": "92cc3802cf581030f1c79eefd8653d22a4d8bd6c9f70abf96aae71f76195f005",
+    "tests/assoc_list_construction/test_source_controls.py": "40433b401d53baa38edc1c1cbcf7cea991f097f98e7516dc7c87a73e87a27df5",
+    "tests/assoc_list_construction/verify.py": "6edbda35d08c68acda012c3dc964e7e70dac315b749c4bde4ab00e3572379698",
+    "tests/string_format_decoder/verify.py": "1e1bf99ca675404f5e40083541ffbffc76351c16a9e26e4760a63493c3debf88"
+  }
+}
