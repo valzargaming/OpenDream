@@ -58,6 +58,8 @@ jobs:
           tail -80 matrix-results/build.log
           test "$code" = 0
           sha256sum bin/Content.IntegrationTests/Content.IntegrationTests.dll bin/Content.IntegrationTests/Content.IntegrationTests.pdb OpenDreamRuntime/bin/Release/net10.0/OpenDreamRuntime.dll OpenDreamRuntime/bin/Release/net10.0/OpenDreamRuntime.pdb > matrix-results/binary-sha256.txt
+          mkdir -p matrix-results/binaries
+          cp bin/Content.IntegrationTests/Content.IntegrationTests.dll bin/Content.IntegrationTests/Content.IntegrationTests.pdb OpenDreamRuntime/bin/Release/net10.0/OpenDreamRuntime.dll OpenDreamRuntime/bin/Release/net10.0/OpenDreamRuntime.pdb matrix-results/binaries/
       - name: Fast-path compiled DM and ownership observations
         shell: bash
         env:

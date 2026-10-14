@@ -33,8 +33,10 @@
     "tests/range_ownership/controls.json": "c12a3cb8b1270ec6fbae39c35f7810dc445d7de38c3ccfd0aefdb84498079466",
     "tests/object_initialization/control.py": "d36d07a9faa449beb9cf512e7f75a6c5ee95d332acbc040e40295d32d37a387c",
     "tests/native_argument_ownership/verify.py": "ff9ba7da2224604cd45d170e15aa3131061ef7aef56a367ea93f204e278be960",
-    "tests/assoc_list_construction/archive_logs.py": "446186876b8c9c6a067aa6ae98be70723671592cf45066d16bdc3eb4a02a4b36",
+    "tests/assoc_list_construction/archive_logs.py": "597ccc0e4bf1e2ccf45ccbffdee394bad0a2f2c79ee3f0f9fe79bfe3d306efd6",
     "tests/assoc_list_construction/test_archive_logs.py": "c048b4c010d2df8c19ed2749a4eec8a18f608b20eed230a649adfa8e769a97fb",
-    "tests/assoc_list_construction/test_archive_profiles.py": "1e2875944e419ebbdb6eeaf108346035fa82327a69361cc6063cec4dd4d4555b"
+    "tests/assoc_list_construction/test_archive_profiles.py": "1e2875944e419ebbdb6eeaf108346035fa82327a69361cc6063cec4dd4d4555b",
+    "tests/assoc_list_construction/inherited-build-warnings.json": "a81272cab8fec5996dc56846d1f6d93ddf2ee9f9eba9ac0068d90deca102ca0b",
+    "tests/assoc_list_construction/test_archive_inherited_build_warnings.py": "7beed2a238da448455718d5c570708df01aeab4fcff498781939e3793916e14f"
   }
 }

@@ -1,5 +1,6 @@
 """Retain and replay byte-exact original logs; retention alone is not acceptance."""
 import argparse,hashlib,importlib.util,json,re,zipfile
+from collections import Counter
 from pathlib import Path
 NAMES=('sdk-info.log','build.log','assoc.log','runtime.log')
 PROFILES={'assoc':NAMES,'matrix':('sdk-info.log','build.log','matrix.log','constructors.log','runtime.log')}
@@ -45,13 +46,35 @@ def verify_archive(results,profile='assoc'):
  return raw
 def load(path,name):
  spec=importlib.util.spec_from_file_location(name,path);module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);return module
+def verify_build(build,profile,mode,prepared_source_sha256=None):
+ # Cold full-solution builds already emitted this exact diagnostic set at the
+ # authenticated historical head. Accept its bounded source-bound successor;
+ # unknown warnings, changed multiplicity/source, and all errors remain fatal.
+ assert build.count('Build succeeded.')==1 and not re.search(r'Build FAILED|\[ERRO\]|\berror (?:CS|DM|MSB|NU)\d+',build,re.I)
+ assert re.findall(r'^\s*(\d+) Error\(s\)\s*$',build,re.M)==['0']
+ totals=re.findall(r'^\s*(\d+) Warning\(s\)\s*$',build,re.M)
+ warning_lines=[line for line in build.splitlines() if re.search(r'\bwarning\b',line,re.I) and not re.fullmatch(r'\s*\d+ Warning\(s\)\s*',line)]
+ if totals==['0']:
+  assert not warning_lines
+  return {'warnings':0,'inherited':False}
+ here=Path(__file__).resolve().parent
+ spec=json.loads((here/'inherited-build-warnings.json').read_text())
+ assert spec['schema']==1 and spec['warning_total']==522 and spec['diagnostic_rows']==1044
+ assert totals==['522'] and profile in spec['cases'] and mode in spec['cases'][profile]
+ case=spec['cases'][profile][mode]
+ assert prepared_source_sha256==case['prepared_source_sha256'],'warning diagnostics require exact reviewed prepared sources'
+ normalized=[line.replace('/home/runner/work/OpenDream/OpenDream/','') for line in warning_lines]
+ assert len(normalized)==1044 and Counter(normalized)==Counter(case['warnings']),'unknown or changed inherited warning diagnostic'
+ return {'warnings':522,'inherited':True,'historical_run':spec['historical_run']}
+
 def replay(results,profile,mode):
  raw=verify_archive(results,profile);assert set(raw)==set(PROFILES[profile]),'incomplete archive cannot establish acceptance'
  def code(name):
   value=(results/name).read_text().strip();assert re.fullmatch(r'[01]',value);return int(value)
  build=raw['build.log'].decode('utf-8');assert code('build-exit-code.txt')==0
- assert 'Build succeeded.' in build and re.search(r'\b0 Warning\(s\)',build) and re.search(r'\b0 Error\(s\)',build)
- assert not re.search(r'Build FAILED|(?:error|warning) (?:CS|DM|MSB)\d+|\[ERRO\]',build,re.I)
+ prepared=results/'prepared-source'
+ pins={p.name:sha(p.read_bytes()) for p in prepared.iterdir() if p.is_file()} if prepared.is_dir() else None
+ build_observation=verify_build(build,profile,mode,pins)
  assert '10.0.401' in raw['sdk-info.log'].decode('utf-8')
  here=Path(__file__).resolve().parent
  if profile=='assoc':
@@ -59,11 +82,11 @@ def replay(results,profile,mode):
   runtime=load(here.parent/'string_format_decoder/verify.py','assoc_runtime_replay')
  else:
   matrix=here.parent/'native_matrix_ownership';v=load(matrix/'verify.py','matrix_archive_replay')
-  v.classify((results/'matrix.trx').read_text(),raw['matrix.log'].decode('utf-8'),code('test-exit-code.txt'),mode)
-  v.classify((results/'constructors.trx').read_text(),raw['constructors.log'].decode('utf-8'),code('constructors-exit-code.txt'),mode,True)
+  v.classify((results/'matrix.trx').read_text(encoding='utf-8-sig'),raw['matrix.log'].decode('utf-8'),code('test-exit-code.txt'),mode)
+  v.classify((results/'constructors.trx').read_text(encoding='utf-8-sig'),raw['constructors.log'].decode('utf-8'),code('constructors-exit-code.txt'),mode,True)
   runtime=load(matrix/'runtime_verify.py','matrix_runtime_replay')
  runtime.verify_runtime(results/'runtime.trx',code('runtime-exit-code.txt'),raw['runtime.log'].decode('utf-8'))
- return {'archived_original_logs_replayed':True,'profile':profile,'mode':mode,'scope':'strict classification of original bytes; no new runtime execution'}
+ return {'build_observation':build_observation,'archived_original_logs_replayed':True,'profile':profile,'mode':mode,'scope':'strict classification of original bytes; no new runtime execution'}
 if __name__=='__main__':
  p=argparse.ArgumentParser();p.add_argument('--results',type=Path,required=True);p.add_argument('--profile',choices=PROFILES,default='assoc');p.add_argument('--allow-incomplete',action='store_true');p.add_argument('--replay',action='store_true');p.add_argument('--mode',default='positive');a=p.parse_args()
  print(json.dumps(replay(a.results,a.profile,a.mode) if a.replay else archive(a.results,a.profile,a.allow_incomplete)))

@@ -5,7 +5,7 @@
   "expected_sources": {
     ".github/workflows/assoc-list-construction.yml": "6de2aff11d2294b22478320d12c72057839bdda7b0092381053f759715ab1629",
     ".github/workflows/check-test-parity.yml": "933a567d3508b64f37a6ac4e82b8f3dca4212eb037dd26d478e7efef9e808dbf",
-    ".github/workflows/native-matrix-ownership.yml": "6e5bf41e24803473a92916949e698ffa6cbceecac487f1674f32c0c25bfbd8a5",
+    ".github/workflows/native-matrix-ownership.yml": "d1db8bab92e8db8e6f27db9d7e4043c896d4861d4aea0764ad0977bffb149f8c",
     ".github/workflows/typesof-ownership.yml": "369778964f9207c10732881066794e0d921fae45c9838c7b27fd64bccabc1c6e",
     "Content.IntegrationTests/AssocListConstructionTests.cs": "27da87650e4d44e9adb36f25dc50d187add1cecf45062d2ffd4bccf14808a41c",
     "Content.IntegrationTests/Content.IntegrationTests.csproj": "aeaee5ef044c58f1c79da81a3ad2a4efd3f0583c577aa19af16a711d1828706f",
@@ -37,7 +37,7 @@
     "OpenDreamRuntime/Procs/NativeProc.cs": "f9a12077fcaa1a3454d36db2b2f385d46c75ca2fd183f121351c25a60caaff15",
     "global.json": "b48d6da8fa62c0da7cc8a2da4ea036ac55836660a448ba533135abb5b8451b73",
     "tests/assoc_list_construction/README.md": "4b362db506035b2090981e553db730f8376236c83ed0596a545e8d4bf631a8b6",
-    "tests/assoc_list_construction/archive_logs.py": "446186876b8c9c6a067aa6ae98be70723671592cf45066d16bdc3eb4a02a4b36",
+    "tests/assoc_list_construction/archive_logs.py": "597ccc0e4bf1e2ccf45ccbffdee394bad0a2f2c79ee3f0f9fe79bfe3d306efd6",
     "tests/assoc_list_construction/control.py": "ba4060153a801863d77d4b0bdd7377273c806c693964894e0d7304dff482888c",
     "tests/assoc_list_construction/controls.json": "0b4ff6737929c8f0f7a028c4e289fd8951dfa6729f445196c0faec0732a8f6d3",
     "tests/assoc_list_construction/expected-rejection-observations.json": "c0fad4716a7443d52f068c959d46af9260e54c20acd629109721e6f02370755a",
@@ -73,6 +73,8 @@
     "tests/typesof_ownership/test_archive_logs.py": "581e6e388f36c0c29e8bd20d102bea11a28f5705c30841efad6f58e3a948c60e",
     "tests/typesof_ownership/test_controls.py": "3ee3c1d6e1892db17bc30b638fbd8f796d13de3f51f86e372698317682bfd463",
     "tests/typesof_ownership/test_source_controls.py": "a3e08a92f995b4be870ef1c5698cb69fe87914ae61b4e8cbdc67529e7b45ee01",
-    "tests/typesof_ownership/verify.py": "33aab35e97db50ff661cdea467b38a3e790db834601aa18d82932e3335b45078"
+    "tests/typesof_ownership/verify.py": "33aab35e97db50ff661cdea467b38a3e790db834601aa18d82932e3335b45078",
+    "tests/assoc_list_construction/inherited-build-warnings.json": "a81272cab8fec5996dc56846d1f6d93ddf2ee9f9eba9ac0068d90deca102ca0b",
+    "tests/assoc_list_construction/test_archive_inherited_build_warnings.py": "7beed2a238da448455718d5c570708df01aeab4fcff498781939e3793916e14f"
   }
 }
