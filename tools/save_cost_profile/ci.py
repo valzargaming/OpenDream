@@ -38,7 +38,8 @@ def build(mode, results):
     assert subprocess.check_output(["dotnet", "--version"], cwd=ROOT).decode().strip() == "10.0.401"
     assert run(["dotnet", "--info"], ROOT, results / "sdk-info.log", 60) == 0
     command = ["dotnet", "build", "OpenDream.slnx", "--configuration", "Release", "--property", "WarningLevel=4",
-               "-m:1", "-p:UseSharedCompilation=false", "--disable-build-servers", "-p:SaveCostHostProfile=" + ("false" if mode == "original" else "true")]
+               "-m:1", "-p:UseSharedCompilation=false", "--disable-build-servers", "-p:SaveCostHostProfile=" + ("false" if mode == "original" else "true"),
+               "-p:SaveCostHostOriginal=" + ("true" if mode == "original" else "false")]
     assert run(command, ROOT, results / "build.log", 1200) == 0, "full engine build failed; not a negative pass"
     paths = ["bin/Content.IntegrationTests/Content.IntegrationTests.dll", "bin/Content.IntegrationTests/Content.IntegrationTests.pdb",
              "OpenDreamRuntime/bin/Release/net10.0/OpenDreamRuntime.dll", "OpenDreamRuntime/bin/Release/net10.0/OpenDreamRuntime.pdb"]
