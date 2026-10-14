@@ -46,3 +46,12 @@ DLL/PDB hashes. Run pure checks with a verified interpreter:
 `<python> -m unittest discover -s tests/list_pool_capacity -v`.
 Replays must use `verify.py <original-directory> <mode> --output <derived-directory>`
 to keep extracted original artifacts byte-identical.
+
+Inherited fixture composition: the memory-root extractor includes the actual production
+`MaximumPooledCapacity` declaration alongside `HandleDeletion`. Numeric ownership
+controls retain their frozen candidate and baseline SHA-256 values; authentication
+removes only the exact cap declaration and guard before checking the frozen candidate.
+Historical numeric mode composes those exact spans onto its immutable Git original,
+so its numeric fault remains isolated while the pool fix remains active. Neither
+numeric fixture bodies nor expected assertion/runner fault classifiers change.
+Failed runs 38590594767 and 38590594957 are preserved separately from repaired results.

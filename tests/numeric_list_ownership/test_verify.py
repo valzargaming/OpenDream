@@ -1,6 +1,6 @@
 """Pure source/receipt/TRX tests; no engine or build execution."""
 import copy,hashlib,pathlib,tempfile,unittest,xml.etree.ElementTree as ET
-from control import OPTIONS,FIXTURE_HASHES,CANDIDATE_HASH,BASELINE_HASH,PRODUCTION,mutation,receipt,check_receipt,verify,verify_positive
+from control import OPTIONS,FIXTURE_HASHES,CANDIDATE_HASH,BASELINE_HASH,PRODUCTION,mutation,receipt,check_receipt,verify,verify_positive,frozen_candidate,compose_pool_cap,CAP_DECL,CAP_GUARD
 ROOT=pathlib.Path(__file__).resolve().parents[2]
 NS='http://microsoft.com/schemas/VisualStudio/TeamTest/2010'
 tag=lambda n:'{'+NS+'}'+n
@@ -36,16 +36,17 @@ class Tests(unittest.TestCase):
                 _values[keyInteger - 1] = value;
             }'''
   self.assertEqual(source.count(fixed),1);baseline=source.replace(fixed,original,1)
-  self.assertEqual(hashlib.sha256(source).hexdigest(),CANDIDATE_HASH);self.assertEqual(hashlib.sha256(baseline).hexdigest(),BASELINE_HASH)
+  self.assertEqual(hashlib.sha256(frozen_candidate(source)).hexdigest(),CANDIDATE_HASH);baseline=frozen_candidate(source).replace(fixed,original,1);self.assertEqual(hashlib.sha256(baseline).hexdigest(),BASELINE_HASH)
   for option in ['positive',*OPTIONS]:
    changed=mutation(source,option,baseline);data=receipt(option,'a'*40,source,changed,FIXTURE_HASHES)
    self.assertTrue(check_receipt(data,option,changed,FIXTURE_HASHES,changed))
-   if option=='baseline':self.assertEqual(changed,baseline)
+   if option=='baseline':self.assertEqual(changed,compose_pool_cap(baseline))
    if option=='replace-acquire-omit':self.assertNotEqual(changed,baseline)
-   for key in ['control','baseline_commit','baseline_git_blob','reviewed_candidate_sha256','mutated_sha256','actual_checkout_head','fixture_sha256','expected_assertion']:
+   for key in ['control','baseline_commit','baseline_git_blob','reviewed_candidate_sha256','frozen_candidate_sha256','pool_cap_composition_sha256','mutated_sha256','actual_checkout_head','fixture_sha256','expected_assertion']:
     bad=copy.deepcopy(data);bad[key]='wrong'
     with self.assertRaises(ValueError):check_receipt(bad,option,changed,FIXTURE_HASHES,changed)
-  with self.assertRaises(ValueError):mutation(source+b'changed','baseline',baseline)
+  for changed in [source+b'changed',source.replace(b'65_536',b'65_537'),source.replace(CAP_DECL,b''),source.replace(CAP_GUARD,b'wrong')]:
+   with self.assertRaises(ValueError):mutation(changed,'baseline',baseline)
   with self.assertRaises(ValueError):mutation(source,'baseline',b'wrong')
  def test_exact_fixture_bindings_and_validation_order(self):
   for p,h in FIXTURE_HASHES.items():self.assertEqual(hashlib.sha256((ROOT/p).read_bytes()).hexdigest(),h)
