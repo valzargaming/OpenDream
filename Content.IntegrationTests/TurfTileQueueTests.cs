@@ -67,8 +67,11 @@ public sealed class TurfTileQueueTests : ContentIntegrationTest {
         var retained = 0;
         for (var pass = 0; pass < 3; pass++) {
             Assert.That(manager.TryGetTurfAt((1, 1), 1, out var turf), Is.True);
-            for (var i = 0; i < 20000; i++)
-                manager.SetTurfAppearance(turf!, new MutableAppearance { IconState = (i % 2).ToString() });
+            for (var i = 0; i < 20000; i++) {
+                using var appearance = MutableAppearance.Get();
+                appearance.IconState = (i % 2).ToString();
+                manager.SetTurfAppearance(turf!, appearance);
+            }
             peak = Math.Max(peak, Queue(levels[0]).Count);
             manager.UpdateTiles();
             Assert.That(map.GetTileRef(levels[0].Grid, (1, 1)).Tile.TypeId, Is.EqualTo((int)turf!.Appearance.MustGetId()));
@@ -83,13 +86,18 @@ public sealed class TurfTileQueueTests : ContentIntegrationTest {
         foreach (var level in levels) {
             for (var x = 1; x <= 16; x++) for (var y = 1; y <= 16; y++) {
                 Assert.That(manager.TryGetTurfAt((x, y), level.Z, out var turf), Is.True);
-                manager.SetTurfAppearance(turf!, new MutableAppearance { IconState = "unique" });
+                using var appearance = MutableAppearance.Get();
+                appearance.IconState = "unique";
+                manager.SetTurfAppearance(turf!, appearance);
             }
             Assert.That(Queue(level).Count, Is.EqualTo(256));
         }
         manager.UpdateTiles();
-        for (var pass = 0; pass < 8; pass++)
-            manager.SetAreaAppearance(manager.DefaultArea, new MutableAppearance { IconState = "area" + pass });
+        for (var pass = 0; pass < 8; pass++) {
+            using var appearance = MutableAppearance.Get();
+            appearance.IconState = "area" + pass;
+            manager.SetAreaAppearance(manager.DefaultArea, appearance);
+        }
         var areaPeak = levels.Sum(l => Queue(l).Count);
         manager.UpdateTiles();
         foreach (var level in levels) for (var x = 1; x <= 16; x++) for (var y = 1; y <= 16; y++) {
