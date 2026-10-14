@@ -12,12 +12,45 @@ FAILURES={'positive':{}, 'baseline':{'RetiredCapacityAndWeakRelease':'POOL_CAPAC
           'nonclearing':{'SemanticsReferencesAndMediumReuse':'POOL_CLEAR_AND_RELEASE'},
           'no-pooling':{'RetiredCapacityAndWeakRelease':'POOL_CAPACITY_BOUND boundary', 'SemanticsReferencesAndMediumReuse':'POOL_MEDIUM_REUSE'}}
 
+DIAGNOSTICS = re.compile(r'\[ERRO\]|Unhandled exception|Runtime occurred|runtime error|test run aborted|testhost.*(?:crash|exit)|error (?:CS|MSB|NU)\d+', re.I)
+
+def authenticate_run(root, mode, expected_names):
+    rows = root.findall('t:Results/t:UnitTestResult', NS)
+    definitions = root.findall('t:TestDefinitions/t:UnitTest', NS)
+    assert len(rows) == len(expected_names) == len(definitions)
+    assert {row.get('testName') for row in rows} == set(expected_names)
+    ids = [row.get('testId') for row in rows]
+    assert all(ids) and len(set(ids)) == len(ids)
+    definition_ids = [definition.get('id') for definition in definitions]
+    assert all(definition_ids) and len(set(definition_ids)) == len(definition_ids) and set(ids) == set(definition_ids)
+    failed_count = 0
+    for row in rows:
+        name = row.get('testName'); failed = name in FAILURES[mode]
+        failed_count += int(failed)
+        definition = next(item for item in definitions if item.get('id') == row.get('testId'))
+        methods = definition.findall('t:TestMethod', NS)
+        assert len(methods) == 1 and methods[0].get('className') == CLASS and methods[0].get('name') == name
+        assert row.get('outcome') == ('Failed' if failed else 'Passed')
+        assert len(row.findall('.//t:ErrorInfo', NS)) == int(failed)
+    counters = root.findall('t:ResultSummary/t:Counters', NS)
+    assert len(counters) == 1
+    expected = dict(total=len(rows), executed=len(rows), passed=len(rows)-failed_count, failed=failed_count)
+    for key in ('error', 'timeout', 'aborted', 'inconclusive', 'passedButRunAborted', 'notRunnable', 'notExecuted', 'disconnected', 'warning', 'completed', 'inProgress', 'pending'):
+        expected[key] = 0
+    for key, value in expected.items():
+        assert int(counters[0].get(key, '-1' if key in ('total','executed','passed','failed') else '0')) == value
+    assert not root.findall('.//t:RunInfo', NS)
+    assert not any((node.text or '').strip() for node in root.findall('.//t:StdErr', NS))
+    assert len(root.findall('.//t:ErrorInfo', NS)) == failed_count
+    assert not DIAGNOSTICS.search('\n'.join(root.itertext()))
+
 def load_outputs(directory, mode):
     # Combine only in memory. The three raw TRX/logs remain original artifacts.
     combined=ET.Element('{'+NS['t']+'}TestRun')
     logs=[]
     for name in sorted(TESTS):
         root=ET.fromstring((directory/('pool-'+name+'.trx')).read_text(encoding='utf-8-sig'))
+        authenticate_run(root, mode, {name})
         rows=root.findall('.//t:UnitTestResult',NS)
         assert len(rows)==1 and rows[0].attrib['testName']==name
         definitions=root.findall('.//t:UnitTest/t:TestMethod',NS)
@@ -30,8 +63,13 @@ def load_outputs(directory, mode):
     return ET.tostring(combined,encoding='unicode'),'\n'.join(logs),int(bool(FAILURES[mode]))
 
 def verify(trx, log, mode, exit_code, output):
-    assert not re.search(r'\[ERRO\]|Unhandled exception|Runtime occurred|runtime error|test run aborted|testhost.*(?:crash|exit)|error (?:CS|MSB|NU)\d+',log,re.I)
-    tree=ET.fromstring(trx);rows=tree.findall('.//t:UnitTestResult',NS)
+    assert not DIAGNOSTICS.search(log)
+    tree=ET.fromstring(trx)
+    runs=tree.findall('t:TestRun',NS) or [tree]
+    for run in runs:
+        names={row.get('testName') for row in run.findall('t:Results/t:UnitTestResult',NS)}
+        authenticate_run(run,mode,names)
+    rows=tree.findall('.//t:UnitTestResult',NS)
     assert len(rows)==3 and {row.attrib['testName'] for row in rows}==TESTS
     definitions=tree.findall('.//t:UnitTest/t:TestMethod',NS)
     assert len(definitions)==3 and all(row.attrib['className']==CLASS for row in definitions)
