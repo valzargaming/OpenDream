@@ -15,13 +15,34 @@ def frames(stack):
     assert CLASS+'.CheckResources' in stack and 'Content.IntegrationTests/SavefileResourceBytesTests.cs' in stack
     allowed = (
         re.escape(CLASS)+r'\.CheckResources\([^\r\n]*\)',
+        re.escape(CLASS)+r'\.ResourceIdentityAndSharedBytes\(\)',
         re.escape(CLASS)+r'\.<>c__DisplayClass\d+_\d+\.<(?:CheckResources|ResourceIdentityAndSharedBytes)>b__\d+\(\)',
         r'NUnit\.Framework\.Assert\.Multiple\(TestDelegate testDelegate\)',
         r'Robust\.UnitTesting\.RobustIntegrationTest\.IntegrationGameLoop\.(?:SingleThreadRunUntilEmpty|Run)\(\)',
         r'Robust\.UnitTesting\.RobustIntegrationTest\.ServerIntegrationInstance\._serverMain\(\)',
         r'System\.Threading\.Thread\.StartHelper\.Callback\(Object state\)',
-    )
+        r'Robust\.UnitTesting\.RobustIntegrationTest\.IntegrationInstance\.WaitIdleImplAsync\(Boolean throwOnUnhandled, CancellationToken cancellationToken\)',
+        r'Robust\.UnitTesting\.RobustIntegrationTest\.IntegrationInstance\.WaitAssertion\(Action assertion\)',
+    ) + tuple(re.escape(frame) for frame in (
+        'NUnit.Framework.Internal.TaskAwaitAdapter.GenericAdapter`1.BlockUntilCompleted()',
+        'NUnit.Framework.Internal.MessagePumpStrategy.NoMessagePumpStrategy.WaitForCompletion(AwaitAdapter awaiter)',
+        'NUnit.Framework.Internal.AsyncToSyncAdapter.Await[TResult](TestExecutionContext context, Func`1 invoke)',
+        'NUnit.Framework.Internal.AsyncToSyncAdapter.Await(TestExecutionContext context, Func`1 invoke)',
+        'NUnit.Framework.Internal.Commands.TestMethodCommand.RunTestMethod(TestExecutionContext context)',
+        'NUnit.Framework.Internal.Commands.TestMethodCommand.Execute(TestExecutionContext context)',
+        'NUnit.Framework.Internal.Execution.SimpleWorkItem.<>c__DisplayClass3_0.<PerformWork>b__0()',
+        'NUnit.Framework.Internal.ContextUtils.<>c__DisplayClass1_0`1.<DoIsolated>b__0(Object _)',
+    ))
+    numbered = 0
     for line in stack.splitlines():
+        if not line.strip(): continue
+        if line.strip() == '--- End of stack trace from previous location ---': continue
+        number = re.match(r'^(\d+)\)\s+(?=at )', line)
+        if number:
+            numbered += 1
+            assert numbered == 1 and number[1] == '1', 'unexpected numbered assertion stack'
+            line = line[number.end():]
+
         match=re.fullmatch(r'\s*at (.+?)(?: in (.+):line \d+)?\s*',line)
         assert match and any(re.fullmatch(pattern,match[1]) for pattern in allowed), 'foreign stack frame'
         if match[2]:
@@ -40,7 +61,7 @@ def verify(raw, log, mode, exit_code):
     assert counts.get('total')==counts.get('executed')=='1'
     for key,value in counts.attrib.items():
         if key in ('total','executed','passed','failed'): continue
-        assert key in ('completed','error','timeout','aborted','inconclusive','notRunnable','disconnected','warning','pending','inProgress','passedButRunAborted') and value=='0', 'unknown/nonzero runner counter'
+        assert key in ('completed','error','timeout','aborted','inconclusive','notRunnable','notExecuted','disconnected','warning','pending','inProgress','passedButRunAborted') and value=='0', 'unknown/nonzero runner counter'
     assert not tree.findall('.//t:RunInfo',NS), 'runner diagnostics'
     assert not ERROR.search(log+'\n'+'\n'.join(tree.itertext()))
     stdout=row.findtext('t:Output/t:StdOut','',NS)

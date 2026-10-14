@@ -88,7 +88,9 @@ public sealed class SavefileResourceBytesTests : ContentIntegrationTest {
         using (var result = DreamThread.Run(identity!, manager.WorldInstance, null,
                    new DreamValue(decoded[0]), new DreamValue(decoded[1]))) {
             var values = result.MustGetValueAsIDreamList().GetValues();
-            Assert.That(values[0].MustGetValueAsFloat(), Is.Zero);
+            // DM == compares resource paths; two null paths already compare equal.
+            Assert.That(values[0].MustGetValueAsFloat(), Is.EqualTo(1));
+            Assert.That(new DreamValue(decoded[0]).Equals(new DreamValue(decoded[1])), Is.False);
             Assert.That(values[1], Is.Not.EqualTo(values[2]));
             Assert.That(values[3].MustGetValueAsFloat(), Is.EqualTo(1));
             Assert.That(values[4].MustGetValueAsFloat(), Is.EqualTo(1));

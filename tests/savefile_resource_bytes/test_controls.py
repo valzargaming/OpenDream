@@ -36,6 +36,26 @@ class ParserTests(unittest.TestCase):
         return verify.verify(ET.tostring(root),log,mode,code)
     def test_three_intended_cases(self):
         for mode in control.MODES: self.assertTrue(self.run_case(mode))
+    def test_zero_not_executed_counter(self):
+        def mutate(r,l,c): r.find('.//t:Counters',verify.NS).set('notExecuted','0');return r,l,c
+        self.assertTrue(self.run_case('positive',mutate))
+    def test_reject_nonzero_not_executed(self):
+        def mutate(r,l,c): r.find('.//t:Counters',verify.NS).set('notExecuted','1');return r,l,c
+        with self.assertRaises(AssertionError): self.run_case('positive',mutate)
+    def test_known_async_frames_and_numbered_stack(self):
+        def mutate(r,l,c):
+            stack=r.find('.//t:StackTrace',verify.NS)
+            stack.text+='\n--- End of stack trace from previous location ---\nat NUnit.Framework.Internal.TaskAwaitAdapter.GenericAdapter`1.BlockUntilCompleted()\n1) '+stack.text
+            return r,l,c
+        self.assertTrue(self.run_case('baseline',mutate))
+    def test_reject_wrong_numbered_stack(self):
+        def mutate(r,l,c):
+            stack=r.find('.//t:StackTrace',verify.NS);stack.text+='\n2) '+stack.text;return r,l,c
+        with self.assertRaises(AssertionError): self.run_case('baseline',mutate)
+    def test_reject_unknown_async_frame(self):
+        def mutate(r,l,c):
+            stack=r.find('.//t:StackTrace',verify.NS);stack.text+='\nat NUnit.Framework.Internal.Arbitrary.Run()';return r,l,c
+        with self.assertRaises(AssertionError): self.run_case('baseline',mutate)
     def test_reject_runtime_error(self):
         with self.assertRaises(AssertionError): self.run_case('positive',lambda r,l,c:(r,l+'[ERRO] Bad ref',c))
     def test_reject_compile_error(self):

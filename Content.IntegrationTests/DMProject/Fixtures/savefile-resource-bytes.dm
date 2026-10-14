@@ -8,7 +8,7 @@
     return results
 
 /proc/savefile_resource_identity(a, b)
-    // Keeping distinct resource objects preserves both equality and refs.
+    // DM == compares paths (both null here); refs still identify distinct handles.
     return list(a == b, "\ref[a]", "\ref[b]", locate("\ref[a]") == a, locate("\ref[b]") == b)
 
 /proc/savefile_resource_drop(path)
