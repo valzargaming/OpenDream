@@ -3,6 +3,8 @@ from pathlib import Path
 HERE=Path(__file__).resolve().parent
 sys.path.insert(0,str(HERE))
 import control,verify
+from unittest.mock import patch
+from tempfile import TemporaryDirectory
 
 class Controls(unittest.TestCase):
     def test_actual_source_routes_and_barrier(self):
@@ -15,6 +17,23 @@ class Controls(unittest.TestCase):
         self.assertEqual(control.mutate(raw,'baseline',b'original'),b'original')
         self.assertEqual(control.mutate(raw,'positive',b'original'),raw)
         with self.assertRaises(AssertionError): control.mutate(b'foreign','unsafe-dedup',b'original')
+
+    def test_robust_authentication_rejects_head_dirty_blob_and_disk_drift(self):
+        with TemporaryDirectory() as temporary:
+            root=Path(temporary);path=root/'RobustToolbox'/'source.cs';path.parent.mkdir();path.write_bytes(b'original\n')
+            manifest={'robust_commit':'reviewed','robust_sources':{'source.cs':control.sha(b'original\n')}}
+            def git(_, *args):
+                if args[0]=='rev-parse':return b'reviewed\n'
+                if args[0]=='diff':return b''
+                return b'original\n'
+            with patch.object(control,'git',side_effect=git):
+                self.assertEqual(control.authenticate_robust(root,manifest)['commit'],'reviewed')
+                path.write_bytes(b'drift\n')
+                with self.assertRaises(AssertionError):control.authenticate_robust(root,manifest)
+                path.write_bytes(b'original\n')
+            for replies in ((b'foreign\n',),(b'reviewed\n',b'source.cs\n'),(b'reviewed\n',b'',b'foreign\n')):
+                with patch.object(control,'git',side_effect=replies):
+                    with self.assertRaises(AssertionError):control.authenticate_robust(root,manifest)
 
     def result(self,mode='positive'):
         ns=verify.NS['t'];root=ET.Element('TestRun',xmlns=ns)

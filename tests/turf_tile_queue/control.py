@@ -16,6 +16,19 @@ def mutate(raw,mode,original):
     assert raw.count(needle)==1, 'wrong candidate empty barrier'
     return raw.replace(needle,b'if')
 
+def authenticate_robust(root,manifest):
+    robust=root/'RobustToolbox'
+    commit=manifest['robust_commit']
+    assert git(robust,'rev-parse','HEAD').decode().strip()==commit, 'wrong Robust commit'
+    assert not git(robust,'diff','--name-only','HEAD').strip(), 'dirty Robust source'
+    records={}
+    for path,expected in manifest['robust_sources'].items():
+        committed=git(robust,'cat-file','blob',commit+':'+path)
+        assert sha(committed)==expected, 'unreviewed Robust source '+path
+        assert (robust/path).read_bytes()==committed, 'Robust source drift '+path
+        records[path]={'sha256':sha(committed),'git_blob':hashlib.sha1(b'blob '+str(len(committed)).encode()+b'\0'+committed).hexdigest()}
+    return {'commit':commit,'sources':records}
+
 def prepare(root,mode,head,receipt,verify=False):
     assert git(root,'rev-parse','HEAD').decode().strip()==head
     changed=git(root,'diff','--name-only','HEAD').decode().splitlines()
@@ -26,6 +39,7 @@ def prepare(root,mode,head,receipt,verify=False):
     manifest=json.loads(raw_manifest)
     original=git(root,'cat-file','blob',BASE+':'+MANAGER)
     assert sha(original)==manifest['baseline_sha256']
+    robust=authenticate_robust(root,manifest)
     records={}
     for path,expected in manifest['sources'].items():
         committed=git(root,'cat-file','blob',head+':'+path)
@@ -34,7 +48,7 @@ def prepare(root,mode,head,receipt,verify=False):
         wanted=mutate(committed,mode,original) if path==MANAGER else committed
         assert actual==(wanted if verify else committed), 'source drift '+path
         records[path]={'committed_sha256':sha(committed),'prepared_sha256':sha(wanted)}
-    data={'schema':1,'head':head,'mode':mode,'base':BASE,'manifest_sha256':sha(raw_manifest),'sources':records}
+    data={'schema':1,'head':head,'mode':mode,'base':BASE,'manifest_sha256':sha(raw_manifest),'sources':records,'robust':robust}
     if verify: assert json.loads(receipt.read_text())==data
     else:
         (root/MANAGER).write_bytes(mutate(git(root,'cat-file','blob',head+':'+MANAGER),mode,original))

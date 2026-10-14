@@ -14,10 +14,12 @@
     ".github/workflows/turf-tile-queue.yml": "d41a4b0cd69f4eec943b9b337158caff9b7cceacabf396e016478dd36200b630",
     "tests/string_format_decoder/verify.py": "1e1bf99ca675404f5e40083541ffbffc76351c16a9e26e4760a63493c3debf88",
     "tests/turf_tile_queue/archive_logs.py": "544e1e9d83d559bb96ab1461a1ced0277dc95ad8a870203976f1c3368de6820b",
-    "tests/turf_tile_queue/capture.py": "1823b83f62c33a3fbf6b50a6dce31b463183feb48c71a45480d1f779a6c39b49",
-    "tests/turf_tile_queue/control.py": "ab9e69e1cc9c43d9f8f9f6d2445fc768ed4bdb77bfd67bab92c9f40053f7e045",
-    "tests/turf_tile_queue/test_controls.py": "3d5190881822ff334ec7edc7e4289af42063d8db1fff30f00b78d4306d0da740",
+    "tests/turf_tile_queue/capture.py": "7fdbbe75f45a570f98f70a4cac58ccd96e1265a1c485a1e49f3162bc66168184",
+    "tests/turf_tile_queue/control.py": "44409befed158b0dedce2111dc1521eb09e777352d33fd368fddc903fdafdab3",
+    "tests/turf_tile_queue/test_controls.py": "280f7545470bb7af9a69db8c695c15ce60c13121b70c6c5ce8f940ea24f3b21f",
     "tests/turf_tile_queue/verify.py": "0c8fbd94d1583c594f1a013617690b9c25f6b5a4958b793e0022f74fc898fb7d",
-    "tests/turf_tile_queue/README.md": "dd15a96514e2619f63772044571a4674abcf21a42860d0b45f1ef1e2b7c0237c"
+    "tests/turf_tile_queue/README.md": "83f8ea31477bfc010f912233b08d9fa1c7726e9ac6bb75ebed57225db113925c",
+    "OpenDreamClient/Rendering/DMISpriteSystem.cs": "94ba6247827efd80d0c94bd5e7c0c875f36c96fdf070c0abc1a8e03570314074",
+    "OpenDreamShared/Dream/MutableAppearance.cs": "592f419f16a40c3e8cc433fd59716c17a9de1aaa9f41a0d2781414306d1b836a"
   }
 }
