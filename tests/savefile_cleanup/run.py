@@ -60,8 +60,9 @@ def run(args, control):
         profile_raw = (ROOT / PROFILE_PATH).read_bytes()
         receipt['sources'][PROFILE_PATH] = hashlib.sha256(profile_raw).hexdigest()
         receipt['profile_adapter'] = {
-            'prefix': 'using DreamResource = global::DreamResource;\n',
-            'scope': 'Complete production profiler with the existing inert disk resource type. '
+            'prefix': '',
+            'resource_namespace': 'OpenDreamRuntime.Resources',
+            'scope': 'Complete unmodified production profiler with the inert disk resource type in its production namespace. '
                      'Profiling remains disabled; this suite does not verify enabled measurements.'}
     if control == 'close-detach':
         old_close = body(git('show', f'{BASELINE}:{PATHS[1]}'), 'public void Close()')
@@ -89,7 +90,7 @@ def run(args, control):
             (temp / name).write_bytes((HERE / name).read_bytes())
         profile_import = ''
         if profile_raw is not None:
-            adapted_profile = receipt['profile_adapter']['prefix'].encode() + profile_raw
+            adapted_profile = profile_raw
             (temp / 'SaveCostProfile.cs').write_bytes(adapted_profile)
             receipt['profile_adapter']['compiled_sha256'] = hashlib.sha256(adapted_profile).hexdigest()
             profile_import = 'using OpenDreamRuntime.Resources;\n'
