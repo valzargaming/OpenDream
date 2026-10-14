@@ -16,6 +16,7 @@
     "OpenDreamRuntime/DreamValue.cs": "383070fb0046a3940e0c3638916ac5fbf6e28fbb82201490113e7de9c4acb71a",
     "OpenDreamRuntime/Objects/DreamRefManager.cs": "b3865a4e99022445794fb19bf0f14d57c17d1c811748c55d8fe19388d2698697",
     "OpenDreamRuntime/Objects/Types/DreamObjectSavefile.cs": "86371fc5b8d2d92c50b0f75ed63afdd1cbf992c533e04e702844e6995cb80185",
+    "OpenDreamRuntime/Procs/DMOpcodeHandlers.cs": "c467c88732460adcf3349ec6e5608cd8fd9e3208e889c8452c01cc7445673121",
     "OpenDreamRuntime/Resources/DreamResource.cs": "7eb6c235e91a88f18acc394d9d9a1599747da456a9177679222eeda415a0cc4d",
     "OpenDreamRuntime/Resources/DreamResourceManager.cs": "ad62b66bfa26039da65ce38ae282d9edefb9fd7392877ae4dcd765f4c9ad84a3",
     "global.json": "b48d6da8fa62c0da7cc8a2da4ea036ac55836660a448ba533135abb5b8451b73",
@@ -29,8 +30,7 @@
     "tests/string_format_decoder/verify.py": "1e1bf99ca675404f5e40083541ffbffc76351c16a9e26e4760a63493c3debf88",
     "tools/save_cost_profile/control.py": "bcf82199ebe6a87d9e4f1f4a5636e8d7d24506a537ab04139249ccc587269f2e",
     "tools/save_cost_profile/manifest.json": "6e088c16acd60ef2a5cb2b9601bcba258e356a6f8bbd4952fc0d3906596f4363",
-    "tools/save_cost_profile/test_source_composition.py": "13a6c2d2c4960f289eec8fe5c9f3b6a6a66a79f4b09a8fd66b92dbbf05144d72",
-    "OpenDreamRuntime/Procs/DMOpcodeHandlers.cs": "e066a83c740e50b2b6f0c19f64744757289fbccf1b0be0acf3326f100636f93f"
+    "tools/save_cost_profile/test_source_composition.py": "13a6c2d2c4960f289eec8fe5c9f3b6a6a66a79f4b09a8fd66b92dbbf05144d72"
   },
   "submodules": "160000 commit af2a7d0406b410c4d960f0f4b34513651c6dc742\tRobustToolbox",
   "evidence": "source-only candidate; no native run"
