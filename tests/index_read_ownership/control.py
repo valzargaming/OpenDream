@@ -21,7 +21,7 @@ def mutation(raw, mode, control):
     text = raw.decode()
     for fixed, original in control['replacements']:
         assert text.count(fixed) == 1
-        replacement = original if mode == 'baseline' else fixed.replace('index.Dispose();','index.ToString(); // Negative control: no release').replace('indexing.Dispose();','indexing.ToString(); // Negative control: no release')
+        replacement = original if mode == 'baseline' else control['exception_only_omitted_release']
         text = text.replace(fixed,replacement)
     result = text.encode()
     if mode == 'baseline': assert sha(result) == control['base_sha256']
@@ -77,7 +77,7 @@ def check_receipt(root, data, mode, head):
             text = actual.decode()
             if mode != 'positive':
                 for fixed, original in control['replacements']:
-                    changed = original if mode == 'baseline' else fixed.replace('index.Dispose();','index.ToString(); // Negative control: no release').replace('indexing.Dispose();','indexing.ToString(); // Negative control: no release')
+                    changed = original if mode == 'baseline' else control['exception_only_omitted_release']
                     assert text.count(changed) == 1
                     text = text.replace(changed,fixed)
             candidate = text.encode()

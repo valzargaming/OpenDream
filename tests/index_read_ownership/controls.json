@@ -6,5 +6,6 @@
       "                try {\n                    return GetIndex(indexing, index, this);\n                } finally {\n                    if (!peek) {\n                        index.Dispose();\n                        indexing.Dispose();\n                    }\n                }",
       "                var value = GetIndex(indexing, index, this);\n                if (!peek) {\n                    index.Dispose();\n                    indexing.Dispose();\n                }\n\n                return value;"
     ]
-  ]
+  ],
+  "exception_only_omitted_release": "                var indexReadFailed = false;\n                try {\n                    return GetIndex(indexing, index, this);\n                } catch {\n                    indexReadFailed = true;\n                    throw;\n                } finally {\n                    // Negative control: omit detached owners only on a throwing read.\n                    if (!peek && !indexReadFailed) {\n                        index.Dispose();\n                        indexing.Dispose();\n                    }\n                }"
 }

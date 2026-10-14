@@ -83,7 +83,7 @@
     "tests/missing_operator_ownership/control.py": "aa9ca714f28fac4a439b9bba06a6c2c0be1f4617953fce72eff18306c7940d0d",
     "tests/numeric_list_ownership/control.py": "b543026f521a4191e8e2e70a7835db686de759c28c7b136c0679557cf5137f48",
     "tests/field_ownership/fixtures/nunit-aggregate-messages.json": "f04223141d2e1d8e83c77517989cd75dab8af0627fa51a5e96678980c6a2eedb",
-    "tests/index_read_ownership/controls.json": "4cd9205371f5c277dc4d552cc9963e4ef8d905b97d1c5b8eb17cd1125db9c652"
+    "tests/index_read_ownership/controls.json": "f0ab8eb3f06adfea15f7185d274da0c6f7d6c58f9232f9816dbc27269d1b9d44"
   },
   "integration_base": "8a19c5737ac4b47d8fbb6367897c5dafc132c1a0",
   "integration_note": "Preserves tested numeric-list hook and refreshes all three shared fixture pins; field production unchanged from reviewed-v2"
