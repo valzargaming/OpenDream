@@ -1,4 +1,5 @@
 """Pure source/provenance controls; these do not execute C# or DM."""
+import ast
 import importlib.util
 from pathlib import Path
 import unittest
@@ -65,5 +66,13 @@ class SourceControls(unittest.TestCase):
         with self.assertRaises(AssertionError):control.mutate(self.savefile().replace(b'Resource.ReleaseFileDataCache();',b'Resource.ReloadFromDisk();'),control.SAVEFILE,'positive')
     def test_tampered_guard_rejected(self):
         with self.assertRaises(AssertionError):control.mutate(self.resource().replace(b'string.IsNullOrEmpty(filePath)',b'filePath == null'),control.RESOURCE,'positive')
+
+    def test_compiler_receipts_match_actual_output_path(self):
+        tree=ast.parse((ROOT/'tests/savefile_raw_cache/capture.py').read_text())
+        paths=next(ast.literal_eval(item.value) for item in tree.body if isinstance(item,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='BINARY_PATHS' for t in item.targets))
+        self.assertIn('bin/DMCompiler/DMCompiler.dll',paths)
+        self.assertIn('bin/DMCompiler/DMCompiler.pdb',paths)
+        self.assertIn(r'<OutputPath>..\bin\DMCompiler\</OutputPath>',(ROOT/'DMCompiler/DMCompiler.csproj').read_text())
+        self.assertFalse(any(path.startswith('DMCompiler/bin/') for path in paths))
 
 if __name__=='__main__': unittest.main()

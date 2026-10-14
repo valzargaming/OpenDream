@@ -32,10 +32,10 @@
     "tests/savefile_cleanup/Stubs.cs": "8cd6a18baa8270aeba63513fe7f3a9e5126cc3ac00ef9218f77251b8ee6ffc34",
     "tests/savefile_raw_cache/README.md": "ae15b64cc43e79e3356ebb9fc39642fe5b81bc31d3a183824fb5ea42e085a63e",
     "tests/savefile_raw_cache/archive_logs.py": "b9e837eb21dccfb828fe1d47647ee4f85c6e136908d8156de6f4f95ed9af97d7",
-    "tests/savefile_raw_cache/capture.py": "8d925cff35abd0966ab540feeab34d61fc33638a736986c0a7ae25dc9ae5f897",
+    "tests/savefile_raw_cache/capture.py": "78f8f8ae50b0c27f2bfa34a776f301904a784665774e672b2e50b9d3b388b23b",
     "tests/savefile_raw_cache/control.py": "52f025b0303da87865b4055d685c5eb18022bc38c85a3889c9cbe5134717ca81",
     "tests/savefile_raw_cache/test_archives.py": "07079e2eca4b681d591e5cab0f641108712d58e50659b750971dbf7a40d89182",
-    "tests/savefile_raw_cache/test_controls.py": "aa2b592b075a60ff2e7a10e8cfd4200c13a982e87dfde0b77835c348104cacaf",
+    "tests/savefile_raw_cache/test_controls.py": "92a2319ca42af6e994304b723f841a48f19d0e1a945662fcd49a9fbaeec06a35",
     "tests/savefile_raw_cache/test_parser.py": "cf094ffe65f10572a0ee5a74ca3e2c4c6b4200113b0ecb528874a5c22f885d1c",
     "tests/savefile_raw_cache/verify.py": "4cdc6e9a31cbd2a9548d266a19fd5aca525d4ab4814b4a67bd16009f9fe04f29",
     "tests/savefile_resource_bytes/README.md": "152c223181e7687c33d80a4ec46424209166db7793053fb103a3e57b5b882e4a",
@@ -54,6 +54,7 @@
     "tests/resource_output_allocation/test_controls.py": "06417904b9c46b77e08e61f913a1f850fe5cc98c700d843fd7ecb4c86beb632e",
     "tests/savefile_resource_bytes/source-manifest.json": "4f3e7028fb4be3350f0a930dcd03a7c535ad42acdeea02df20a6340415b9febb",
     "tests/string_format_decoder/source-manifest.json": "d6aec468ada0382e0121e2ea5e9e4fba44273e964e2fd5fb2ec6e707cddbb150",
-    "Content.IntegrationTests/SetupCompileDM.cs": "b36fbd0d33ae6a14a2d8e9fc65784b1520aaa8fc2747c02e00c58a14468526b9"
+    "Content.IntegrationTests/SetupCompileDM.cs": "b36fbd0d33ae6a14a2d8e9fc65784b1520aaa8fc2747c02e00c58a14468526b9",
+    "DMCompiler/DMCompiler.csproj": "0f323d9bd962d7fea71bdabb3252952a4202d142b587587bc01a7f80703f3bbc"
   }
 }

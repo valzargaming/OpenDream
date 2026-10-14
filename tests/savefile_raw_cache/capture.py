@@ -8,7 +8,7 @@ import shutil
 ROOT=Path(__file__).resolve().parents[2]
 BINARY_PATHS=('bin/Content.IntegrationTests/Content.IntegrationTests.dll','bin/Content.IntegrationTests/Content.IntegrationTests.pdb',
  'OpenDreamRuntime/bin/Release/net10.0/OpenDreamRuntime.dll','OpenDreamRuntime/bin/Release/net10.0/OpenDreamRuntime.pdb',
- 'DMCompiler/bin/DMCompiler/DMCompiler.dll','DMCompiler/bin/DMCompiler/DMCompiler.pdb')
+ 'bin/DMCompiler/DMCompiler.dll','bin/DMCompiler/DMCompiler.pdb')
 def capture(output,binaries):
     names=BINARY_PATHS if binaries else json.loads((ROOT/'tests/savefile_raw_cache/source-manifest.json').read_text())['sources']
     target=output/('binaries' if binaries else 'prepared-source');records={}
