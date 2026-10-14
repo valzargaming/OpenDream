@@ -15,7 +15,10 @@ size. Live lists, externally retained deleted wrappers, dictionary capacity,
 and other pools remain outside this bound. This is not live Gaia attribution.
 
 The explicit, nonparallel NUnit fixture starts a temporary, minimal real
-OpenDream world. It exercises production retirement and rentals, CLR weak
+OpenDream world. Each method runs in its own native test process because BYOND
+API native resolution is installed once per assembly. Raw per-test TRX, logs
+and exit codes remain separate; the verifier combines XML only in memory.
+It exercises production retirement and rentals, CLR weak
 array/child release after full GC, exact count/capacity boundaries, real DM
 Copy/Cut/iteration above the ceiling, C# associations and child reference counts,
 LIFO reuse, and the existing count cap. Reflection observes private storage

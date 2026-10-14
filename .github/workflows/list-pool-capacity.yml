@@ -58,12 +58,17 @@ jobs:
       - name: Native retention semantics and comparable workloads
         shell: bash
         run: |
-          set +e
-          COMPlus_gcServer=1 dotnet test Content.IntegrationTests/Content.IntegrationTests.csproj -c Release --no-build --filter 'FullyQualifiedName~Content.IntegrationTests.ListPoolCapacityTests' --logger 'trx;LogFileName=pool.trx' --results-directory pool-results -v n -- NUnit.ExplicitMode=Relaxed > pool-results/pool.log 2>&1
-          code=$?
-          set -e
-          printf '%s\n' "$code" > pool-results/test-exit-code.txt
-          tail -80 pool-results/pool.log
+          # BYOND API installs an assembly-wide native resolver on first server
+          # startup. Give each isolated world its own process, preserving raw
+          # per-test TRX/logs rather than weakening that production contract.
+          for test in ComparableWorkloads RetiredCapacityAndWeakRelease SemanticsReferencesAndMediumReuse; do
+            set +e
+            COMPlus_gcServer=1 dotnet test Content.IntegrationTests/Content.IntegrationTests.csproj -c Release --no-build --filter "FullyQualifiedName=Content.IntegrationTests.ListPoolCapacityTests.$test" --logger "trx;LogFileName=pool-$test.trx" --results-directory pool-results -v n -- NUnit.ExplicitMode=Relaxed > "pool-results/pool-$test.log" 2>&1
+            code=$?
+            set -e
+            printf '%s\n' "$code" > "pool-results/pool-$test-exit-code.txt"
+            tail -65 "pool-results/pool-$test.log"
+          done
       - name: Authenticate post-build source and strict expected outcomes
         shell: bash
         env:

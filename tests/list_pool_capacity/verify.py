@@ -12,6 +12,23 @@ FAILURES={'positive':{}, 'baseline':{'RetiredCapacityAndWeakRelease':'POOL_CAPAC
           'nonclearing':{'SemanticsReferencesAndMediumReuse':'POOL_CLEAR_AND_RELEASE'},
           'no-pooling':{'RetiredCapacityAndWeakRelease':'POOL_CAPACITY_BOUND boundary', 'SemanticsReferencesAndMediumReuse':'POOL_MEDIUM_REUSE'}}
 
+def load_outputs(directory, mode):
+    # Combine only in memory. The three raw TRX/logs remain original artifacts.
+    combined=ET.Element('{'+NS['t']+'}TestRun')
+    logs=[]
+    for name in sorted(TESTS):
+        root=ET.fromstring((directory/('pool-'+name+'.trx')).read_text(encoding='utf-8-sig'))
+        rows=root.findall('.//t:UnitTestResult',NS)
+        assert len(rows)==1 and rows[0].attrib['testName']==name
+        definitions=root.findall('.//t:UnitTest/t:TestMethod',NS)
+        assert len(definitions)==1 and definitions[0].attrib['className']==CLASS
+        assert int((directory/('pool-'+name+'-exit-code.txt')).read_text())==int(name in FAILURES[mode])
+        combined.append(root)
+        log=(directory/('pool-'+name+'.log')).read_text()
+        assert ('Test Run Failed.' if name in FAILURES[mode] else 'Test Run Successful.') in log
+        logs.append(log)
+    return ET.tostring(combined,encoding='unicode'),'\n'.join(logs),int(bool(FAILURES[mode]))
+
 def verify(trx, log, mode, exit_code, output):
     assert not re.search(r'\[ERRO\]|Unhandled exception|Runtime occurred|runtime error|test run aborted|testhost.*(?:crash|exit)|error (?:CS|MSB|NU)\d+',log,re.I)
     tree=ET.fromstring(trx);rows=tree.findall('.//t:UnitTestResult',NS)
@@ -61,5 +78,5 @@ def verify(trx, log, mode, exit_code, output):
 if __name__=='__main__':
     parser=argparse.ArgumentParser();parser.add_argument('input',type=Path);parser.add_argument('mode');parser.add_argument('--output',type=Path)
     args=parser.parse_args()
-    verify((args.input/'pool.trx').read_text(encoding='utf-8-sig'),(args.input/'pool.log').read_text(),args.mode,
-           int((args.input/'test-exit-code.txt').read_text()),args.output or args.input)
+    trx,log,code=load_outputs(args.input,args.mode)
+    verify(trx,log,args.mode,code,args.output or args.input)
