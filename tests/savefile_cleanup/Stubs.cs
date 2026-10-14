@@ -49,6 +49,8 @@ public sealed class DreamResource(string path) {
     public Exception? ClearFailure;
     public int ClearCalls;
     public string? ReadAsString() => File.Exists(ResourcePath) ? File.ReadAllText(ResourcePath) : null;
+    // This teardown adapter reads disk directly and has no raw byte cache.
+    public void ReleaseFileDataCache() { }
     public void Clear() {
         ClearCalls++;
         if (ClearFailure != null) throw ClearFailure;
