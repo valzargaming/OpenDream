@@ -14,12 +14,12 @@
     }
   ],
   "expected_sources": {
-    ".github/workflows/assoc-list-construction.yml": "6e9f4355eae2b82464f4aa08263c00841f64789b8a58515dc075430af7f437b2",
+    ".github/workflows/assoc-list-construction.yml": "073793f0d80388e3876531c4309e87a3ece2e637458fe0db6988cb7e1124376c",
     ".github/workflows/check-test-parity.yml": "933a567d3508b64f37a6ac4e82b8f3dca4212eb037dd26d478e7efef9e808dbf",
     "Content.IntegrationTests/AssocListConstructionTests.cs": "27da87650e4d44e9adb36f25dc50d187add1cecf45062d2ffd4bccf14808a41c",
     "Content.IntegrationTests/DMProject/Fixtures/assoc-list-construction.dm": "072ca012a493d871f9bfd161d699ed8abf02726928c1067fb94025dc08a6936d",
     "OpenDreamRuntime/Procs/DMOpcodeHandlers.cs": "c467c88732460adcf3349ec6e5608cd8fd9e3208e889c8452c01cc7445673121",
-    "tests/assoc_list_construction/README.md": "c6ebed714022ab4817b1c9e75305808b0c1df5ffbe030750458d48b315db254d",
+    "tests/assoc_list_construction/README.md": "4b362db506035b2090981e553db730f8376236c83ed0596a545e8d4bf631a8b6",
     "tests/assoc_list_construction/control.py": "ba4060153a801863d77d4b0bdd7377273c806c693964894e0d7304dff482888c",
     "tests/assoc_list_construction/controls.json": "0b4ff6737929c8f0f7a028c4e289fd8951dfa6729f445196c0faec0732a8f6d3",
     "tests/assoc_list_construction/expected-rejection-observations.json": "c0fad4716a7443d52f068c959d46af9260e54c20acd629109721e6f02370755a",
@@ -32,6 +32,8 @@
     "tests/range_ownership/source-manifest.json": "c0d766eaadfeafec818d385a2f48751a28173ef63222b462d08351ff30ab4b27",
     "tests/range_ownership/controls.json": "c12a3cb8b1270ec6fbae39c35f7810dc445d7de38c3ccfd0aefdb84498079466",
     "tests/object_initialization/control.py": "96103c3b3f281c9074dfc9093124bea014a29e80c4df90e34b867818d8993966",
-    "tests/native_argument_ownership/verify.py": "ff9ba7da2224604cd45d170e15aa3131061ef7aef56a367ea93f204e278be960"
+    "tests/native_argument_ownership/verify.py": "ff9ba7da2224604cd45d170e15aa3131061ef7aef56a367ea93f204e278be960",
+    "tests/assoc_list_construction/archive_logs.py": "6a8ccbe495dba3dc62c17fab4700ec07d01134621fdf32bb8b8964aebdd09846",
+    "tests/assoc_list_construction/test_archive_logs.py": "c048b4c010d2df8c19ed2749a4eec8a18f608b20eed230a649adfa8e769a97fb"
   }
 }

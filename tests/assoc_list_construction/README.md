@@ -14,4 +14,6 @@ The strict verifier rejects unknown diagnostics, frames, tests, skips, count cha
 
 `GameTests.NoRuntimesTest` must independently pass in a fresh process for every mode using its unchanged strict verifier. Build logs/exits, prepared sources/hashes, source receipt, original logs/TRX/exits, and test/runtime DLL/PDB hashes remain artifacts. The old 5d493 workflows never reached `NoRuntimes`; no global runtime acceptance is inferred from them.
 
+The workflow additionally packages the four byte-exact original runner logs in `original-runner-logs.zip` with a SHA-256 receipt. Missing or empty logs fail archival. This retains originals when the directory upload omits loose `.log` files; it does not replace native test classification.
+
 `python -m unittest discover -s tests/assoc_list_construction -p 'test_*.py' -v` runs pure synthetic parser and fake-Git source adversaries. They do not execute DM or establish native behavior. The detached successor packages source changes only; the parent owns integration, commit pins, native runs, and exact-head CI.

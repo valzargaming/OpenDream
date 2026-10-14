@@ -78,6 +78,8 @@ jobs:
           printf '%s\n' "$code" > assoc-results/runtime-exit-code.txt
           tail -60 assoc-results/runtime.log
           python tests/string_format_decoder/verify.py assoc-results/runtime.trx positive "$code" --log assoc-results/runtime.log --runtime
+      - name: Preserve byte-exact original logs in bounded archive
+        run: python tests/assoc_list_construction/archive_logs.py --results assoc-results
       - uses: actions/upload-artifact@v4
         if: always()
         with:
