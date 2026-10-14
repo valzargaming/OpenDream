@@ -1,0 +1,14 @@
+{
+  "base_sha256": "ea9ca339c3a4d04b89a1f9e1e414316d64bd47660e055d1c49345b9eeaebf014",
+  "candidate_sha256": "ac4dc48d479199df68fc2d947e227800844d1aa749a0d2e7c63fa1ea88030503",
+  "replacements": [
+    [
+      "                try {\n                    if (!owner.TryGetValueAsDreamObject(out var ownerObj) || ownerObj == null)\n                        ThrowCannotAssignFieldOn(reference, owner);\n\n                    ownerObj!.SetVariable(ResolveString(reference.Value), value);\n                } finally {\n                    if (!peek)\n                        owner.Dispose();\n                }",
+      "                if (!owner.TryGetValueAsDreamObject(out var ownerObj) || ownerObj == null)\n                    ThrowCannotAssignFieldOn(reference, owner);\n\n                ownerObj!.SetVariable(ResolveString(reference.Value), value);\n                if (!peek)\n                    owner.Dispose();"
+    ],
+    [
+      "                try {\n                    return DereferenceField(owner, ResolveString(reference.Value));\n                } finally {\n                    if (!peek)\n                        owner.Dispose();\n                }",
+      "                var fieldValue = DereferenceField(owner, ResolveString(reference.Value));\n\n                if (!peek)\n                    owner.Dispose();\n                return fieldValue;"
+    ]
+  ]
+}
