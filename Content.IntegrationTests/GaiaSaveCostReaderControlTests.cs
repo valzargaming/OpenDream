@@ -36,6 +36,7 @@ public sealed class GaiaSaveCostReaderControlTests : ContentIntegrationTest {
         var prior = Directory.GetCurrentDirectory();
         try {
             var options = new ServerContentIntegrationOption { OverrideLogHandler = () => new NoErrors() };
+            options.CVarOverrides[OpenDreamCVars.TopicPort.Name] = (ushort)0;
             options.CVarOverrides[OpenDreamCVars.JsonPath.Name] = plan.JsonPath;
             var server = StartServer(options);
             await server.WaitIdleAsync();

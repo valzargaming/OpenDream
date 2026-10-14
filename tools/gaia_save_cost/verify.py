@@ -8,7 +8,7 @@ from pathlib import Path
 HEAD='5075c426b2f6f37dccb14b0902bb98780bbd62e1'
 GAME='9be2a4d6fd42d52c4dc4a75a526b635f5854aee6cce8ab5193f439e82b3fc278'
 TEST='Content.IntegrationTests.GaiaSaveCostHostTests.FullGaiaSaveWindow'
-HOST_SOURCE_SHA='e40527800a52bb97a412206a8487ad0431ae44dea3a339d9d8365a9cf2645347'
+HOST_SOURCE_SHA='1ae64f88c95b465d232277c2ea69450cf25eeac773fbae85f101ce2486646cee'
 def sha(path):
     with Path(path).open('rb') as f:return hashlib.file_digest(f,'sha256').hexdigest()
 def rows(log,prefix):

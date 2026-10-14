@@ -63,6 +63,7 @@ public sealed class GaiaSaveCostHostTests : ContentIntegrationTest {
         Assert.That(plan.ReadinessGlobal, Is.EqualTo("new_process_dispatch_init_complete"));
         var priorDirectory = Directory.GetCurrentDirectory();
         var options = new ServerContentIntegrationOption { OverrideLogHandler = () => new StrictLogs() };
+        options.CVarOverrides[OpenDreamCVars.TopicPort.Name] = (ushort)0;
         options.CVarOverrides[OpenDreamCVars.JsonPath.Name] = json;
         options.CVarOverrides[OpenDreamCVars.WorldParams.Name] = File.ReadAllText(plan.WorldParamsPath); // never log private parameters
         bool finished = false;
