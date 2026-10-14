@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "suite": "gaia-save-cost-host",
+  "host_test": "Content.IntegrationTests.GaiaSaveCostHostTests.FullGaiaSaveWindow",
+  "host_property": "SaveCostHostProfile=true",
+  "activation": "gaia_host_run_save_probe",
+  "state_global": "gaia_host_save_state",
+  "readiness_global": "new_process_dispatch_init_complete",
+  "game_manifest_sha256": "9be2a4d6fd42d52c4dc4a75a526b635f5854aee6cce8ab5193f439e82b3fc278",
+  "included_setup_sha256": "9229ed58a825518cd58db2ce0e5b575e85e742ac7dac1a7079c881fb1ad91e38",
+  "fixture": "tools/gaia_save_cost/fixtures/seam.dm",
+  "controls_runner": "tools/gaia_save_cost/verify_control.py",
+  "reader_test": "Content.IntegrationTests.GaiaSaveCostReaderControlTests.RejectWrongShardPayload",
+  "runner": "tools/gaia_save_cost/verify.py",
+  "runner_mode": "verify-stopped",
+  "native_execution_owner": "root guarded queue only",
+  "automatic_ci_registration": false,
+  "required_followup": "core generation-format checker and separate fresh recovery",
+  "maximum_flushes_default": 4096,
+  "engine_head": "5075c426b2f6f37dccb14b0902bb98780bbd62e1",
+  "fixture_dme": "tools/gaia_save_cost/fixtures/seam.dme",
+  "source_host_plan_sha256": "c01a086064374c2cef052027c784157b65bb5356ba334552e14d47076e7416b0"
+}
