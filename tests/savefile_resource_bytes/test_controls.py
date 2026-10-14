@@ -36,6 +36,14 @@ class ParserTests(unittest.TestCase):
         return verify.verify(ET.tostring(root),log,mode,code)
     def test_three_intended_cases(self):
         for mode in control.MODES: self.assertTrue(self.run_case(mode))
+    def test_observed_nunit_boundary_whitespace(self):
+        def mutate(r,l,c):
+            message=r.find('.//t:Message',verify.NS);message.text='  '+message.text+'\n';return r,l,c
+        for mode in ('baseline','hash-only'): self.assertTrue(self.run_case(mode,mutate))
+    def test_reject_unknown_message_prefix(self):
+        def mutate(r,l,c):
+            message=r.find('.//t:Message',verify.NS);message.text='UNKNOWN_FAILURE\n  '+message.text;return r,l,c
+        with self.assertRaises(AssertionError): self.run_case('baseline',mutate)
     def test_zero_not_executed_counter(self):
         def mutate(r,l,c): r.find('.//t:Counters',verify.NS).set('notExecuted','0');return r,l,c
         self.assertTrue(self.run_case('positive',mutate))

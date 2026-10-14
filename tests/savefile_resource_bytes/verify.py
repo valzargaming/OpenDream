@@ -89,7 +89,7 @@ def verify(raw, log, mode, exit_code):
         assertion=re.escape(marker)+r'\s+Assert\.That\('+re.escape(expression)+r'\)\s+Expected:\s*'+expected_value+r'\s+But was:\s*'+actual_value
         # One failed assertion only; embedded stacks are classified separately.
         parts=re.split(r'\r?\n\s*at ',message,maxsplit=1)
-        plain=parts[0]
+        plain=parts[0].strip()
         assert re.fullmatch(r'(?:Multiple failures or warnings in test:\s*1\)\s*)?'+assertion+r'\s*',plain), 'unexpected assertion'
         if len(parts)==2: frames('at '+parts[1])
         frames(row.findtext('t:Output/t:ErrorInfo/t:StackTrace','',NS))
