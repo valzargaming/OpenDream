@@ -53,6 +53,13 @@ public sealed class GaiaSaveCostHostTests : ContentIntegrationTest {
         Assert.That(Path.IsPathFullyQualified(plan.OwnedRoot), Is.True);
         Assert.That(Path.IsPathFullyQualified(plan.JsonPath), Is.True);
         var owned = Full(plan.OwnedRoot);
+        void Emit(string prefix, object value) {
+            var line = prefix + JsonSerializer.Serialize(value);
+            // Persist small scalar/profile rows as they happen. Test runners can
+            // buffer stdout until completion; a guard stop must preserve leads.
+            File.AppendAllText(Path.Combine(owned, "gaia-host-journal.jsonl"), line + Environment.NewLine);
+            TestContext.Out.WriteLine(line);
+        }
         var json = Full(plan.JsonPath);
         Assert.That(Path.GetDirectoryName(json), Is.EqualTo(owned), "resource root must be the task-owned tree");
         Assert.That(File.ReadAllText(Path.Combine(owned, ".gaia-save-host-owner")).Trim(), Is.EqualTo(plan.OwnershipId));
@@ -85,7 +92,7 @@ public sealed class GaiaSaveCostHostTests : ContentIntegrationTest {
                 .GetField("SavefileDirectories", BindingFlags.NonPublic | BindingFlags.Static)!.GetValue(null)!).Count;
             using var process = Process.GetCurrentProcess();
             var gc = GC.GetGCMemoryInfo();
-            TestContext.Out.WriteLine("GAIA_SAVE_SCALARS " + JsonSerializer.Serialize(new {
+            Emit("GAIA_SAVE_SCALARS ", new {
                 label, engineThread = Environment.CurrentManagedThreadId, openOwnedShards = openCount, dirtyOwnedShards = dirtyCount,
                 totalOpenSavefiles = DreamObjectSavefile.Savefiles.Count, totalDirtySavefiles = dirty.Count,
                 totalSavefileDirectories = directoryCount,
@@ -107,7 +114,7 @@ public sealed class GaiaSaveCostHostTests : ContentIntegrationTest {
                 lastGcHeapBytes = gc.HeapSizeBytes, lastGcFragmentedBytes = gc.FragmentedBytes,
                 engineAllocatedBytes = GC.GetAllocatedBytesForCurrentThread(), processAllocatedBytes = GC.GetTotalAllocatedBytes(false),
                 gen0 = GC.CollectionCount(0), gen1 = GC.CollectionCount(1), gen2 = GC.CollectionCount(2)
-            }));
+            });
             }
             return (openCount, dirtyCount);
         }
@@ -119,11 +126,17 @@ public sealed class GaiaSaveCostHostTests : ContentIntegrationTest {
         try {
             var server = StartServer(options);
             preservePartial = async () => {
-                if (!captureStarted || successfulHost || !server.IsAlive) return;
-                try { await server.WaitAssertion(() => {
+                if (!captureStarted || successfulHost) return;
+                try {
+                    // A failed WaitAssertion throws before consuming its idle
+                    // acknowledgement. Drain it before reading IsAlive.
+                    await server.WaitIdleAsync(throwOnUnhandled: false);
+                    if (!server.IsAlive) return;
+                    await server.WaitAssertion(() => {
                     Observe("partial-failure");
-                    TestContext.Out.WriteLine("GAIA_SAVE_PARTIAL " + JsonSerializer.Serialize(SaveCostProfile.Snapshot()));
-                }); } catch (Exception error) { TestContext.Out.WriteLine("GAIA_SAVE_PARTIAL_UNAVAILABLE " + error.GetType().Name); }
+                    Emit("GAIA_SAVE_PARTIAL ", SaveCostProfile.Snapshot());
+                    });
+                } catch (Exception error) { TestContext.Out.WriteLine("GAIA_SAVE_PARTIAL_UNAVAILABLE " + error.GetType().Name); }
             };
             await server.WaitIdleAsync();
             bool ready = false;
@@ -173,7 +186,7 @@ public sealed class GaiaSaveCostHostTests : ContentIntegrationTest {
                     Assert.That(server.ResolveDependency<DreamManager>().LastDMException, Is.Null);
                     if (tick % 32 == 0) {
                         Observe("progress-" + tick);
-                        TestContext.Out.WriteLine("GAIA_SAVE_PARTIAL " + JsonSerializer.Serialize(SaveCostProfile.Snapshot()));
+                        Emit("GAIA_SAVE_PARTIAL ", SaveCostProfile.Snapshot());
                     }
                 });
             }

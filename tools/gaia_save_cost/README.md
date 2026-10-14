@@ -15,6 +15,10 @@ collection, copying trees or changing flush timing. It awaits the real SAVE
 wrapper, observes natural handle closure, seals the profiler and checks two
 further natural ticks. Its null resource filter aggregates all savefiles in the
 window. Counts and aggregate completed flushes do not prove per-shard success.
+Small scalar/profile rows are also appended to `gaia-host-journal.jsonl` in the
+owned directory as they happen, preserving partial leads if the guard stops a
+process. This journal does not establish completion. Failure cleanup first
+drains the integration host's idle acknowledgement before inspecting its state.
 
 Compile `fixtures/seam.dme` with the selected engine compiler first. In separate
 fresh processes, `fixture_case` selects close and yield positives, return-failure,
@@ -22,6 +26,8 @@ missing-shard, late-write and cap controls. The cap case requires
 `MaximumFlushes=2`. A reader-rejection SAVE followed by the separate explicit
 reader test verifies rejection of wrong but valid shard data. `verify_control.py`
 classifies the exact TRX assertion and rejects unrelated failures.
+The TRX result must link to one matching test definition by ID; its class and
+method identify the selected test independently of the short display name.
 
 After every owned process exits, run `verify.py` with retained original log,
 TRX, guard and pre-launch binary/source pins. It verifies stopped shard hashes;

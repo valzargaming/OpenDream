@@ -10,7 +10,7 @@ _control=importlib.util.module_from_spec(_spec);_spec.loader.exec_module(_contro
 HEAD='5075c426b2f6f37dccb14b0902bb98780bbd62e1'
 GAME='9be2a4d6fd42d52c4dc4a75a526b635f5854aee6cce8ab5193f439e82b3fc278'
 TEST='Content.IntegrationTests.GaiaSaveCostHostTests.FullGaiaSaveWindow'
-HOST_SOURCE_SHA='bf3aa4081fcc08cd4f2bc6aa5f9ae121fd28fb0254c2ca6234621a36cc690125'
+HOST_SOURCE_SHA='edd43f0276738e5ad8def6d7d698647704bd42169ecf6c26bcbb7e74a601e8bd'
 def sha(path):
     with Path(path).open('rb') as f:return hashlib.file_digest(f,'sha256').hexdigest()
 def rows(log,prefix):
