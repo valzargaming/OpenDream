@@ -1,0 +1,51 @@
+{
+  "base_commit": "53554597f7b594ea8a75570240d69d7d3003d56f",
+  "original_inputs": [
+    {
+      "path": "OpenDreamRuntime/Objects/Types/DreamObjectWorld.cs",
+      "sha256": "468f4cc00ad1680d564c3070298b4d81c8f417a1d850334736a86873e6690827",
+      "git_blob_oid": "8af9f3450efc4588e519e7328643c06222d7a916"
+    },
+    {
+      "path": "OpenDreamRuntime/DreamValue.cs",
+      "sha256": "383070fb0046a3940e0c3638916ac5fbf6e28fbb82201490113e7de9c4acb71a",
+      "git_blob_oid": "ee3aaf8db2595cd14a0b1b2d0fadcc0d3b490552"
+    },
+    {
+      "path": "OpenDreamRuntime/Objects/DreamObject.cs",
+      "sha256": "0338a6aaa6a8b1391bb2240117756076c2ee23809308dc078c04659fe72b7ed4",
+      "git_blob_oid": "5d8d64922d3195a2ec7b1afa3ed18242786648ed"
+    },
+    {
+      "path": "Content.IntegrationTests/ContentIntegrationTest.cs",
+      "sha256": "11440e100252e5f0c634a160c168cd7bb7646948613425746a84f759413e8ddb",
+      "git_blob_oid": "2b70edb74bdf687d491bae6dc53b8b410e06d5d9"
+    },
+    {
+      "path": "Content.IntegrationTests/SetupCompileDM.cs",
+      "sha256": "b36fbd0d33ae6a14a2d8e9fc65784b1520aaa8fc2747c02e00c58a14468526b9",
+      "git_blob_oid": "9ee8ca48a811a6a2e0a70e66c7d1a93f3c779fd5"
+    },
+    {
+      "path": "Content.IntegrationTests/Content.IntegrationTests.csproj",
+      "sha256": "aeaee5ef044c58f1c79da81a3ad2a4efd3f0583c577aa19af16a711d1828706f",
+      "git_blob_oid": "5f9aa7ebc98dbd377642908b38f48387b025cb05"
+    },
+    {
+      "path": "DMCompiler/DMCompiler.cs",
+      "sha256": "fe6c48c4bbbe751cf45d250f1dbf79168d54922c9d0043b8fc87a184a830e551",
+      "git_blob_oid": "5133da410da254dbd212a39204e122d4220a7d1f"
+    }
+  ],
+  "expected_sources": {
+    ".github/workflows/world-realtime-clock.yml": "d9d8bcf568291783e6f9fe8fba1207f1967da358525a10186e75dffb10c1adb8",
+    "Content.IntegrationTests/DMProject/Fixtures/world-realtime-clock.dm": "b60bf77f951e54685f69c7dc72c7ccc10d898502b8c3537fb00ccba2be7e04ba",
+    "Content.IntegrationTests/WorldRealtimeClockTests.cs": "38c474d7af4e8db6f91f92c467e5261f45a9a66827327ab348916f20dd5ccd47",
+    "OpenDreamRuntime/Objects/Types/DreamObjectWorld.cs": "2d95ca68c9be03cde5eb1aa1982677ebc24840873f0907466839419182851db9",
+    "tests/world_realtime_clock/control.py": "871022764e26af306b38be96c78df77e93da790e201f404c937771c7cd0285c9",
+    "tests/world_realtime_clock/controls.json": "a7214fe4115f813791f7107d05e67b4398b9600fb6dfae98bceb3d8708e0dc3f",
+    "tests/world_realtime_clock/test_controls.py": "771ebaac304e3451295e39bed5489ba89dbae706bba8c0d9e572eb04b94dde56",
+    "tests/world_realtime_clock/verify.py": "28cc975f5b092bcb723cb94745e3b21af1ed7029a6f1ccca79eccf5309bd481c",
+    "tests/world_realtime_clock/README.md": "778dc3a85dfc668b2cd4e05b7b3d6b1a42fb5abe15f4b7faaeeea3a731a9bdad"
+  }
+}
