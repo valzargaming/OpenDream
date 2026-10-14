@@ -87,10 +87,12 @@ namespace OpenDreamRuntime.Procs {
             var list = state.Proc.ObjectTree.CreateList(size);
             try {
                 var popped = state.PopCount(size * 2);
+                var firstUnprocessed = 0;
                 try {
                     for (int i = 0; i < popped.Length; i += 2) {
-                        var key = popped[i];
-                        var value = popped[i + 1];
+                        using var key = popped[i];
+                        using var value = popped[i + 1];
+                        firstUnprocessed = i + 2;
 
                         if (key.IsNull) {
                             list.AddValue(value);
@@ -99,9 +101,10 @@ namespace OpenDreamRuntime.Procs {
                         }
                     }
                 } finally {
-                    // Dispose before Push can overwrite the popped stack span.
-                    foreach (var value in popped)
-                        value.Dispose();
+                    // Processed/current pairs use per-pair disposal, including on throws.
+                    // Release only untouched operands before Push can overwrite the span.
+                    for (int i = firstUnprocessed; i < popped.Length; i++)
+                        popped[i].Dispose();
                 }
 
                 state.Push(new DreamValue(list));

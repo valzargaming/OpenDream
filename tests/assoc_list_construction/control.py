@@ -20,14 +20,14 @@ def real_git(root, *args):
 def mutation(raw, mode, control):
     require(sha(raw) == control['candidate_sha256'], 'unreviewed production source')
     if mode == 'positive': return raw
-    require(mode in ('baseline',))
+    require(mode in ('baseline', 'timing-negative'))
     text = raw.decode()
-    for fixed, original in control['replacements']:
+    for fixed, original in control['timing_negative_replacements' if mode == 'timing-negative' else 'replacements']:
         require(text.count(fixed) == 1)
         replacement = original
         text = text.replace(fixed,replacement)
     result = text.encode()
-    if mode == 'baseline': require(sha(result) == control['base_sha256'])
+    require(sha(result) == control['timing_negative_sha256' if mode == 'timing-negative' else 'base_sha256'], 'wrong bounded control output')
     return result
 
 def prepare(root, mode, expected_head, git=real_git):
@@ -39,7 +39,7 @@ def prepare(root, mode, expected_head, git=real_git):
     require(manifest_raw == git(root,'cat-file','blob',head+':tests/assoc_list_construction/source-manifest.json'), 'uncommitted source manifest')
     originals = []
     for source in spec['original_inputs']:
-        raw = git(root,'cat-file','blob',spec['base_commit']+':'+source['path'])
+        raw = git(root,'cat-file','blob',source.get('commit', spec['base_commit'])+':'+source['path'])
         require(sha(raw) == source['sha256'] and blob(raw) == source['git_blob_oid'], 'wrong frozen original')
         originals.append({**source,'actual_raw_sha256':sha(raw),'actual_git_blob_oid':blob(raw)})
     actual = {}
@@ -79,7 +79,7 @@ def check_receipt(root, data, mode, head):
             # Reconstruct reviewed candidate from this exact control output.
             text = actual.decode()
             if mode != 'positive':
-                for fixed, original in control['replacements']:
+                for fixed, original in control['timing_negative_replacements' if mode == 'timing-negative' else 'replacements']:
                     changed = original
                     require(text.count(changed) == 1)
                     text = text.replace(changed,fixed)
@@ -93,7 +93,7 @@ def check_receipt(root, data, mode, head):
 
 if __name__ == '__main__':
     p=argparse.ArgumentParser()
-    p.add_argument('mode',choices=['positive','baseline'])
+    p.add_argument('mode',choices=['positive','baseline','timing-negative'])
     p.add_argument('--root',type=Path,default=ROOT)
     p.add_argument('--expected-head',required=True)
     p.add_argument('--receipt',type=Path,required=True)

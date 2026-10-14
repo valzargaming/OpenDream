@@ -3,7 +3,7 @@ from pathlib import Path
 import shutil
 import tempfile
 import unittest
-from control import prepare, check_receipt, PRODUCTION, mutation
+from control import prepare, check_receipt, PRODUCTION, real_git
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
@@ -25,7 +25,8 @@ class ReceiptTests(unittest.TestCase):
             item.write_bytes(item.read_bytes().replace(b'\r\n',b'\n'))
         committed={p:(root/p).read_bytes() for p in spec['expected_sources']}
         committed['tests/range_ownership/source-manifest.json']=path.read_bytes()
-        baseline=mutation(committed[PRODUCTION],'baseline',control)
+        # Historical provenance is independent of the rebased single-handler control.
+        baseline=real_git(ROOT,'cat-file','blob',spec['base_commit']+':'+PRODUCTION)
         def git(unused,*args):
             if args==('rev-parse','HEAD'):return (HEAD+'\n').encode()
             self.assertEqual(args[:2],('cat-file','blob'))

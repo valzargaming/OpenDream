@@ -21,22 +21,28 @@ def observation_lines(mode):
         held_lists = (1 if alias else 3) if "_list_" in case["id"] else 0
         expected_lists, expected_datums = 10 + held_lists, 20 + (1 if alias else 4)
         actual_lists = expected_lists + (1000 if mode == "baseline" else 0)
-        owners = case["expected_owners" if mode == "positive" else "frozen_original_owners"]
+        owners = case["frozen_original_owners" if mode == "baseline" else "expected_owners"]
         rows.append(f'{case["id"]}: owners=[{",".join(map(str, owners))}]; lists={actual_lists} expected={expected_lists}; datums={expected_datums} expected={expected_datums}')
     if mode == "positive":
         rows.append(V.MARKER)
-    return rows
+    trace = "AB" if mode == "timing-negative" else "BA"
+    return [f"{identifier}: trace={trace}; expected=BA; iterations=1000" for identifier in V.TIMING_IDS] + rows
 
 
 def aggregate(mode="baseline", embedded=False):
     blocks = []
-    for index, (case, line) in enumerate(zip(V.SPEC, observation_lines(mode))):
+    for index, (case, line) in enumerate(zip(V.SPEC, [line for line in observation_lines(mode) if line.startswith("ASSOC_CONSTRUCT_REJECT_")])):
         match = V.ROW.fullmatch(line)
         count = len(case["expected_owners"])
         changed = next(i for i, value in enumerate(case["frozen_original_owners"]) if value != 1)
         actual = case["frozen_original_owners"][changed]
         blocks.append(f'{2*index+1}) {case["id"]}_OWNERS_1000\nAssert.That(counts, Is.EqualTo(expectedOwners))\nExpected and actual are both <System.Int32[{count}]>\nValues differ at index [{changed}]\nExpected: 1\nBut was: {actual}\n' + (FRAME + "\n" if embedded else ""))
         blocks.append(f'{2*index+2}) {case["id"]}_LIVE_BUCKET_DreamObjectList\nAssert.That(refs.GetCountOf(type), Is.EqualTo(expected[type].Count))\nExpected: {match.group(4)}\nBut was: {match.group(3)}\n' + (FRAME + "\n" if embedded else ""))
+    return "Multiple failures or warnings in test:\n" + "\n".join(blocks)
+
+
+def timing_aggregate(embedded=False):
+    blocks = [f"{index+1}) {identifier}{V.TIMING_SUFFIX}\nAssert.That(correct, Is.True)\nExpected: True\nBut was: False\n" + (FRAME + "\n" if embedded else "") for index, identifier in enumerate(V.TIMING_IDS)]
     return "Multiple failures or warnings in test:\n" + "\n".join(blocks)
 
 
@@ -48,9 +54,9 @@ def evidence(mode="positive", embedded=False):
     output = ET.SubElement(row, TAG("Output"))
     stdout = "\n".join(observation_lines(mode))
     ET.SubElement(output, TAG("StdOut")).text = stdout
-    if mode == "baseline":
+    if mode != "positive":
         error = ET.SubElement(output, TAG("ErrorInfo"))
-        ET.SubElement(error, TAG("Message")).text = aggregate(embedded=embedded)
+        ET.SubElement(error, TAG("Message")).text = timing_aggregate(embedded) if mode == "timing-negative" else aggregate(embedded=embedded)
         ET.SubElement(error, TAG("StackTrace")).text = FRAME
     definitions = ET.SubElement(root, TAG("TestDefinitions"))
     definition = ET.SubElement(definitions, TAG("UnitTest"), id="only")
@@ -58,6 +64,8 @@ def evidence(mode="positive", embedded=False):
     summary = ET.SubElement(root, TAG("ResultSummary"))
     ET.SubElement(summary, TAG("Counters"), total="1", executed="1", passed="1" if mode == "positive" else "0", failed="0" if mode == "positive" else "1")
     log = stdout + f"\n{outcome} {V.TEST} [1 s]\nTest Run {'Successful' if mode == 'positive' else 'Failed'}."
+    if mode != "positive":
+        log = "  Error Message:\n" + (timing_aggregate(embedded) if mode == "timing-negative" else aggregate(embedded=embedded)) + "\n  Stack Trace:\n" + FRAME + "\n" + log
     return ET.ElementTree(root), log
 
 
@@ -69,13 +77,13 @@ class Controls(unittest.TestCase):
             return V.verify(path, mode, (0 if mode == "positive" else 1) if code is None else code, log)
 
     def test_exact_synthetic_modes(self):
-        for mode in ("positive", "baseline"):
+        for mode in ("positive", "baseline", "timing-negative"):
             for embedded in (False, True):
                 with self.subTest(mode=mode, embedded=embedded):
                     self.assertTrue(self.check(*evidence(mode, embedded), mode))
 
     def test_wrong_mode_and_exit(self):
-        for mode in ("positive", "baseline"):
+        for mode in ("positive", "baseline", "timing-negative"):
             tree, log = evidence(mode)
             for code in (-1, 2, 127, 1 if mode == "positive" else 0):
                 with self.subTest(mode=mode, code=code), self.assertRaises(AssertionError):
@@ -84,7 +92,7 @@ class Controls(unittest.TestCase):
             self.check(*evidence(), "omitted-release")
 
     def test_missing_extra_or_wrong_test_identity(self):
-        for mode in ("positive", "baseline"):
+        for mode in ("positive", "baseline", "timing-negative"):
             for change in ("zero", "two", "class", "method", "testName", "testId", "definition", "skip"):
                 tree, log = evidence(mode)
                 root = tree.getroot()
@@ -99,7 +107,7 @@ class Controls(unittest.TestCase):
                 with self.subTest(mode=mode, change=change), self.assertRaises(AssertionError): self.check(tree, log, mode)
 
     def test_runner_counters_errors_and_stderr(self):
-        for mode in ("positive", "baseline"):
+        for mode in ("positive", "baseline", "timing-negative"):
             for key in ("executed", "total", "notExecuted", "error", "timeout", "warning", "unknown"):
                 tree, log = evidence(mode)
                 tree.find(".//t:Counters", V.NS).set(key, "0" if key in ("executed", "total") else "1")
@@ -115,11 +123,12 @@ class Controls(unittest.TestCase):
             with self.assertRaises(AssertionError): self.check(tree, log, mode)
 
     def test_observation_rows_exact_and_ordered(self):
-        for mode in ("positive", "baseline"):
+        for mode in ("positive", "baseline", "timing-negative"):
             for change in ("missing", "duplicate", "order", "id", "owner", "bucket", "datum", "baseline", "malformed", "foreign", "completion"):
                 tree, log = evidence(mode)
                 node = tree.find(".//t:StdOut", V.NS)
-                rows = node.text.splitlines()
+                prefix = node.text.splitlines()[:2]
+                rows = node.text.splitlines()[2:]
                 if change == "missing": rows.pop(0)
                 elif change == "duplicate": rows.insert(1, rows[0])
                 elif change == "order": rows[0], rows[1] = rows[1], rows[0]
@@ -131,11 +140,11 @@ class Controls(unittest.TestCase):
                 elif change == "malformed": rows[0] = rows[0].replace("; lists=", "; lists=-")
                 elif change == "foreign": rows.append("ASSOC_CONSTRUCT_FOREIGN")
                 else: rows.append(V.MARKER)
-                node.text = "\n".join(rows)
+                node.text = "\n".join(prefix + rows)
                 with self.subTest(mode=mode, change=change), self.assertRaises(AssertionError): self.check(tree, log, mode)
 
     def test_original_log_must_match(self):
-        for mode in ("positive", "baseline"):
+        for mode in ("positive", "baseline", "timing-negative"):
             tree, log = evidence(mode)
             for changed in ("", log.replace(V.TEST, "Foreign"), log + "\nPassed Foreign [1 s]", log.replace("owners=[", "owners=[999,", 1), log + "\nTest Run Successful.", "\n".join(log.splitlines()[1:])):
                 with self.subTest(mode=mode), self.assertRaises(AssertionError): self.check(tree, changed, mode)
@@ -170,7 +179,7 @@ class Controls(unittest.TestCase):
             with self.subTest(change=change), self.assertRaises(AssertionError): self.check(tree, log, "baseline")
 
     def test_original_log_foreign_frame_and_assertion_marker(self):
-        for mode in ("positive", "baseline"):
+        for mode in ("positive", "baseline", "timing-negative"):
             tree, log = evidence(mode)
             for extra in ("at ForeignFixture.Bad()", "ASSOC_CONSTRUCT_SUCCESS_mixed_datum_distinct_LENGTH", "ASSOC_CONSTRUCT_UNKNOWN_OWNER"):
                 with self.subTest(mode=mode, extra=extra), self.assertRaises(AssertionError):

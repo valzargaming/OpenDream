@@ -52,3 +52,27 @@
         if("empty")
             return list()
     return -1
+// Temporary operands have no caller/global object owners. Record only strings.
+var/global/assoc_timing_events = ""
+
+/datum/assoc_timing_callback
+    var/tag
+
+/datum/assoc_timing_callback/New(name)
+    tag = name
+
+/datum/assoc_timing_callback/Del()
+    assoc_timing_events += tag
+    ..()
+
+/proc/assoc_construct_release_timing(list_payload)
+    assoc_timing_events = ""
+    var/list/result
+    if(list_payload)
+        // Deleting each temporary list releases its sole-owned callback child.
+        result = list("a" = list(new /datum/assoc_timing_callback("A")), "b" = list(new /datum/assoc_timing_callback("B")), "b" = null, "a" = null)
+    else
+        result = list("a" = new /datum/assoc_timing_callback("A"), "b" = new /datum/assoc_timing_callback("B"), "b" = null, "a" = null)
+    if(result.len != 2 || result["a"] != null || result["b"] != null)
+        return "wrong-shape"
+    return assoc_timing_events

@@ -51,6 +51,8 @@ public sealed class AssocListConstructionTests : ContentIntegrationTest {
                 var previousError = manager.LastDMException;
                 try {
                     Assert.Multiple(() => {
+                        Assert.That(tree.TryGetGlobalProc("assoc_construct_release_timing", out var timing), Is.True);
+                        ReleaseTiming(manager, refs, timing!);
                         foreach (var list in new[] { false, true }) {
                             foreach (var alias in new[] { false, true }) {
                                 foreach (var route in new[] { "mixed", "null", "repeat", "numeric", "empty" })
@@ -226,5 +228,30 @@ public sealed class AssocListConstructionTests : ContentIntegrationTest {
             CleanupNewObjects(refs, baseline);
         }
         AssertBuckets(refs, baseline, $"{id}_CLEAN_BUCKET");
+    }
+
+    // Call inside the existing Assert.Multiple before the unchanged 48 rejection cases:
+    // Assert.That(tree.TryGetGlobalProc("assoc_construct_release_timing", out var timing), Is.True);
+    // ReleaseTiming(manager, refs, timing!);
+    private static void ReleaseTiming(DreamManager manager, DreamRefManager refs, DreamProc proc) {
+        foreach (var list in new[] { false, true }) {
+            var baseline = Snapshot(refs);
+            var id = list ? "ASSOC_TIMING_LIST" : "ASSOC_TIMING_DATUM";
+            var correct = true;
+            var last = "";
+            try {
+                for (var iteration = 0; iteration < 1000; iteration++) {
+                    using var result = DreamThread.Run(proc, manager.WorldInstance, null, new DreamValue(list ? 1 : 0));
+                    last = result.MustGetValueAsString();
+                    correct &= last == "BA" && manager.LastDMException == null;
+                    correct &= CountsMatch(refs, baseline);
+                }
+                TestContext.Out.WriteLine($"{id}: trace={last}; expected=BA; iterations=1000");
+                Assert.That(correct, Is.True, $"{id}_PER_PAIR_ORDER_AND_BUCKETS_1000");
+                AssertBuckets(refs, baseline, id);
+            } finally {
+                CleanupNewObjects(refs, baseline);
+            }
+        }
     }
 }

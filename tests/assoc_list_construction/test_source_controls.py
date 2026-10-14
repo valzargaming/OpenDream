@@ -33,6 +33,7 @@ class SourceControls(unittest.TestCase):
         self.committed[manifest_path] = raw
         control = json.loads((HERE/'controls.json').read_text())
         self.original = C.mutation(self.committed[C.PRODUCTION], 'baseline', control)
+        self.delayed = C.mutation(self.committed[C.PRODUCTION], 'timing-negative', control)
 
     def git(self,root,*args):
         if args == ('rev-parse','HEAD'): return (HEAD+'\n').encode()
@@ -41,14 +42,17 @@ class SourceControls(unittest.TestCase):
         if rev == self.manifest['base_commit']:
             self.assertEqual(path,C.PRODUCTION)
             return self.original
+        if rev == '5d493264b9fc775b0891a9442f9b95d49740100f':
+            self.assertEqual(path,C.PRODUCTION)
+            return self.delayed
         self.assertEqual(rev,HEAD)
         return self.committed[path]
 
     def prepare(self,mode='positive'):
         return C.prepare(self.root,mode,HEAD,git=self.git)
 
-    def test_exact_two_modes_and_postrun_receipt(self):
-        for mode in ('positive','baseline'):
+    def test_exact_three_modes_and_postrun_receipt(self):
+        for mode in ('positive','baseline','timing-negative'):
             (self.root/C.PRODUCTION).write_bytes(self.committed[C.PRODUCTION])
             receipt=self.prepare(mode)
             self.assertTrue(C.check_receipt(self.root,receipt,mode,HEAD))
@@ -98,5 +102,33 @@ class SourceControls(unittest.TestCase):
         with self.assertRaises(AssertionError): C.check_receipt(self.root,bad,'baseline',HEAD)
         path=self.root/C.PRODUCTION;path.write_bytes(path.read_bytes()+b' ')
         with self.assertRaises(AssertionError): C.check_receipt(self.root,receipt,'baseline',HEAD)
+
+    def test_timing_control_is_bounded_and_hash_pinned(self):
+        control=json.loads((HERE/'controls.json').read_text())
+        raw=self.committed[C.PRODUCTION]
+        delayed=C.mutation(raw,'timing-negative',control)
+        fixed,old=control['timing_negative_replacements'][0]
+        self.assertEqual(delayed.replace(old.encode(),fixed.encode(),1),raw)
+        self.assertEqual(C.sha(delayed),control['timing_negative_sha256'])
+        for field in ('timing_negative_sha256','candidate_sha256'):
+            changed=copy.deepcopy(control);changed[field]='0'*64
+            with self.assertRaises(AssertionError): C.mutation(raw,'timing-negative',changed)
+        for which in (0,1):
+            changed=copy.deepcopy(control);changed['timing_negative_replacements'][0][which]+='\n // unreviewed'
+            with self.assertRaises(AssertionError): C.mutation(raw,'timing-negative',changed)
+
+    def test_timing_receipt_rejects_mode_crossuse_and_unknown_sources(self):
+        receipt=self.prepare('timing-negative')
+        for mode in ('positive','baseline'):
+            with self.assertRaises(AssertionError): C.check_receipt(self.root,receipt,mode,HEAD)
+        bad=copy.deepcopy(receipt);bad['reviewed_sources']['foreign.cs']={'sha256':'0'*64,'git_blob_oid':'0'*40}
+        with self.assertRaises(AssertionError): C.check_receipt(self.root,bad,'timing-negative',HEAD)
+
+    def test_prior_positive_raw_git_pin_is_independent_of_historical_baseline(self):
+        self.assertEqual(C.sha(self.delayed),'fe68383c725d4aa8c28774f789905fb2b4a77de259001fcdba1fb66976fb9383')
+        self.assertEqual(C.blob(self.delayed),'44c675575645d9245efaa5ae3a5349ef085717d5')
+        for bad in (self.delayed+b' ',self.delayed.replace(b'\n',b'\r\n')):
+            self.delayed=bad
+            with self.assertRaises(AssertionError): self.prepare('timing-negative')
 
 if __name__ == '__main__': unittest.main()

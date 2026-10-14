@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        mode: [positive, baseline]
+        mode: [positive, baseline, timing-negative]
     steps:
       - uses: actions/checkout@v4
         with:
