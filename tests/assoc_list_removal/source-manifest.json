@@ -1,0 +1,22 @@
+{
+  "base_commit": "31981e93e889ee50c5010be2061bed4eb3830209",
+  "original_inputs": [
+    {
+      "path": "OpenDreamRuntime/Objects/Types/DreamAssocList.cs",
+      "sha256": "ce77fdd7e286e8b35d066d8fc863a6eca9f47364ac9c186722f61cb8138201b0",
+      "git_blob_oid": "cba2591806296dd47d06a5966838b99528ed07d0"
+    }
+  ],
+  "expected_sources": {
+    ".github/workflows/assoc-list-removal.yml": "a9b9930c6a383ab8a38fc56abe4b30ecee8db93bb42072aac24b58eec4058b29",
+    "Content.IntegrationTests/AssocListRemovalTests.cs": "ade5bb394cc92e30b7ed86621f07a7044f0000413a58f7d00ab77a9f54642461",
+    "Content.IntegrationTests/DMProject/Fixtures/assoc-list-removal.dm": "1db6c21de322f32f1bed2017d4e6636453cb5c6674f6d796e11ccd7e6d1f678b",
+    "OpenDreamRuntime/Objects/Types/DreamAssocList.cs": "0880e91571769649201b056c63762c25643898e424bfc47c1f5e44e68d2bd709",
+    "tests/assoc_list_removal/control.py": "9a2f1dcf2b380f16ddd7d1b28506a7578e2070900feca1eac39929b2c9717b4f",
+    "tests/assoc_list_removal/controls.json": "577a2c8b081dcaec0c3bcbc4094bafd07f0b43fed3845c1a123c662a2c392cdd",
+    "tests/assoc_list_removal/test_controls.py": "b56b5f2e5e2860ba923e0826553c17f4a3d995aeb19e51c684903795403f3f4d",
+    "tests/assoc_list_removal/verify.py": "7acbc7ab608b88ba0582fd9301770ad23504bb922f5538582151ef64c8d432ff",
+    "tests/assoc_list_removal/README.md": "931fd37e759f1d628612a7c4bc1368e5b74daa5cd8d67dac00cd2edb467c3ff5",
+    "tests/string_format_decoder/verify.py": "1e1bf99ca675404f5e40083541ffbffc76351c16a9e26e4760a63493c3debf88"
+  }
+}

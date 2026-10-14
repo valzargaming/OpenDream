@@ -1,0 +1,195 @@
+{
+  "candidate_sha256": "0880e91571769649201b056c63762c25643898e424bfc47c1f5e44e68d2bd709",
+  "base_sha256": "ce77fdd7e286e8b35d066d8fc863a6eca9f47364ac9c186722f61cb8138201b0",
+  "replacements": [
+    [
+      "        if (_values.Remove(value, out var associatedValue)) {\n            value.DecRef();\n            associatedValue.DecRef();\n        }",
+      "        if(_values.Remove(value))\n            value.DecRef();"
+    ]
+  ],
+  "omitted_value_release": "        if (_values.Remove(value, out var associatedValue)) {\n            value.DecRef();\n        }",
+  "baseline_failures": [
+    {
+      "marker": "ASSOC_REMOVE_DIRECT_False_string_OWNER_1000",
+      "owner": "payload",
+      "actual": 1001
+    },
+    {
+      "marker": "ASSOC_REMOVE_DIRECT_False_datum_OWNER_1000",
+      "owner": "payload",
+      "actual": 1001
+    },
+    {
+      "marker": "ASSOC_REMOVE_DIRECT_False_same_OWNER_1000",
+      "owner": "payload",
+      "actual": 1001
+    },
+    {
+      "marker": "ASSOC_REMOVE_DIRECT_True_string_OWNER_1000",
+      "owner": "payload",
+      "actual": 1001
+    },
+    {
+      "marker": "ASSOC_REMOVE_DIRECT_True_datum_OWNER_1000",
+      "owner": "payload",
+      "actual": 1001
+    },
+    {
+      "marker": "ASSOC_REMOVE_DIRECT_True_same_OWNER_1000",
+      "owner": "payload",
+      "actual": 1001
+    },
+    {
+      "marker": "ASSOC_REMOVE_SELF_False_OWNER_1000",
+      "owner": "table",
+      "actual": 1001
+    },
+    {
+      "marker": "ASSOC_REMOVE_SELF_True_OWNER_1000",
+      "owner": "table",
+      "actual": 1001
+    },
+    {
+      "marker": "ASSOC_REMOVE_COMPILED_False_remove_OWNER_1000",
+      "owner": "payload",
+      "actual": 1001
+    },
+    {
+      "marker": "ASSOC_REMOVE_COMPILED_False_remove-all_OWNER_1000",
+      "owner": "payload",
+      "actual": 1001
+    },
+    {
+      "marker": "ASSOC_REMOVE_COMPILED_False_remove-op_OWNER_1000",
+      "owner": "payload",
+      "actual": 1001
+    },
+    {
+      "marker": "ASSOC_REMOVE_COMPILED_False_subtract_OWNER_1000",
+      "owner": "payload",
+      "actual": 1001
+    },
+    {
+      "marker": "ASSOC_REMOVE_COMPILED_False_mask_OWNER_1000",
+      "owner": "payload",
+      "actual": 1001
+    },
+    {
+      "marker": "ASSOC_REMOVE_COMPILED_True_remove_OWNER_1000",
+      "owner": "payload",
+      "actual": 1001
+    },
+    {
+      "marker": "ASSOC_REMOVE_COMPILED_True_remove-all_OWNER_1000",
+      "owner": "payload",
+      "actual": 1001
+    },
+    {
+      "marker": "ASSOC_REMOVE_COMPILED_True_remove-op_OWNER_1000",
+      "owner": "payload",
+      "actual": 1001
+    },
+    {
+      "marker": "ASSOC_REMOVE_COMPILED_True_subtract_OWNER_1000",
+      "owner": "payload",
+      "actual": 1001
+    },
+    {
+      "marker": "ASSOC_REMOVE_COMPILED_True_mask_OWNER_1000",
+      "owner": "payload",
+      "actual": 1001
+    }
+  ],
+  "omitted_value_failures": [
+    {
+      "marker": "ASSOC_REMOVE_DIRECT_False_string_OWNER_1000",
+      "owner": "payload",
+      "actual": 1001
+    },
+    {
+      "marker": "ASSOC_REMOVE_DIRECT_False_datum_OWNER_1000",
+      "owner": "payload",
+      "actual": 1001
+    },
+    {
+      "marker": "ASSOC_REMOVE_DIRECT_False_same_OWNER_1000",
+      "owner": "payload",
+      "actual": 1001
+    },
+    {
+      "marker": "ASSOC_REMOVE_DIRECT_True_string_OWNER_1000",
+      "owner": "payload",
+      "actual": 1001
+    },
+    {
+      "marker": "ASSOC_REMOVE_DIRECT_True_datum_OWNER_1000",
+      "owner": "payload",
+      "actual": 1001
+    },
+    {
+      "marker": "ASSOC_REMOVE_DIRECT_True_same_OWNER_1000",
+      "owner": "payload",
+      "actual": 1001
+    },
+    {
+      "marker": "ASSOC_REMOVE_SELF_False_OWNER_1000",
+      "owner": "table",
+      "actual": 1001
+    },
+    {
+      "marker": "ASSOC_REMOVE_SELF_True_OWNER_1000",
+      "owner": "table",
+      "actual": 1001
+    },
+    {
+      "marker": "ASSOC_REMOVE_COMPILED_False_remove_OWNER_1000",
+      "owner": "payload",
+      "actual": 1001
+    },
+    {
+      "marker": "ASSOC_REMOVE_COMPILED_False_remove-all_OWNER_1000",
+      "owner": "payload",
+      "actual": 1001
+    },
+    {
+      "marker": "ASSOC_REMOVE_COMPILED_False_remove-op_OWNER_1000",
+      "owner": "payload",
+      "actual": 1001
+    },
+    {
+      "marker": "ASSOC_REMOVE_COMPILED_False_subtract_OWNER_1000",
+      "owner": "payload",
+      "actual": 1001
+    },
+    {
+      "marker": "ASSOC_REMOVE_COMPILED_False_mask_OWNER_1000",
+      "owner": "payload",
+      "actual": 1001
+    },
+    {
+      "marker": "ASSOC_REMOVE_COMPILED_True_remove_OWNER_1000",
+      "owner": "payload",
+      "actual": 1001
+    },
+    {
+      "marker": "ASSOC_REMOVE_COMPILED_True_remove-all_OWNER_1000",
+      "owner": "payload",
+      "actual": 1001
+    },
+    {
+      "marker": "ASSOC_REMOVE_COMPILED_True_remove-op_OWNER_1000",
+      "owner": "payload",
+      "actual": 1001
+    },
+    {
+      "marker": "ASSOC_REMOVE_COMPILED_True_subtract_OWNER_1000",
+      "owner": "payload",
+      "actual": 1001
+    },
+    {
+      "marker": "ASSOC_REMOVE_COMPILED_True_mask_OWNER_1000",
+      "owner": "payload",
+      "actual": 1001
+    }
+  ]
+}
