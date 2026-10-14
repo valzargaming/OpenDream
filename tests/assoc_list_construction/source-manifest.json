@@ -14,7 +14,7 @@
     }
   ],
   "expected_sources": {
-    ".github/workflows/assoc-list-construction.yml": "6de2aff11d2294b22478320d12c72057839bdda7b0092381053f759715ab1629",
+    ".github/workflows/assoc-list-construction.yml": "c3d54a50ff47c6b74f883d3afeb7fc8a178ec44f4d610ab4194c5bb542a2aea2",
     ".github/workflows/check-test-parity.yml": "933a567d3508b64f37a6ac4e82b8f3dca4212eb037dd26d478e7efef9e808dbf",
     "Content.IntegrationTests/AssocListConstructionTests.cs": "27da87650e4d44e9adb36f25dc50d187add1cecf45062d2ffd4bccf14808a41c",
     "Content.IntegrationTests/DMProject/Fixtures/assoc-list-construction.dm": "072ca012a493d871f9bfd161d699ed8abf02726928c1067fb94025dc08a6936d",
@@ -33,10 +33,16 @@
     "tests/range_ownership/controls.json": "c12a3cb8b1270ec6fbae39c35f7810dc445d7de38c3ccfd0aefdb84498079466",
     "tests/object_initialization/control.py": "d36d07a9faa449beb9cf512e7f75a6c5ee95d332acbc040e40295d32d37a387c",
     "tests/native_argument_ownership/verify.py": "ff9ba7da2224604cd45d170e15aa3131061ef7aef56a367ea93f204e278be960",
-    "tests/assoc_list_construction/archive_logs.py": "597ccc0e4bf1e2ccf45ccbffdee394bad0a2f2c79ee3f0f9fe79bfe3d306efd6",
+    "tests/assoc_list_construction/archive_logs.py": "6e3081d67a9fcb84bf28a0e74e03b185149001b1b6d7349565a4af8aa27ece61",
     "tests/assoc_list_construction/test_archive_logs.py": "c048b4c010d2df8c19ed2749a4eec8a18f608b20eed230a649adfa8e769a97fb",
     "tests/assoc_list_construction/test_archive_profiles.py": "1e2875944e419ebbdb6eeaf108346035fa82327a69361cc6063cec4dd4d4555b",
     "tests/assoc_list_construction/inherited-build-warnings.json": "a81272cab8fec5996dc56846d1f6d93ddf2ee9f9eba9ac0068d90deca102ca0b",
-    "tests/assoc_list_construction/test_archive_inherited_build_warnings.py": "7beed2a238da448455718d5c570708df01aeab4fcff498781939e3793916e14f"
+    "tests/assoc_list_construction/test_archive_inherited_build_warnings.py": "7beed2a238da448455718d5c570708df01aeab4fcff498781939e3793916e14f",
+    "OpenDreamRuntime/Objects/Types/DreamList.cs": "380196bc158ade1044094bb414b46bb36266e43e6f6cff5bfa12c9b6e6edb156",
+    "OpenDreamRuntime/Objects/Types/DreamObjectSavefile.cs": "565b7d86e547ddf96d28cc33ef85e38bde0c771da69d7f2a88807f805395547f",
+    "OpenDreamRuntime/Resources/DreamResourceManager.cs": "ad62b66bfa26039da65ce38ae282d9edefb9fd7392877ae4dcd765f4c9ad84a3",
+    "OpenDreamRuntime/Map/DreamMapManager.cs": "7756a5276f625fc8c66a6dc30005212054888462c4040f51f8c4ff648d73bf59",
+    "tests/assoc_list_construction/warning_coordinates.py": "73ad2ac6972e1e1ea34f08953e3682e6d605c5fe1e40a1efd90157cbbe7e84f6",
+    "tests/assoc_list_construction/test_warning_coordinates.py": "51bb8a381358b261cf1170dee226171690f47f73bcda1996d3b00739d2b2bfd6"
   }
 }

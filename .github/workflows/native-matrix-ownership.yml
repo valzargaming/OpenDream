@@ -45,6 +45,7 @@ jobs:
           mkdir -p matrix-results/prepared-source
           cp OpenDreamRuntime/Procs/Native/DreamProcNativeRoot.cs OpenDreamRuntime/Objects/DreamObject.cs Content.IntegrationTests/NativeMatrixOwnershipTests.cs matrix-results/prepared-source/
           sha256sum matrix-results/prepared-source/* > matrix-results/prepared-source-sha256.txt
+          python tests/assoc_list_construction/warning_coordinates.py --capture matrix-results/warning-source
       - name: Full build with original log
         shell: bash
         run: |
