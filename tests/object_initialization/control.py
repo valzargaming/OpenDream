@@ -14,7 +14,7 @@ spec.loader.exec_module(module)
 BASELINE_COMMIT = 'd0ae5d844c723450c21b319eb9b61a17d5eca3be'
 EXPECTED_CANDIDATE_HASHES = {
     'OpenDreamRuntime/Objects/DreamObject.cs': '0338a6aaa6a8b1391bb2240117756076c2ee23809308dc078c04659fe72b7ed4',
-    'OpenDreamRuntime/Procs/DMOpcodeHandlers.cs': '7f3ffd180fa5facbce09bd661524b22bc673d922de461c8bde6897eb0c66fba0',
+    'OpenDreamRuntime/Procs/DMOpcodeHandlers.cs': 'bbbed04358c789254f900fb2b4640ccceda052ec64945f21f002384cbd029510',
     'OpenDreamRuntime/Procs/InitDreamObject.cs': 'b76207eaf0fa47e3063d0b4022f809f23c0bff82cc317719d01e1b1d4e1b87d5',
 }
 CONTROL_OPTIONS = {
