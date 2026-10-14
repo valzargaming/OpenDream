@@ -85,7 +85,7 @@ public class DreamResource(int id, string? filePath, string? resourcePath) {
             text = StringFormatDecoder.RemoveFormatting(text);
 
             CreateDirectory();
-            File.AppendAllText(ResourcePath, text + "\r\n");
+            AppendTextLine(text);
             _resourceDataBacking = null;
             return;
         }
@@ -98,11 +98,19 @@ public class DreamResource(int id, string? filePath, string? resourcePath) {
         bool appended = false;
         try {
             CreateDirectory();
-            File.AppendAllText(ResourcePath, text + "\r\n");
+            AppendTextLine(text);
             _resourceDataBacking = null;
             appended = true;
         } finally { SaveCostProfile.End(append, appended); }
         SaveCostProfile.Appended(profile);
+    }
+
+    private void AppendTextLine(string text) {
+        // Keep the terminator separate: savefile snapshots can be very large.
+        // Default StreamWriter matches AppendAllText's strict UTF8 without BOM.
+        using var writer = new StreamWriter(ResourcePath!, append: true);
+        writer.Write(text);
+        writer.Write("\r\n");
     }
 
     private void CreateDirectory() {
