@@ -19,9 +19,16 @@ class ReceiptTests(unittest.TestCase):
         spec['original_inputs']=[r for r in spec['original_inputs'] if r['path']==PRODUCTION]
         path.write_text(json.dumps(spec))
         control=json.loads((HERE/'controls.json').read_text())
+        # Reproduce Linux checkout bytes in the temporary fake-Git stage.
+        for name in spec['expected_sources']:
+            item=root/name
+            item.write_bytes(item.read_bytes().replace(b'\r\n',b'\n'))
         committed={p:(root/p).read_bytes() for p in spec['expected_sources']}
         committed['tests/field_ownership/source-manifest.json']=path.read_bytes()
         baseline=mutation(committed[PRODUCTION],'baseline',control)
+        for fixed, original in control.get('frozen_original_overlays', []):
+            assert baseline.count(fixed.encode()) == 1
+            baseline=baseline.replace(fixed.encode(),original.encode(),1)
         def git(unused,*args):
             if args==('rev-parse','HEAD'):return (HEAD+'\n').encode()
             self.assertEqual(args[:2],('cat-file','blob'))

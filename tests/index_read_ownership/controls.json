@@ -1,0 +1,10 @@
+{
+  "base_sha256": "ac4dc48d479199df68fc2d947e227800844d1aa749a0d2e7c63fa1ea88030503",
+  "candidate_sha256": "90d11d9bd08ccc768cce7c085678594b792758cd822dcc9a2f3d34958ca687fc",
+  "replacements": [
+    [
+      "                try {\n                    return GetIndex(indexing, index, this);\n                } finally {\n                    if (!peek) {\n                        index.Dispose();\n                        indexing.Dispose();\n                    }\n                }",
+      "                var value = GetIndex(indexing, index, this);\n                if (!peek) {\n                    index.Dispose();\n                    indexing.Dispose();\n                }\n\n                return value;"
+    ]
+  ]
+}

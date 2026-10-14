@@ -70,19 +70,20 @@
   "expected_sources": {
     ".github/workflows/field-ownership.yml": "f44d979efa95abd77f59fd76073d96bb80507918abdf335f793877ac7eb6dea7",
     "Content.IntegrationTests/GameTests.FieldOwnership.cs": "741f63a1b36bf1a84402a3b66bd9b4b414bce53852579d4f0f8d93b3608e4d55",
-    "Content.IntegrationTests/GameTests.cs": "40314ddade03c12091bb35f07e07a5911184f3b2aed8d14e85e4ae3c9ad19894",
-    "OpenDreamRuntime/Procs/DMProc.cs": "ac4dc48d479199df68fc2d947e227800844d1aa749a0d2e7c63fa1ea88030503",
-    "tests/call_ext_ownership/control.py": "ad5d7cec61f64f8c1bf1b499d2227d2eb1c1eb9a116dd9f458d588fd573b3908",
+    "Content.IntegrationTests/GameTests.cs": "b0798c4289f199f50b6f4c3efee4e36be457f514aa427e839b789bba116e4ca0",
+    "OpenDreamRuntime/Procs/DMProc.cs": "90d11d9bd08ccc768cce7c085678594b792758cd822dcc9a2f3d34958ca687fc",
+    "tests/call_ext_ownership/control.py": "30e567df55515c74ae5c816e4a12f91fad95b9ccd83d5d9c34fcd322ea8bf8a5",
     "tests/field_ownership/control.py": "d2f80f5ebcd84a316fd663ff003c20420dc8a0876a3bdd91aa40dae64e4535a2",
-    "tests/field_ownership/controls.json": "3fe03aff33cc2959983cfb87c6cfadc51d2b7c30bf2217f511d55a814ade0a7e",
+    "tests/field_ownership/controls.json": "f9ce9c3de9cb3096f6f59e16a84f50392bb7d5307775df063264337abec77e79",
     "tests/field_ownership/prepare_control.py": "f68b6c6b265c5586621de7703ef7895bdf068c87b57aa23765369b7d1b02f910",
     "tests/field_ownership/test_controls.py": "6ea5e8e2812c02922494dc88b3a89adffacb8f4f8c995759bf10da82bb485368",
-    "tests/field_ownership/test_receipts.py": "efd39379d46e349be244ec9e4417b689b5f317d6d4c112b6b1bda1d267a3f630",
+    "tests/field_ownership/test_receipts.py": "6b2ac43c380bb8e786a58b76b0c2011593a18ae573ea9da44e587be55035e2cf",
     "tests/field_ownership/test_verify.py": "16e601a94d186a6d02a96ec52d608b30f31c0a2d94c6d4bd2fc01b0502938c4f",
     "tests/field_ownership/verify.py": "c1a7244091ce5a409c221e010a60e57f6eacd3b24c919a1658059b5ff57e7c5e",
-    "tests/missing_operator_ownership/control.py": "9e596498e2c90d13ee89a9c1dcb09ef1f29f7070356642b73c1af6748a949bad",
-    "tests/numeric_list_ownership/control.py": "823cb4d5933fcc45697cf9748fa86197c7e604b5a29351998965989ee8d2ce52",
-    "tests/field_ownership/fixtures/nunit-aggregate-messages.json": "f04223141d2e1d8e83c77517989cd75dab8af0627fa51a5e96678980c6a2eedb"
+    "tests/missing_operator_ownership/control.py": "aa9ca714f28fac4a439b9bba06a6c2c0be1f4617953fce72eff18306c7940d0d",
+    "tests/numeric_list_ownership/control.py": "b543026f521a4191e8e2e70a7835db686de759c28c7b136c0679557cf5137f48",
+    "tests/field_ownership/fixtures/nunit-aggregate-messages.json": "f04223141d2e1d8e83c77517989cd75dab8af0627fa51a5e96678980c6a2eedb",
+    "tests/index_read_ownership/controls.json": "4cd9205371f5c277dc4d552cc9963e4ef8d905b97d1c5b8eb17cd1125db9c652"
   },
   "integration_base": "8a19c5737ac4b47d8fbb6367897c5dafc132c1a0",
   "integration_note": "Preserves tested numeric-list hook and refreshes all three shared fixture pins; field production unchanged from reviewed-v2"

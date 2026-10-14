@@ -1,0 +1,65 @@
+name: List index read ownership regression
+on:
+  pull_request:
+    paths:
+      - OpenDreamRuntime/Procs/DMProc.cs
+      - Content.IntegrationTests/GameTests.cs
+      - Content.IntegrationTests/GameTests.IndexReadOwnership.cs
+      - tests/index_read_ownership/**
+      - .github/workflows/index-read-ownership.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  index-read-ownership:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [positive, baseline, omitted-release]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          submodules: recursive
+      - name: Verify exact head
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.401
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Verify pure verifier
+        run: python -m unittest discover -s tests/index_read_ownership -p 'test_*.py' -v
+      - name: Verify frozen originals and record exact source preparation
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: python tests/index_read_ownership/control.py '${{ matrix.mode }}' --expected-head "$EXPECTED_HEAD" --receipt index-read-results/source-receipt.json
+      - name: Verify SDK and full build
+        run: |
+          test "$(dotnet --version)" = '10.0.401'
+          dotnet build OpenDream.slnx --configuration Release --property WarningLevel=4 -m:1 -p:UseSharedCompilation=false --disable-build-servers
+      - name: Production-method ownership tests and strict receipt
+        shell: bash
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set +e
+          COMPlus_gcServer=1 dotnet test Content.IntegrationTests/Content.IntegrationTests.csproj --configuration Release --no-build --filter 'FullyQualifiedName=Content.IntegrationTests.GameTests.NoRuntimesTest' --logger 'trx;LogFileName=index-read.trx' --results-directory index-read-results -v n > index-read-results/index-read.log 2>&1
+          code=$?
+          set -e
+          tail -80 index-read-results/index-read.log
+          python tests/index_read_ownership/control.py '${{ matrix.mode }}' --expected-head "$EXPECTED_HEAD" --receipt index-read-results/source-receipt.json --verify
+          python tests/index_read_ownership/verify.py index-read-results/index-read.trx '${{ matrix.mode }}' "$code" --log index-read-results/index-read.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: index-read-ownership-${{ matrix.mode }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: index-read-results/
+          if-no-files-found: error
+          retention-days: 14
