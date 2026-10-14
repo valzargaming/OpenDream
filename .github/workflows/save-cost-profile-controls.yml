@@ -1,5 +1,8 @@
 name: Save cost profile serial assertion controls
 on:
+  pull_request:
+    paths:
+      - '.github/workflows/save-cost-profile-controls.yml'
   workflow_dispatch:
     inputs:
       control:
@@ -14,13 +17,13 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 240
     env:
-      EXPECTED_HEAD: ${{ github.sha }}
+      EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
       DOTNET_CLI_TELEMETRY_OPTOUT: '1'
       MSBUILDDISABLENODEREUSE: '1'
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
           submodules: recursive
       - uses: actions/setup-dotnet@v4
@@ -44,12 +47,12 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Serial generated controls, exact assertion classification
         run: |
-          & '${{ steps.python.outputs.python-path }}' tools/save_cost_profile/control_batch.py --control '${{ inputs.control }}' --expected-head "$env:EXPECTED_HEAD" --results save-cost-control-results
+          & '${{ steps.python.outputs.python-path }}' tools/save_cost_profile/control_batch.py --control '${{ inputs.control || 'all' }}' --expected-head "$env:EXPECTED_HEAD" --results save-cost-control-results
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: save-cost-controls-${{ inputs.control }}-${{ github.sha }}
+          name: save-cost-controls-${{ inputs.control || 'all' }}-${{ github.event.pull_request.head.sha || github.sha }}
           path: save-cost-control-results/
           if-no-files-found: error
           retention-days: 14
