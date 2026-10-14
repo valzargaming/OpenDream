@@ -1,6 +1,17 @@
 name: Savefile resource byte sharing
 on:
+  pull_request:
+    paths:
+      - 'OpenDreamRuntime/Resources/DreamResourceManager.cs'
+      - 'OpenDreamRuntime/Objects/Types/DreamObjectSavefile.cs'
+      - 'Content.IntegrationTests/SavefileResourceBytesTests.cs'
+      - 'Content.IntegrationTests/DMProject/Fixtures/savefile-resource-bytes.dm'
+      - 'tests/savefile_resource_bytes/**'
+      - '.github/workflows/savefile-resource-bytes.yml'
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   resource-bytes:
@@ -13,6 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
           submodules: recursive
       - uses: actions/setup-dotnet@v4
@@ -25,7 +37,7 @@ jobs:
         run: python -m unittest discover -s tests/savefile_resource_bytes -p 'test_*.py' -v
       - name: Authenticate committed source and prepare exact control
         env:
-          EXPECTED_HEAD: ${{ github.sha }}
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           python tests/savefile_resource_bytes/control.py '${{ matrix.mode }}' --head "$EXPECTED_HEAD" --receipt resource-results/source-receipt.json
           python tests/savefile_resource_bytes/capture.py resource-results
@@ -63,7 +75,7 @@ jobs:
           tail -40 resource-results/runtime.log
       - name: Strict original classification and source preservation
         env:
-          EXPECTED_HEAD: ${{ github.sha }}
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           python tests/savefile_resource_bytes/control.py '${{ matrix.mode }}' --head "$EXPECTED_HEAD" --receipt resource-results/source-receipt.json --verify
           python tests/savefile_resource_bytes/verify.py resource-results/resource.trx '${{ matrix.mode }}' "$(cat resource-results/test-exit-code.txt)" --log resource-results/resource.log
@@ -76,7 +88,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: resource-bytes-${{ matrix.mode }}-${{ github.sha }}
+          name: resource-bytes-${{ matrix.mode }}-${{ github.event.pull_request.head.sha || github.sha }}
           path: resource-results/
           if-no-files-found: error
           retention-days: 14

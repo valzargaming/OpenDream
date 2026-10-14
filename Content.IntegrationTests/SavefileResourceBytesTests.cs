@@ -10,7 +10,6 @@ using NUnit.Framework;
 using OpenDreamShared;
 using OpenDreamRuntime;
 using OpenDreamRuntime.Objects;
-using OpenDreamRuntime.Procs;
 using OpenDreamRuntime.Resources;
 
 namespace Content.IntegrationTests;
@@ -66,13 +65,13 @@ public sealed class SavefileResourceBytesTests : ContentIntegrationTest {
         var decoded = new List<DreamResource>();
         for (var pass = 0; pass < 2; pass++) {
             using var result = DreamThread.Run(reads!, manager.WorldInstance, null,
-                new DreamProcArguments(new DreamValue("payload.bin"), new DreamValue(1000)));
+                new DreamValue("payload.bin"), new DreamValue(1000));
             var values = result.MustGetValueAsIDreamList();
             Assert.That(values.GetLength(), Is.EqualTo(1000));
             decoded.AddRange(values.GetValues().Select(v => v.MustGetValueAsDreamResource()));
         }
         using (var result = DreamThread.Run(drop!, manager.WorldInstance, null,
-                   new DreamProcArguments(new DreamValue("payload.bin"))))
+                   new DreamValue("payload.bin")))
             Assert.That(result.MustGetValueAsFloat(), Is.EqualTo(17));
         // The dropped third pass must still retain its distinct IDs, but reuse bytes.
         var generated = downloads.Where(p => p.Key >= decoded[0].Id).Select(p => p.Value).ToArray();
@@ -87,7 +86,7 @@ public sealed class SavefileResourceBytesTests : ContentIntegrationTest {
             Assert.That(downloads[resource.Id], Is.SameAs(resource.ResourceData));
         }
         using (var result = DreamThread.Run(identity!, manager.WorldInstance, null,
-                   new DreamProcArguments(new DreamValue(decoded[0]), new DreamValue(decoded[1])))) {
+                   new DreamValue(decoded[0]), new DreamValue(decoded[1]))) {
             var values = result.MustGetValueAsIDreamList().GetValues();
             Assert.That(values[0].MustGetValueAsFloat(), Is.Zero);
             Assert.That(values[1], Is.Not.EqualTo(values[2]));

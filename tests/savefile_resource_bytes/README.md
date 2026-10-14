@@ -1,6 +1,6 @@
 # Savefile resource byte sharing
 
-This suite is opt-in. Root owns native execution and must dispatch `savefile-resource-bytes.yml` on the exact reviewed head. No local compiler or native test has run for this candidate.
+The scoped PR workflow tests the exact PR head; workflow_dispatch remains available. Root owns local native execution. Read-only token permissions apply. No local compiler or native test has run for this candidate.
 
 `DreamValue.Equals` delegates resource equality to the resource object; resource refs contain its issued ID. The fix therefore preserves distinct generic resource objects and IDs on every read. It shares only equal immutable byte arrays freshly decoded from savefiles. File-backed loads, general `CreateResource` callers and `IconResource` generation are unchanged. SHA-256 selects a bucket; complete byte equality is mandatory. Pool entries are cleared with the resource manager's initialization. DM cannot write pathless generic resources; engine callers must treat their exposed byte arrays as read-only.
 
@@ -27,3 +27,5 @@ Source mutation audit: `ResourceData` is a public byte-array getter, so sharing 
 For the fixed 3,000-read workload, expected retained payload backing changes from 196,608,000 bytes to 65,536 bytes (3,000 handles/IDs/download entries in both). The two 1,000-read close/reopen passes model repeated preflight/restoration reads; the third pass drops values. This is an exact fixture expectation, not an observed native measurement. Distinct content uses separate byte arrays and IDs; forced digest collisions cannot coalesce unequal content.
 
 Inherited save-profile source composition authenticates the complete prior frozen sources and permits only the reviewed savefile decode-call replacement, bound to the complete candidate Savefile and ResourceManager hashes. Its positive and all negative controls retain that call; original mode restores the unchanged historical sources. Every previous mutation hash and classifier remains enforced before composition. Additional tamper controls reject unrelated methods/seams or resource-manager bytes.
+
+Fixture API review binds `DreamThread.Run(..., params DreamValue[])` and passes values directly; the helper itself creates/disposes owning arguments. `ServerIntegrationOptions.CVarOverrides` receives strings, including TopicPort `"0"`. Remaining compiler, manager, ref/list, resource lookup and provider APIs were compared with the exact checkout and existing integration hosts. Source checks do not replace a compiler run. Original fcee CI also contained three CS1503 errors for passing DreamProcArguments into Run; these originals remain unchanged.

@@ -122,3 +122,17 @@ class SourceTests(unittest.TestCase):
             receipt['zip_sha256']=control.sha(archive.read_bytes())
             (root/'original-logs.json').write_text(json.dumps(receipt))
             with self.assertRaises(AssertionError): archive_logs.verify(root)
+
+    def test_fixture_api_and_exact_head_workflow_contract(self):
+        host=(control.ROOT/'Content.IntegrationTests/SavefileResourceBytesTests.cs').read_text()
+        self.assertNotIn('new DreamProcArguments',host)
+        self.assertIn('options.CVarOverrides[OpenDreamCVars.TopicPort.Name] = "0";',host)
+        thread=(control.ROOT/'OpenDreamRuntime/DreamThread.cs').read_text()
+        self.assertIn('Run(DreamProc proc, DreamObject src, DreamObject? usr, params DreamValue[] arguments)',thread)
+        workflow=(control.ROOT/'.github/workflows/savefile-resource-bytes.yml').read_text()
+        self.assertNotIn('pull_request_target',workflow)
+        self.assertNotIn('contents: write',workflow)
+        self.assertIn('permissions:\n  contents: read',workflow)
+        self.assertIn('ref: ${{ github.event.pull_request.head.sha || github.sha }}',workflow)
+        self.assertEqual(workflow.count('EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}'),2)
+        self.assertIn('matrix:\n        mode: [positive, baseline, hash-only]',workflow)
