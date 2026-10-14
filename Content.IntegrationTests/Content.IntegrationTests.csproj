@@ -13,6 +13,8 @@
     <AssemblyName>Content.IntegrationTests</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
+    <!-- Historical profiling builds remove the profiler from production sources. -->
+    <Compile Remove="ResourceOutputAllocationTests.cs" Condition="'$(SaveCostHostOriginal)' == 'true'" />
     <PackageReference Include="coverlet.collector">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

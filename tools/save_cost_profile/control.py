@@ -62,7 +62,36 @@ def authenticate_savefile(raw, frozen):
     assert raw == compose_savefile(frozen), "composition changed prior save-profile methods"
     return True
 
-def target_sources(mode, composed=False):
+def compose_resource(raw):
+    raw = lf(raw)
+    needle = b'File.AppendAllText(ResourcePath, text + "\\r\\n");'
+    assert raw.count(needle) == 2, "unexpected resource append seam"
+    anchor = b"    private void CreateDirectory() {"
+    assert raw.count(anchor) == 1
+    helper = b'''    private void AppendTextLine(string text) {
+        // Preserve the lean AppendAllText path with a bounded temporary copy.
+        if (text.Length <= 4096) {
+            File.AppendAllText(ResourcePath!, text + "\\r\\n");
+            return;
+        }
+        // Keep the terminator separate: savefile snapshots can be very large.
+        // Default StreamWriter matches AppendAllText's strict UTF8 without BOM.
+        using var writer = new StreamWriter(ResourcePath!, append: true);
+        writer.Write(text);
+        writer.Write("\\r\\n");
+    }
+
+'''
+    return raw.replace(needle, b'AppendTextLine(text);').replace(anchor, helper + anchor)
+
+def authenticate_resource(raw, frozen):
+    raw, frozen = lf(raw), lf(frozen)
+    if raw == frozen:
+        return False
+    assert raw == compose_resource(frozen), "unreviewed resource composition"
+    return True
+
+def target_sources(mode, composed=False, resource_composed=False):
     frozen_inputs()
     sources = {HOST: (PACKAGE / "frozen/fixture/SaveCostProfileHostTests.cs").read_bytes()}
     if mode == "original":
@@ -85,6 +114,8 @@ def target_sources(mode, composed=False):
             assert sha(sources[path]) == spec["frozen_v3_sha256"], "mutation differs from reviewed v3 bytes"
     if composed and mode != "original":
         sources[SAVEFILE] = compose_savefile(sources[SAVEFILE])
+    if resource_composed and mode != "original":
+        sources[RESOURCE] = compose_resource(sources[RESOURCE])
     return sources
 
 def prepare(root, mode, head, receipt):
@@ -104,10 +135,13 @@ def prepare(root, mode, head, receipt):
     assert subprocess.run(["git", "-C", str(root), "cat-file", "-e", BASE + ":" + HELPER], capture_output=True).returncode != 0, "helper must be absent at baseline"
     before = {}
     composed = False
+    resource_composed = False
     for path, frozen in [(p, "frozen/candidate/" + p) for p in RUNTIME] + [(HOST, "frozen/fixture/SaveCostProfileHostTests.cs"), (SMOKE, "frozen/fixture/Smoke.cs")]:
         committed = git(root, "show", head + ":" + path)
         if path == SAVEFILE:
             composed = authenticate_savefile(committed, (PACKAGE / frozen).read_bytes())
+        elif path == RESOURCE:
+            resource_composed = authenticate_resource(committed, (PACKAGE / frozen).read_bytes())
         else:
             assert lf(committed) == lf((PACKAGE / frozen).read_bytes()), "head source differs from reviewed candidate: " + path
         assert lf((root / path).read_bytes()) == lf(committed), "dirty input: " + path
@@ -121,7 +155,7 @@ def prepare(root, mode, head, receipt):
     assert lf(project.read_bytes()) == lf(git(root, "show", head + ":Content.IntegrationTests/Content.IntegrationTests.csproj"))
     assert b"SaveCostHostProfile" in project.read_bytes() and b"SAVECOST_PROFILE" in project.read_bytes()
     outputs = {}
-    for path, raw in target_sources(mode, composed).items():
+    for path, raw in target_sources(mode, composed, resource_composed).items():
         target = root / path
         if raw is None:
             target.unlink(missing_ok=True)
@@ -135,6 +169,7 @@ def prepare(root, mode, head, receipt):
             artifact.write_bytes(raw)
     data = dict(schema=1, mode=mode, head=head, base=BASE, robust=ROBUST, manifest_sha256=manifest_sha,
                 immutable_originals=originals, reviewed_head_sources=before, prepared_sources=outputs, composed_savefile=composed,
+                composed_resource=resource_composed,
                 project_sha256=sha(project.read_bytes()), absent_baseline_helper=True,
                 package_code_sha256={name: sha((PACKAGE / name).read_bytes()) for name in PACKAGE_CODE})
     receipt.parent.mkdir(parents=True, exist_ok=True)
@@ -151,13 +186,15 @@ def verify_receipt(root, mode, head, receipt):
     assert data["immutable_originals"] == {path: sha(git(root, "show", BASE + ":" + path)) for path in (SAVEFILE, RESOURCE, SEAM)}
     composed = authenticate_savefile(git(root, "show", head + ":" + SAVEFILE), (PACKAGE / "frozen/candidate" / SAVEFILE).read_bytes())
     assert data["composed_savefile"] == composed, "composition receipt drift"
+    resource_composed = authenticate_resource(git(root, "show", head + ":" + RESOURCE), (PACKAGE / "frozen/candidate" / RESOURCE).read_bytes())
+    assert data["composed_resource"] == resource_composed, "resource composition receipt drift"
     if composed:
         assert sha(lf(git(root, "show", head + ":" + MANAGER))) == COMPOSED_MANAGER_SHA
         assert lf((root / MANAGER).read_bytes()) == lf(git(root, "show", head + ":" + MANAGER)), "manager drift"
     paths = (*RUNTIME, HOST, SMOKE, MANAGER) if composed else (*RUNTIME, HOST, SMOKE)
     assert data["reviewed_head_sources"] == {path: sha(git(root, "show", head + ":" + path)) for path in paths}
     assert data["package_code_sha256"] == {name: sha((PACKAGE / name).read_bytes()) for name in PACKAGE_CODE}
-    expected = target_sources(mode, composed)
+    expected = target_sources(mode, composed, resource_composed)
     assert data["prepared_sources"] == {p: None if raw is None else sha(raw) for p, raw in expected.items()}
     for path, raw in expected.items():
         assert ((root / path).read_bytes() == raw) if raw is not None else not (root / path).exists()
@@ -170,7 +207,7 @@ def restore(root, mode, head, receipt):
     # Restore ONLY this verified generated variant's five known targets.
     # Never reset/stash the checkout or discard an unverified current mutation.
     data = verify_receipt(root, mode, head, receipt)
-    for path, raw in target_sources("positive", data["composed_savefile"]).items():
+    for path, raw in target_sources("positive", data["composed_savefile"], data["composed_resource"]).items():
         assert raw is not None
         (root / path).write_bytes(raw)
 

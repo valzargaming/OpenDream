@@ -1,2 +1,9 @@
 * text=auto
 tools/civ13-provenance/client-validation/*.py text eol=lf
+# Exact-byte resource regression receipts use the same source bytes on both hosts.
+OpenDreamRuntime/Resources/DreamResource.cs text eol=lf
+OpenDreamRuntime/Resources/SaveCostProfile.cs text eol=lf
+OpenDreamRuntime/Objects/Types/DreamObjectSavefile.cs text eol=lf
+OpenDreamShared/Dream/StringFormatDecoder.cs text eol=lf
+Content.IntegrationTests/ResourceOutputAllocationTests.cs text eol=lf
+Content.IntegrationTests/DMProject/Fixtures/resource-output-allocation.dm text eol=lf
