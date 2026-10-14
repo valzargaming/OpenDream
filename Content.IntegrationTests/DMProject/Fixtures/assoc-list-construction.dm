@@ -56,13 +56,13 @@
 var/global/assoc_timing_events = ""
 
 /datum/assoc_timing_callback
-    var/tag
+    var/release_timing_tag
 
 /datum/assoc_timing_callback/New(name)
-    tag = name
+    release_timing_tag = name
 
 /datum/assoc_timing_callback/Del()
-    assoc_timing_events += tag
+    assoc_timing_events += release_timing_tag
     ..()
 
 /proc/assoc_construct_release_timing(list_payload)
