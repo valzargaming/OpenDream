@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "base_commit": "5075c426b2f6f37dccb14b0902bb98780bbd62e1",
+  "sources": {
+    ".github/workflows/savefile-resource-bytes.yml": "c9fde492e5a554b987e3efb20c61f905271ad426f3a7ec0e7db3404dd5c10fb0",
+    "Content.IntegrationTests/Content.IntegrationTests.csproj": "aa6ae5d2a1b611cd0d456c71c13e555b6bee1a9caef95cb6072ef3ee001988b6",
+    "Content.IntegrationTests/ContentIntegrationTest.cs": "11440e100252e5f0c634a160c168cd7bb7646948613425746a84f759413e8ddb",
+    "Content.IntegrationTests/DMProject/Fixtures/savefile-resource-bytes.dm": "8cb3d1c08d948a260aa51670a557224e9933dd4f967c6b49491e6d02d51fc26d",
+    "Content.IntegrationTests/GameTests.Savefile.cs": "221826b0c3867195b1a828750bd260560f06e97b6e934db211bdb50a89a14020",
+    "Content.IntegrationTests/GameTests.cs": "f53a97e17fd7f8f249a2bdb05d3ed8c7b1cfa887e29e490dc6884823668ba27c",
+    "Content.IntegrationTests/SavefileResourceBytesTests.cs": "60b7f8311c28557637582aae62ea2cadebbf43974939e1619676c4cb3b74d8f1",
+    "Directory.Packages.props": "7392daa4c44a429ccd0feb736ac7a5429f104f35993c79adca09429ae8738d56",
+    "OpenDreamRuntime/AtomManager.cs": "a832d678465e8794fb74fa1486cbe480c93e363878f9591769f151b4e4d9546e",
+    "OpenDreamRuntime/DreamAczProvider.cs": "d301d67604e34fdf8bcd9b6010120d5d6bdeb6bc38dc54ca33beb5f5f2fd86b6",
+    "OpenDreamRuntime/DreamValue.cs": "383070fb0046a3940e0c3638916ac5fbf6e28fbb82201490113e7de9c4acb71a",
+    "OpenDreamRuntime/Objects/DreamRefManager.cs": "b3865a4e99022445794fb19bf0f14d57c17d1c811748c55d8fe19388d2698697",
+    "OpenDreamRuntime/Objects/Types/DreamObjectSavefile.cs": "86371fc5b8d2d92c50b0f75ed63afdd1cbf992c533e04e702844e6995cb80185",
+    "OpenDreamRuntime/Resources/DreamResource.cs": "7eb6c235e91a88f18acc394d9d9a1599747da456a9177679222eeda415a0cc4d",
+    "OpenDreamRuntime/Resources/DreamResourceManager.cs": "ad62b66bfa26039da65ce38ae282d9edefb9fd7392877ae4dcd765f4c9ad84a3",
+    "global.json": "b48d6da8fa62c0da7cc8a2da4ea036ac55836660a448ba533135abb5b8451b73",
+    "tests/savefile_resource_bytes/README.md": "c04932528193ef77e240cc93941d59e2f5a1bf51e2f2ab7be6488454f8866fda",
+    "tests/savefile_resource_bytes/archive_logs.py": "11c7df7dd08139527b082a85d88c5471196c638b8cc702c24447b45719905639",
+    "tests/savefile_resource_bytes/capture.py": "7270c97d5d108f2e2b3dfabf0a4df8fb80a824d232630ad98d5ccc652a285639",
+    "tests/savefile_resource_bytes/control.py": "103eb1b8c4108d34440e346e7b75e077256d18249f100574d37a36b3fb505948",
+    "tests/savefile_resource_bytes/controls.json": "d387f87c1de79d4146c7a4f5f9e818749ad98c8f592e92b2943c4d434f3906f5",
+    "tests/savefile_resource_bytes/test_controls.py": "819cde4a593c632f07056dd3c807c334a7affc7c1c1b8b36b645961fd621dc87",
+    "tests/savefile_resource_bytes/verify.py": "6af95e2e65579659cb6e1a8b8c796898fdebe1077517c108a3f5e1caf9eb36b8",
+    "tests/string_format_decoder/verify.py": "1e1bf99ca675404f5e40083541ffbffc76351c16a9e26e4760a63493c3debf88"
+  },
+  "submodules": "160000 commit af2a7d0406b410c4d960f0f4b34513651c6dc742\tRobustToolbox",
+  "evidence": "source-only candidate; no native run"
+}

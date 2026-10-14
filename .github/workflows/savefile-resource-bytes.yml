@@ -1,0 +1,82 @@
+name: Savefile resource byte sharing
+on:
+  workflow_dispatch:
+
+jobs:
+  resource-bytes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [positive, baseline, hash-only]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.401
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Pure source and parser controls
+        run: python -m unittest discover -s tests/savefile_resource_bytes -p 'test_*.py' -v
+      - name: Authenticate committed source and prepare exact control
+        env:
+          EXPECTED_HEAD: ${{ github.sha }}
+        run: |
+          python tests/savefile_resource_bytes/control.py '${{ matrix.mode }}' --head "$EXPECTED_HEAD" --receipt resource-results/source-receipt.json
+          python tests/savefile_resource_bytes/capture.py resource-results
+      - name: Build with original output
+        id: build
+        shell: bash
+        run: |
+          test "$(dotnet --version)" = '10.0.401'
+          dotnet --info > resource-results/sdk-info.log
+          set +e
+          dotnet build Content.IntegrationTests/Content.IntegrationTests.csproj -c Release -m:1 -p:UseSharedCompilation=false --disable-build-servers > resource-results/build.log 2>&1
+          code=$?
+          set -e
+          printf '%s\n' "$code" > resource-results/build-exit-code.txt
+          tail -60 resource-results/build.log
+          test "$code" = 0
+          python tests/savefile_resource_bytes/capture.py resource-results --binaries
+      - name: Dedicated compiled fixture in fresh process
+        shell: bash
+        run: |
+          set +e
+          COMPlus_gcServer=1 dotnet test Content.IntegrationTests/Content.IntegrationTests.csproj -c Release --no-build --filter 'FullyQualifiedName=Content.IntegrationTests.SavefileResourceBytesTests.ResourceIdentityAndSharedBytes' --logger 'trx;LogFileName=resource.trx' --results-directory resource-results -v n -- NUnit.ExplicitMode=Relaxed > resource-results/resource.log 2>&1
+          code=$?
+          set -e
+          printf '%s\n' "$code" > resource-results/test-exit-code.txt
+          tail -60 resource-results/resource.log
+      - name: Unchanged NoRuntimes in another fresh process
+        shell: bash
+        run: |
+          set +e
+          COMPlus_gcServer=1 dotnet test Content.IntegrationTests/Content.IntegrationTests.csproj -c Release --no-build --filter 'FullyQualifiedName=Content.IntegrationTests.GameTests.NoRuntimesTest' --logger 'trx;LogFileName=runtime.trx' --results-directory resource-results -v n > resource-results/runtime.log 2>&1
+          code=$?
+          set -e
+          printf '%s\n' "$code" > resource-results/runtime-exit-code.txt
+          tail -40 resource-results/runtime.log
+      - name: Strict original classification and source preservation
+        env:
+          EXPECTED_HEAD: ${{ github.sha }}
+        run: |
+          python tests/savefile_resource_bytes/control.py '${{ matrix.mode }}' --head "$EXPECTED_HEAD" --receipt resource-results/source-receipt.json --verify
+          python tests/savefile_resource_bytes/verify.py resource-results/resource.trx '${{ matrix.mode }}' "$(cat resource-results/test-exit-code.txt)" --log resource-results/resource.log
+          python tests/string_format_decoder/verify.py resource-results/runtime.trx positive "$(cat resource-results/runtime-exit-code.txt)" --log resource-results/runtime.log --runtime
+      - name: Preserve original raw logs and hash receipt
+        if: always() && steps.build.outcome == 'success'
+        run: |
+          python tests/savefile_resource_bytes/archive_logs.py resource-results
+          python tests/savefile_resource_bytes/archive_logs.py resource-results --verify
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: resource-bytes-${{ matrix.mode }}-${{ github.sha }}
+          path: resource-results/
+          if-no-files-found: error
+          retention-days: 14

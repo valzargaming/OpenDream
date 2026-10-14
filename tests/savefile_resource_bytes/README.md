@@ -1,0 +1,27 @@
+# Savefile resource byte sharing
+
+This suite is opt-in. Root owns native execution and must dispatch `savefile-resource-bytes.yml` on the exact reviewed head. No local compiler or native test has run for this candidate.
+
+`DreamValue.Equals` delegates resource equality to the resource object; resource refs contain its issued ID. The fix therefore preserves distinct generic resource objects and IDs on every read. It shares only equal immutable byte arrays freshly decoded from savefiles. File-backed loads, general `CreateResource` callers and `IconResource` generation are unchanged. SHA-256 selects a bucket; complete byte equality is mandatory. Pool entries are cleared with the resource manager's initialization. DM cannot write pathless generic resources; engine callers must treat their exposed byte arrays as read-only.
+
+The connected explicit host compiles a standalone DM fixture, performs two 1,000-read passes across close/reopen and another 1,000-read drop pass, checks exact generic types, contents, distinct IDs, equality, refs/locate, lookup/download backing identity, unchanged file-backed loads, general creation semantics and object/list cleanup. It then injects unequal bytes into a digest bucket to check collision rejection and checks empty payloads and earlier IDs. CWD is restored before deleting uniquely named test storage.
+
+Modes:
+
+| Mode | Source | Required native observation |
+| --- | --- | --- |
+| positive | Candidate | Exactly one test PASS/exit 0; 3,000 IDs, one 65,536-byte backing array; collision checked |
+| baseline | Exact raw production files from `5075c426b2f6f37dccb14b0902bb98780bbd62e1` | Exactly one FAIL/exit 1, only `RESOURCE_BYTES_SHARED`, actual arrays 3,000, bytes 196,608,000; historical collision helper absent |
+| hash-only | Candidate with only byte comparison replaced by unconditional hash-bucket acceptance | Exactly one FAIL/exit 1, only `RESOURCE_BYTES_COLLISION_SAFE`; main reads still share one array |
+
+All three modes must additionally PASS unchanged `Content.IntegrationTests.GameTests.NoRuntimesTest` in a separate process. SDK is 10.0.401 with recursive pinned submodules, serial build and shared compilation/build servers disabled. Original build/test/runtime exits, source receipts/prepared inputs, DLL/PDBs and SHA receipts are retained. Build warnings are preserved and not claimed fixed; native acceptance still needs inspection of original build diagnostics. The strict verifier rejects unknown messages/frames/results and may initially reject an unfamiliar harmless NUnit spelling. Inspect original bytes before any narrowly bounded adapter.
+
+Run pure synthetic controls with a verified interpreter: `-m unittest discover -s tests/savefile_resource_bytes -p 'test_*.py' -v`. These are parser/provenance checks, not runtime evidence. `control.py` authenticates the exact Git head, committed source manifest and all input pins, restores both complete historical raw files for baseline, or changes exactly one comparison for the unsafe control. Verify its receipt after native execution.
+
+Replay: authenticate the downloaded artifact and exact-head workflow first; `archive_logs.py RESULTS --verify` checks ZIP hash, exact four names, duplicate/size/encryption guards, each uncompressed SHA and equality with original retained logs without extracting arbitrary paths. Replay dedicated TRX with `verify.py`, then the unchanged runtime classifier using `--runtime`. Recheck prepared-source/source-receipt and binary receipts against the actual artifact. Never replace originals with normalized logs.
+
+Limit: distinct resource wrappers, monotonically issued IDs and download dictionary entries still accumulate. Unique byte content is retained once per distinct payload for the world lifetime. This is a duplicate-payload retention reduction, not a collector/eviction fix, full-world load semantic repair, live-server memory measurement or proof of Gaia OOM causality. Savefile resource restoration already returns generic resources; this change preserves that existing type behavior.
+
+Source mutation audit: `ResourceData` is a public byte-array getter, so sharing is scoped to this internal savefile-decoding entry point rather than general `CreateResource`. Current runtime consumers serialize/base64/CRC/hash/read/write-to-file/send/package bytes; no in-place byte writer was found. `HotReloadResource` obtains a file-backed handle by path and `HotReloadInterface` reloads the configured interface. `ReloadFromDisk` resets only that handle's backing reference, not array contents. The host checks pathless Clear/no-op and reload/null behavior plus unaffected peer bytes and previously issued download data. Future engine consumers that mutate exposed arrays would require copy-on-write or a read-only API before using this pool. IconResource loading/creation paths are untouched.
+
+For the fixed 3,000-read workload, expected retained payload backing changes from 196,608,000 bytes to 65,536 bytes (3,000 handles/IDs/download entries in both). The two 1,000-read close/reopen passes model repeated preflight/restoration reads; the third pass drops values. This is an exact fixture expectation, not an observed native measurement. Distinct content uses separate byte arrays and IDs; forced digest collisions cannot coalesce unequal content.
