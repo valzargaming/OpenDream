@@ -5,7 +5,7 @@ class Controls(unittest.TestCase):
     def test_small_path_control_only_and_missing_duplicate_rejected(self):
         needle=b'if (text.Length <= 4096) {'
         changed=mutate(b'before '+needle+b' after','no-small-path')
-        self.assertEqual(changed,b'before if (false) { // negative control: ordinary output pays writer overhead after')
+        self.assertEqual(changed,b'before if (text.Length < 0) { // negative control: ordinary output pays writer overhead after')
         for raw in (b'missing',needle*2):
             with self.assertRaises(AssertionError):mutate(raw,'no-small-path')
     def test_positive_identical(self):

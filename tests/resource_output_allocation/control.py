@@ -21,7 +21,7 @@ def mutate(raw, mode):
     if mode == 'no-small-path':
         needle = b'if (text.Length <= 4096) {'
         assert raw.count(needle) == 1
-        return raw.replace(needle, b'if (false) { // negative control: ordinary output pays writer overhead')
+        return raw.replace(needle, b'if (text.Length < 0) { // negative control: ordinary output pays writer overhead')
     assert mode == 'platform-newline'
     needle = b'writer.Write("\\r\\n");'
     assert raw.count(needle) == 1
