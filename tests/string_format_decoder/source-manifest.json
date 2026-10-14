@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "base_commit": "53554597f7b594ea8a75570240d69d7d3003d56f",
+  "transform": "CRLF to LF only; no BOM, whitespace, or lone-CR changes",
+  "baseline_lf_sha256": "2723652b58569d1f261dac0ef561a1c00ce357a53070822a0685bf8cf735304d",
+  "candidate_lf_sha256": "7082f95f8623674c4ab0849f5d5878c33e31993d18bc1b9c91684601b78d8cc9",
+  "expected_sources": {
+    ".github/workflows/string-format-decoder.yml": "9e85e4a6127f37d4947174f570441cc802f85102c2d8242db78ec668eb43c062",
+    "Content.IntegrationTests/StringFormatDecoderTests.cs": "0316e6d03a9c16abd165ab8c7e5fa26e772e38c6767e4d8863cf2a3c6a6a6325",
+    "OpenDreamShared/Dream/StringFormatDecoder.cs": "7082f95f8623674c4ab0849f5d5878c33e31993d18bc1b9c91684601b78d8cc9",
+    "tests/string_format_decoder/Benchmark.cs": "58a7f6cb21934089678e0a28936d23434cd289edc30ef958988048b65384e82e",
+    "tests/string_format_decoder/Benchmark.csproj": "3191c8bcb3c33f3779dc5b2157bfb48569967c389ced0e25caca9bfac46f1373",
+    "tests/string_format_decoder/control.py": "ec5d3d84b6ab0380526b078dc811dd3677e69ef61eee3f1a6225f491b55c75a0",
+    "tests/string_format_decoder/README.md": "51ace5ef9cb53f24d165051015ab94df12dfdf9efcbeb373519210340796184e",
+    "tests/string_format_decoder/ResourceBindings.cs": "be16417142489b7a2ed319f3f819f24bfd2b80164fe9126401aedaba4d316f1a",
+    "tests/string_format_decoder/RunBenchmark.ps1": "730eb24fdccea8b053d382cc22a6892987039f5e0804db7b5a22a7e535b4d8fe",
+    "tests/string_format_decoder/test_verify.py": "db5632485c3752bb8c8a91a5718b567d8793ce8cf4cb90ed49d8e8c3392c74c1",
+    "tests/string_format_decoder/verify.py": "1e1bf99ca675404f5e40083541ffbffc76351c16a9e26e4760a63493c3debf88",
+    "OpenDreamRuntime/Resources/DreamResource.cs": "b7a72852b8b152693fffae5a7611b5d0379d78607beccd7813d3ebb74731ce9e",
+    "OpenDreamRuntime/DreamValue.cs": "383070fb0046a3940e0c3638916ac5fbf6e28fbb82201490113e7de9c4acb71a",
+    "OpenDreamRuntime/Objects/Types/DreamObjectSavefile.cs": "151a92e3a2691adf0a85787fa15dbe9ff669f4a94309019d6e7e523993b8ee6d",
+    "Content.IntegrationTests/GameTests.cs": "f53a97e17fd7f8f249a2bdb05d3ed8c7b1cfa887e29e490dc6884823668ba27c",
+    "Content.IntegrationTests/GameTests.Savefile.cs": "221826b0c3867195b1a828750bd260560f06e97b6e934db211bdb50a89a14020"
+  }
+}
