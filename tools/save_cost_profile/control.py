@@ -16,7 +16,7 @@ SMOKE = "Content.IntegrationTests/Smoke.cs"
 SEAM = "OpenDreamShared/Dream/StringFormatDecoder.cs"
 RUNTIME = [SAVEFILE, RESOURCE, HELPER]
 MANAGER = "OpenDreamRuntime/Resources/DreamResourceManager.cs"
-COMPOSED_SAVEFILE_SHA = "86371fc5b8d2d92c50b0f75ed63afdd1cbf992c533e04e702844e6995cb80185"
+COMPOSED_SAVEFILE_SHA = "565b7d86e547ddf96d28cc33ef85e38bde0c771da69d7f2a88807f805395547f"
 COMPOSED_MANAGER_SHA = "ad62b66bfa26039da65ce38ae282d9edefb9fd7392877ae4dcd765f4c9ad84a3"
 OLD_DECODE = b"DreamResourceManager.CreateResource(Convert.FromBase64String(sfDreamFileValue.Data))"
 NEW_DECODE = b"DreamResourceManager.CreateResourceFromSavefile(Convert.FromBase64String(sfDreamFileValue.Data))"
@@ -49,10 +49,26 @@ def frozen_inputs():
     assert all(manifest["files"].get(path) == digest for path, digest in required.items()), "reviewed source binding drift"
     return manifest, sha(manifest_raw)
 
+
+CACHE_HELPER = b'    internal void ReleaseFileDataCache() {\n        // In-memory resources own their bytes; only disk-backed data can be reloaded.\n        if (string.IsNullOrEmpty(filePath))\n            return;\n\n        ResourceData = null; // The setter also balances TOOLS memory accounting.\n    }\n\n'
+CACHE_READ_ORIGINAL = b'            var data = Resource.ReadAsString();'
+CACHE_READ = b'            string? data;\n            try {\n                data = Resource.ReadAsString();\n            } finally {\n                Resource.ReleaseFileDataCache();\n            }'
+
+def compose_cache_resource(raw):
+    raw = lf(raw)
+    anchor = b"    public void Clear() {"
+    assert raw.count(anchor) == 1 and b"ReleaseFileDataCache" not in raw
+    return raw.replace(anchor, CACHE_HELPER + anchor)
+
+def compose_cache_savefile(raw):
+    raw = lf(raw)
+    assert raw.count(CACHE_READ_ORIGINAL) == 1 and b"ReleaseFileDataCache" not in raw
+    return raw.replace(CACHE_READ_ORIGINAL, CACHE_READ)
+
 def compose_savefile(raw):
     raw = lf(raw)
     assert raw.count(OLD_DECODE) == 1 and NEW_DECODE not in raw, "unexpected decode seam"
-    return raw.replace(OLD_DECODE, NEW_DECODE)
+    return compose_cache_savefile(raw.replace(OLD_DECODE, NEW_DECODE))
 
 def authenticate_savefile(raw, frozen):
     raw, frozen = lf(raw), lf(frozen)
@@ -82,7 +98,7 @@ def compose_resource(raw):
     }
 
 '''
-    return raw.replace(needle, b'AppendTextLine(text);').replace(anchor, helper + anchor)
+    return compose_cache_resource(raw.replace(needle, b'AppendTextLine(text);').replace(anchor, helper + anchor))
 
 def authenticate_resource(raw, frozen):
     raw, frozen = lf(raw), lf(frozen)
@@ -116,6 +132,13 @@ def target_sources(mode, composed=False, resource_composed=False):
         sources[SAVEFILE] = compose_savefile(sources[SAVEFILE])
     if resource_composed and mode != "original":
         sources[RESOURCE] = compose_resource(sources[RESOURCE])
+    if mode == "original":
+        # Untouched frozen originals and prepared historical serialization are
+        # distinct: the latter preserves independent read-cache ownership.
+        if composed:
+            sources[SAVEFILE] = compose_cache_savefile(sources[SAVEFILE])
+        if resource_composed:
+            sources[RESOURCE] = compose_cache_resource(sources[RESOURCE])
     return sources
 
 def prepare(root, mode, head, receipt):
@@ -170,6 +193,7 @@ def prepare(root, mode, head, receipt):
     data = dict(schema=1, mode=mode, head=head, base=BASE, robust=ROBUST, manifest_sha256=manifest_sha,
                 immutable_originals=originals, reviewed_head_sources=before, prepared_sources=outputs, composed_savefile=composed,
                 composed_resource=resource_composed,
+                prepared_historical_serialization_with_read_cache=(mode == "original" and composed and resource_composed),
                 project_sha256=sha(project.read_bytes()), absent_baseline_helper=True,
                 package_code_sha256={name: sha((PACKAGE / name).read_bytes()) for name in PACKAGE_CODE})
     receipt.parent.mkdir(parents=True, exist_ok=True)
@@ -194,6 +218,7 @@ def verify_receipt(root, mode, head, receipt):
     paths = (*RUNTIME, HOST, SMOKE, MANAGER) if composed else (*RUNTIME, HOST, SMOKE)
     assert data["reviewed_head_sources"] == {path: sha(git(root, "show", head + ":" + path)) for path in paths}
     assert data["package_code_sha256"] == {name: sha((PACKAGE / name).read_bytes()) for name in PACKAGE_CODE}
+    assert data["prepared_historical_serialization_with_read_cache"] == (mode == "original" and composed and resource_composed)
     expected = target_sources(mode, composed, resource_composed)
     assert data["prepared_sources"] == {p: None if raw is None else sha(raw) for p, raw in expected.items()}
     for path, raw in expected.items():

@@ -34,7 +34,7 @@ class SourceCompositionTests(unittest.TestCase):
             before = target_sources(mode, True)
             after = target_sources(mode, True, True)
             for path, raw in before.items():
-                self.assertEqual(after[path], control.compose_resource(raw) if path == control.RESOURCE and mode != 'original' else raw)
+                self.assertEqual(after[path], control.compose_resource(raw) if path == control.RESOURCE and mode != 'original' else control.compose_cache_resource(raw) if path == control.RESOURCE else raw)
 
     def setUp(self):
         self.frozen=(PACKAGE/'frozen/candidate'/SAVEFILE).read_bytes()
@@ -43,7 +43,7 @@ class SourceCompositionTests(unittest.TestCase):
         self.assertFalse(authenticate_savefile(self.frozen,self.frozen))
         self.assertTrue(authenticate_savefile(self.current,self.frozen))
         self.assertEqual(sha(lf(self.current)),COMPOSED_SAVEFILE_SHA)
-        self.assertEqual(lf(self.current).replace(NEW_DECODE,OLD_DECODE),lf(self.frozen))
+        self.assertEqual(lf(self.current).replace(control.CACHE_READ,control.CACHE_READ_ORIGINAL).replace(NEW_DECODE,OLD_DECODE),lf(self.frozen))
     def test_any_other_method_change_rejected(self):
         for mutation in (self.current+b'\n',self.current.replace(b'Savefiles.Remove(this)',b'Savefiles.Clear()'),self.current.replace(NEW_DECODE,NEW_DECODE+b'/* changed */')):
             with self.assertRaises(AssertionError): authenticate_savefile(mutation,self.frozen)
@@ -58,10 +58,15 @@ class SourceCompositionTests(unittest.TestCase):
                 self.assertEqual(set(old),set(composed))
                 for path,raw in old.items():
                     if path==SAVEFILE:
-                        self.assertEqual(composed[path].replace(NEW_DECODE,OLD_DECODE),lf(raw))
+                        self.assertEqual(composed[path].replace(control.CACHE_READ,control.CACHE_READ_ORIGINAL).replace(NEW_DECODE,OLD_DECODE),lf(raw))
                     else:self.assertEqual(composed[path],raw)
     def test_original_remains_exact_historical_bytes(self):
-        self.assertEqual(target_sources('original'),target_sources('original',True))
+        original=target_sources('original');prepared=target_sources('original',True,True)
+        for path,raw in original.items():
+            wanted=control.compose_cache_savefile(raw) if path==SAVEFILE else control.compose_cache_resource(raw) if path==control.RESOURCE else raw
+            self.assertEqual(prepared[path],wanted)
+        self.assertIn(control.CACHE_READ,prepared[SAVEFILE])
+        self.assertIn(control.CACHE_HELPER,prepared[control.RESOURCE])
     def test_exact_manager_binding(self):
         raw=lf((PACKAGE.parents[1]/MANAGER).read_bytes())
         self.assertEqual(sha(raw),COMPOSED_MANAGER_SHA)

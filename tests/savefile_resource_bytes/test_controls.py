@@ -120,7 +120,7 @@ class SourceTests(unittest.TestCase):
         with self.assertRaises(AssertionError): control.mutate((control.ROOT/control.MANAGER).read_bytes()+b'\n','hash-only',spec)
     def test_baseline_is_exact_original(self):
         for path,spec in json.loads((control.HERE/'controls.json').read_text())['production'].items():
-            raw=(control.ROOT/path).read_bytes();self.assertEqual(control.mutate(raw,'baseline',spec),bytes.fromhex(spec['original_hex']))
+            raw=(control.ROOT/path).read_bytes();original=bytes.fromhex(spec['original_hex']);expected=original.replace(control.CACHE_READ_ORIGINAL,control.CACHE_READ) if path==control.SAVEFILE else original;self.assertEqual(control.mutate(raw,'baseline',spec),expected)
     def test_original_logs_tamper(self):
         with tempfile.TemporaryDirectory() as d:
             root=Path(d)

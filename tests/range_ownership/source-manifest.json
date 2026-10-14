@@ -14,16 +14,41 @@
     "Content.IntegrationTests/GameTests.RangeOwnership.cs": "75df4e298ea4218c39a7d863a9e8591972fed045cd0bad842a1196fdc1c6d43d",
     "OpenDreamRuntime/Procs/DMOpcodeHandlers.cs": "c467c88732460adcf3349ec6e5608cd8fd9e3208e889c8452c01cc7445673121",
     "tests/call_ext_ownership/control.py": "1935430e8162a1d2d25f2706bfc540798f996fafc4041147cbcdc881c07b1bf4",
-    "tests/field_ownership/source-manifest.json": "6195ddce00151415cf4f0485e9ccd0babcae40bd7a40f9bff8f7d5cc128903e5",
+    "tests/field_ownership/source-manifest.json": "900e8cfb6924822dd0fe842e8736f71768c038f696d8e78dfd5772e9497df408",
     "tests/index_read_ownership/source-manifest.json": "efd8b71a2c612a52239e5adbd14a292864f1ed60a23e8156980e5de1fd2c7c1d",
-    "tests/missing_operator_ownership/control.py": "a30b8e1f59f23e34288340651d279c198913f3e11039ec593b2317ce0a6c7497",
-    "tests/numeric_list_ownership/control.py": "acc92ade2f46f0911a5ece1d1691de19a183dc09540afeca1bda4e002b440a5a",
-    "tests/range_ownership/control.py": "59ab9f5bd519e3a36fdb22a3b44d1357134a1456d809076c0d4f5d05619bacc4",
+    "tests/missing_operator_ownership/control.py": "ef7052ca814fac0a75f534ba93821a79020a1c8b9f83515c3c1ffc3955d20fac",
+    "tests/numeric_list_ownership/control.py": "20127d2a5fadfbce3ae3561b77b3ba5bb6e2651c07a7527ed6bcc886d4a22104",
+    "tests/range_ownership/control.py": "13cbf6eeffa72e9dd0f2cffe43e8705d6db2ec6c1716d51b22f3b2027b3d5467",
     "tests/range_ownership/controls.json": "c12a3cb8b1270ec6fbae39c35f7810dc445d7de38c3ccfd0aefdb84498079466",
     "tests/range_ownership/test_controls.py": "ea9054bfc3bd21bfc3a30d23212e9708001a592ee073ae608dac0772d289c595",
     "tests/range_ownership/test_receipts.py": "c11480882b986ca06c885eeea91a3bc6758286af25c96db4882db50fadb35095",
     "tests/range_ownership/test_verify.py": "355afd27b0b830c5b7ced124a26423e3f275a0d8e1299e9906e62cecad513fb6",
-    "tests/range_ownership/verify.py": "68fee00629d5f565befd14ca015b89ca1f2c1f5be3124a32502ccce291f8dbb8"
+    "tests/range_ownership/verify.py": "68fee00629d5f565befd14ca015b89ca1f2c1f5be3124a32502ccce291f8dbb8",
+    "tests/list_pool_capacity/dependency_composition.py": "0b58dedd30ff517e2e22408fa43fcb36d6d5f1e936a8906013411aa8f37473fe",
+    "tests/list_pool_capacity/frozen_dependencies/list-original.cs": "c5c3baed5e30333ce63fcd38e2be40d5b3cc07bda4c900171e8da84d0a588e55",
+    "tests/list_pool_capacity/frozen_dependencies/numeric-original.py": "acc92ade2f46f0911a5ece1d1691de19a183dc09540afeca1bda4e002b440a5a",
+    "tests/list_pool_capacity/frozen_dependencies/numeric-composed.py": "20127d2a5fadfbce3ae3561b77b3ba5bb6e2651c07a7527ed6bcc886d4a22104",
+    "tests/list_pool_capacity/frozen_dependencies/attributes-base.txt": "bc56fc6d4eccdb7efc0a9d3e89ac0fcc5945ec22c2749c0ef5038f3d672500a5",
+    "tests/list_pool_capacity/frozen_dependencies/attributes-list.txt": "fdb9c3c71829da1aca39dcbc6ab59bc82ba552872b3401afcadc02beabea4cfc",
+    "tests/list_pool_capacity/frozen_dependencies/attributes-cache.txt": "58af3dc05d8ab0532982e769ad40ec02b51cfcd648fc4faac9f5884c3f2d2a4d",
+    "tests/list_pool_capacity/frozen_dependencies/project-original.txt": "aeaee5ef044c58f1c79da81a3ad2a4efd3f0583c577aa19af16a711d1828706f",
+    "tests/list_pool_capacity/frozen_dependencies/project-composed.txt": "7d2ed2e3871ebe160b8b2324d980ea9192725b226dca2d1d752236ae490114a3",
+    "tests/list_pool_capacity/frozen_dependencies/missing-original.py": "a30b8e1f59f23e34288340651d279c198913f3e11039ec593b2317ce0a6c7497",
+    "tests/list_pool_capacity/frozen_dependencies/missing-composed.py": "ef7052ca814fac0a75f534ba93821a79020a1c8b9f83515c3c1ffc3955d20fac"
   },
-  "baseline_control_scope": "Restore only historical IsInRange; preserve current associative constructor cleanup."
+  "baseline_control_scope": "Restore only historical IsInRange; preserve current associative constructor cleanup.",
+  "dependency_compositions": {
+    "tests/numeric_list_ownership/control.py": {
+      "original_sha256": "acc92ade2f46f0911a5ece1d1691de19a183dc09540afeca1bda4e002b440a5a",
+      "candidate_sha256": "20127d2a5fadfbce3ae3561b77b3ba5bb6e2651c07a7527ed6bcc886d4a22104",
+      "original_commit": "8b46fd2a6dda5095df1d0fc8db7fd029cd186ba4",
+      "composition_commit": "12fc9410a7f68b89d2dd796fa9f77900bbb076d1"
+    },
+    "tests/missing_operator_ownership/control.py": {
+      "original_sha256": "a30b8e1f59f23e34288340651d279c198913f3e11039ec593b2317ce0a6c7497",
+      "candidate_sha256": "ef7052ca814fac0a75f534ba93821a79020a1c8b9f83515c3c1ffc3955d20fac",
+      "original_commit": "53554597f7b594ea8a75570240d69d7d3003d56f",
+      "composition_commit": "8b46fd2a6dda5095df1d0fc8db7fd029cd186ba4"
+    }
+  }
 }

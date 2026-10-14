@@ -15,3 +15,8 @@ Content.IntegrationTests/ListPoolCapacityTests.cs text eol=lf
 OpenDreamRuntime/Objects/DreamObject.cs text eol=lf
 OpenDreamRuntime/Objects/DreamObjectTree.cs text eol=lf
 OpenDreamRuntime/Objects/DreamRefManager.cs text eol=lf
+
+tests/savefile_raw_cache/** text eol=lf
+Content.IntegrationTests/SavefileRawCacheTests.cs text eol=lf
+Content.IntegrationTests/DMProject/Fixtures/savefile-raw-cache.dm text eol=lf
+.github/workflows/savefile-raw-cache.yml text eol=lf

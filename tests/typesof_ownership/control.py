@@ -30,8 +30,14 @@ def mutation(raw, mode, control):
     require(sha(result) == control['base_sha256'], 'wrong bounded control output')
     return result
 
+def authenticate_dependencies(root, spec):
+    import runpy
+    helper = root/'tests/list_pool_capacity/dependency_composition.py'
+    runpy.run_path(str(helper))['validate'](root, spec)
+
 def prepare(root, mode, expected_head, git=real_git):
     spec = json.loads((root/'tests/typesof_ownership/source-manifest.json').read_text())
+    authenticate_dependencies(root, spec)
     control = json.loads((root/'tests/typesof_ownership/controls.json').read_text())
     head = git(root,'rev-parse','HEAD').decode().strip()
     require(len(head) == 40 and all(c in '0123456789abcdef' for c in head) and head == expected_head, 'wrong exact head')
@@ -59,6 +65,7 @@ def prepare(root, mode, expected_head, git=real_git):
 
 def check_receipt(root, data, mode, head):
     spec = json.loads((root/'tests/typesof_ownership/source-manifest.json').read_text())
+    authenticate_dependencies(root, spec)
     manifest_raw = (root/'tests/typesof_ownership/source-manifest.json').read_bytes()
     require(data['source_manifest_sha256'] == sha(manifest_raw) and data['source_manifest_git_blob_oid'] == blob(manifest_raw))
     control = json.loads((root/'tests/typesof_ownership/controls.json').read_text())
