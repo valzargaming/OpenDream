@@ -13,7 +13,7 @@ PRODUCTION = 'OpenDreamRuntime/Objects/DreamObject.cs'
 BASELINE_BLOB = 'ba857682c8627c530aa70405141024da6ec5e4a8'
 BASELINE_HASH = 'f44279ad182b66f0eed33ad09d2e32a9e2e82a4b71e826f624c15a9f74e6f824'
 CANDIDATE_HASH = '0338a6aaa6a8b1391bb2240117756076c2ee23809308dc078c04659fe72b7ed4'
-FIXTURE_HASHES = {'Content.IntegrationTests/GameTests.cs': '40314ddade03c12091bb35f07e07a5911184f3b2aed8d14e85e4ae3c9ad19894', 'Content.IntegrationTests/GameTests.MissingOperators.cs': '6889e1105578334707162f77f8b04d737e26e2c3f90944001545480b2d5f46a1', 'Content.IntegrationTests/DMProject/code.dm': 'f682a1b3ed2946205cdf292a6b5f9670770274e81df538650061842677e4712f', 'tests/native_argument_ownership/verify.py': 'ff9ba7da2224604cd45d170e15aa3131061ef7aef56a367ea93f204e278be960'}
+FIXTURE_HASHES = {'Content.IntegrationTests/GameTests.cs': '03b38ac0acfa3ce07313943f0dd6f7883fa1c0ed6fb96aba2725c495d82891c1', 'Content.IntegrationTests/GameTests.MissingOperators.cs': '6889e1105578334707162f77f8b04d737e26e2c3f90944001545480b2d5f46a1', 'Content.IntegrationTests/DMProject/code.dm': 'f682a1b3ed2946205cdf292a6b5f9670770274e81df538650061842677e4712f', 'tests/native_argument_ownership/verify.py': 'ff9ba7da2224604cd45d170e15aa3131061ef7aef56a367ea93f204e278be960'}
 OPTIONS = {
     'baseline': dict(marker='Supported operator releases payload owner: operator_multiply_fallback_probe', expected=1, actual=2),
     'missing-dispose': dict(marker='Supported operator releases payload owner: operator_divide_fallback_probe', expected=1, actual=2),

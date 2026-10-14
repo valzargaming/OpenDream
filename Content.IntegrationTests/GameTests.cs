@@ -120,6 +120,7 @@ public sealed partial class GameTests : ContentIntegrationTest {
             ExternalCallRejectionsReleaseArguments(manager, tree, server.ResolveDependency<DreamRefManager>());
             SupportedOperatorFallbacksReleaseOwners(manager, tree, server.ResolveDependency<DreamRefManager>());
             MissingOperatorArgumentsReleaseOwners(manager, tree, server.ResolveDependency<DreamRefManager>());
+            IndexReferenceReadsReleaseOwners(tree, server.ResolveDependency<DreamRefManager>());
             ObjectInitializationReleasesOwnedValues(manager, tree, server.ResolveDependency<DreamRefManager>());
             ProcInitializationReleasesOwnedValues(manager, tree, server.ResolveDependency<DreamRefManager>());
             ExceptionsReleaseOwnedValues(manager, tree, server.ResolveDependency<DreamRefManager>());
