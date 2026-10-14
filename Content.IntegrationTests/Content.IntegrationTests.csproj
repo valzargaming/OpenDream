@@ -6,6 +6,7 @@
     <IsPackable>false</IsPackable>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <LangVersion>12</LangVersion>
+    <DefineConstants Condition="'$(SaveCostHostProfile)' == 'true'">$(DefineConstants);SAVECOST_PROFILE</DefineConstants>
     <NoWarn>NU1507</NoWarn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <RootNamespace>Content.IntegrationTests</RootNamespace>

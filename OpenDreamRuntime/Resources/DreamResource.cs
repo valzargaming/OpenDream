@@ -79,12 +79,30 @@ public class DreamResource(int id, string? filePath, string? resourcePath) {
             throw new DMException($"Invalid output operation '{ResourcePath}' << {value}");
         }
 
-        // Prune any remaining formatting
-        text = StringFormatDecoder.RemoveFormatting(text);
+        var profile = SaveCostProfile.For(this);
+        if (profile == null) {
+            // Prune any remaining formatting
+            text = StringFormatDecoder.RemoveFormatting(text);
 
-        CreateDirectory();
-        File.AppendAllText(ResourcePath, text + "\r\n");
-        _resourceDataBacking = null;
+            CreateDirectory();
+            File.AppendAllText(ResourcePath, text + "\r\n");
+            _resourceDataBacking = null;
+            return;
+        }
+        var formatting = SaveCostProfile.Start(SaveCostProfile.Phase.RemoveFormatting);
+        bool formatted = false;
+        try { text = StringFormatDecoder.RemoveFormatting(text); formatted = true; }
+        finally { SaveCostProfile.End(formatting, formatted); }
+        SaveCostProfile.PlannedAppend(profile, text);
+        var append = SaveCostProfile.Start(SaveCostProfile.Phase.AppendDisk);
+        bool appended = false;
+        try {
+            CreateDirectory();
+            File.AppendAllText(ResourcePath, text + "\r\n");
+            _resourceDataBacking = null;
+            appended = true;
+        } finally { SaveCostProfile.End(append, appended); }
+        SaveCostProfile.Appended(profile);
     }
 
     private void CreateDirectory() {

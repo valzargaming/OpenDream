@@ -1,0 +1,13 @@
+{
+  "head": "2332bf58600fc77c8822051d3fb01aba8cc4a810",
+  "run": 38536659930,
+  "artifact_id": 11880971512,
+  "mode": "original",
+  "evidence": "Actual original CI outputs; parser replay only, not repaired-command runtime acceptance",
+  "files": {
+    "copied-artifact.trx": "9c9790541774db9020a62583dba7f0dbc35487b6f5dd5203985cb4c03337f6dc",
+    "copied-artifact.log": "951b47d30d62d237c555dd9ba8eb13ebe16620c814d0f6f728667b000d10a642",
+    "DisabledFlushAndLifecycle-original-0.trx": "83c98db14037cb0fe871a518327a6a5c4e1e9191b7d192649b2cc19e3a65f9d7",
+    "DisabledFlushAndLifecycle-original-0.log": "dd02d0ea54a19d9d038c75ecf3b63cdc6077706ee10a5297e296ba0065f155e6"
+  }
+}

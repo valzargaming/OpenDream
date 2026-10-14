@@ -14,6 +14,7 @@ PATHS = ['OpenDreamRuntime/Objects/DreamObject.cs',
          'OpenDreamRuntime/Objects/Types/DreamObjectSavefile.cs',
          'OpenDreamRuntime/Objects/DreamRefManager.cs']
 BASELINE = 'ac6fc2f065734a56c47c4e8ec8e78f70f29727c7'
+PROFILE_PATH = 'OpenDreamRuntime/Resources/SaveCostProfile.cs'
 
 
 def body(source, marker):
@@ -46,7 +47,23 @@ def run(args, control):
         receipt['baseline'] = BASELINE
     methods = '\n'.join(body(savefile, marker) for marker in (
         'public override void Initialize(', 'protected override void HandleDeletion()',
-        'public void Close()', 'public void Flush()'))
+        'public void Close()'))
+    flush_wrapper = 'public void Flush() => Flush(SaveCostProfile.Origin.Direct);'
+    if flush_wrapper in savefile:
+        assert savefile.count(flush_wrapper) == 1
+        methods += '\n' + flush_wrapper + '\n' + body(
+            savefile, 'private void Flush(SaveCostProfile.Origin origin)')
+    else:
+        methods += '\n' + body(savefile, 'public void Flush()')
+    profile_raw = None
+    if 'SaveCostProfile.' in methods:
+        profile_raw = (ROOT / PROFILE_PATH).read_bytes()
+        receipt['sources'][PROFILE_PATH] = hashlib.sha256(profile_raw).hexdigest()
+        receipt['profile_adapter'] = {
+            'prefix': '',
+            'resource_namespace': 'OpenDreamRuntime.Resources',
+            'scope': 'Complete unmodified production profiler with the inert disk resource type in its production namespace. '
+                     'Profiling remains disabled; this suite does not verify enabled measurements.'}
     if control == 'close-detach':
         old_close = body(git('show', f'{BASELINE}:{PATHS[1]}'), 'public void Close()')
         # Preserve the candidate's null-resource behavior to isolate the old
@@ -71,12 +88,18 @@ def run(args, control):
             '</PropertyGroup></Project>')
         for name in ('Stubs.cs', 'Program.cs'):
             (temp / name).write_bytes((HERE / name).read_bytes())
+        profile_import = ''
+        if profile_raw is not None:
+            adapted_profile = profile_raw
+            (temp / 'SaveCostProfile.cs').write_bytes(adapted_profile)
+            receipt['profile_adapter']['compiled_sha256'] = hashlib.sha256(adapted_profile).hexdigest()
+            profile_import = 'using OpenDreamRuntime.Resources;\n'
         base = '\n'.join(body(sources[PATHS[0]], marker) for marker in (
             'protected virtual void HandleDeletion()', 'public void IncRef()',
             'public void DecRef()', 'public void Delete()'))
         bucket = body(sources[PATHS[2]], 'private sealed class Bucket')
         (temp / 'Production.cs').write_text(
-            'using System.Text.Json;\npublic partial class DreamObject {\n' + base + '\n}\n'
+            'using System.Text.Json;\n' + profile_import + 'public partial class DreamObject {\n' + base + '\n}\n'
             'public sealed partial class DreamObjectSavefile {\n' + methods + '\n}\n'
             'public sealed class Registry {\n'
             'public static readonly Registry Instance = new(); private readonly Bucket _bucket = new();\n'

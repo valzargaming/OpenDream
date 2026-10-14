@@ -1,0 +1,92 @@
+{
+  "zero-wall": {
+    "frame": "Run",
+    "path": "OpenDreamRuntime/Resources/SaveCostProfile.cs",
+    "frozen_v3_sha256": "89c6e98e3519cd212029585b72a9027219c4c427b0dea05d4d078298b690113f",
+    "method": "ActualFlushCountsBytesAndClocks",
+    "replacement": "var wall = 0L; // negative control: constant phase clock",
+    "exception_message": "actual monotonic clock wall bound",
+    "needle": "var wall = Stopwatch.GetTimestamp() - sample.Wall;"
+  },
+  "omit-cap-coverage": {
+    "expression": "Assert.That(after.RootElement.GetProperty(\"capExcluded\").GetInt64(), Is.EqualTo(2))",
+    "needle": "            _capExcluded++;",
+    "path": "OpenDreamRuntime/Resources/SaveCostProfile.cs",
+    "frozen_v3_sha256": "461d8db448f509aba9e7e8f487ec50ed0764daa89ebcd71c187985da44f0ae9a",
+    "replacement": "            // negative control: missing coverage",
+    "method": "CappedFlushStopsCounters",
+    "frame": "<CappedFlushStopsCounters>",
+    "expected": 2,
+    "actual": 0,
+    "source_line": 56
+  },
+  "failed-as-completed": {
+    "frame": "Check",
+    "path": "OpenDreamRuntime/Resources/SaveCostProfile.cs",
+    "frozen_v3_sha256": "f0f526b6635dbf44623d1df9c7d582e66e07681211969701248618cc5d89af39",
+    "method": "ActualFlushCountsBytesAndClocks",
+    "replacement": "Completed[index]++; // negative control: failed phase counted complete",
+    "exception_message": "completion count",
+    "needle": "if (successful) Completed[index]++; else Failed[index]++;"
+  },
+  "cpu-unavailable": {
+    "frame": "Run",
+    "path": "OpenDreamRuntime/Resources/SaveCostProfile.cs",
+    "frozen_v3_sha256": "3fc47a6a294533f619b7b87508193646bbf1c86d0c547972eee474f0a875ddb4",
+    "method": "ActualFlushCountsBytesAndClocks",
+    "replacement": "return -1; // negative control: CPU clock unavailable",
+    "exception_message": "require actual CPU clock in smoke",
+    "needle": "return _process.TotalProcessorTime.Ticks;"
+  },
+  "missing-crlf-bytes": {
+    "frame": "Run",
+    "path": "OpenDreamRuntime/Resources/SaveCostProfile.cs",
+    "frozen_v3_sha256": "0fb20802a71c34b78256fb81c92b7c387a8bfb6b064d2f2f3ebe35beca817856",
+    "method": "ActualFlushCountsBytesAndClocks",
+    "replacement": "context.PendingBytes = (long)Encoding.UTF8.GetByteCount(text); // negative control: omit CRLF bytes",
+    "exception_message": "successful appended bytes",
+    "needle": "context.PendingBytes = (long)Encoding.UTF8.GetByteCount(text) + 2;"
+  },
+  "clear-after-json": {
+    "frame": "Run",
+    "path": "OpenDreamRuntime/Objects/Types/DreamObjectSavefile.cs",
+    "frozen_v3_sha256": "4183998f9572d1ff2db9a3b6762dcb84ac70da511c3ac031b10abb3bde000660",
+    "method": "ActualFlushCountsBytesAndClocks",
+    "replacement": "",
+    "exception_message": "original Clear-before-Serialize behavior",
+    "needle": "            var clear = SaveCostProfile.Start(SaveCostProfile.Phase.ClearDisk);\n            bool cleared = false;\n            try { Resource!.Clear(); cleared = true; }\n            finally { SaveCostProfile.End(clear, cleared); }\n"
+  },
+  "wrong-dirty-origin": {
+    "expression": "Assert.That(origin.GetProperty(\"sampled\").GetInt64(), Is.EqualTo(sampled))",
+    "needle": "savefile.Flush(SaveCostProfile.Origin.DirtyTick);",
+    "path": "OpenDreamRuntime/Objects/Types/DreamObjectSavefile.cs",
+    "frozen_v3_sha256": "c71f627af98b3aeb10eef21ce0fa2363319d9db3527de5f29e4842b79e4ccf48",
+    "replacement": "savefile.Flush(SaveCostProfile.Origin.Direct); // negative control: wrong origin",
+    "method": "EnabledCloseAndDirtyFailure",
+    "frame": "AssertOrigin",
+    "expected": 1,
+    "actual": 0,
+    "source_line": 85
+  },
+  "completed-as-planned": {
+    "frame": "Run",
+    "path": "OpenDreamRuntime/Resources/SaveCostProfile.cs",
+    "frozen_v3_sha256": "4c0f2e66d90b46088af844ab444652a548e6bd6b01daf564546d17da56fc6371",
+    "method": "ActualFlushCountsBytesAndClocks",
+    "replacement": "completedAppendUtf8Bytes = _plannedUtf8Bytes",
+    "exception_message": "successful appended bytes",
+    "needle": "completedAppendUtf8Bytes = _emittedUtf8Bytes"
+  },
+  "ignore-resource-filter": {
+    "expression": "Assert.That(root.GetProperty(\"resourceExcluded\").GetInt64(), Is.EqualTo(1))",
+    "needle": "if (_exactResourcePath != null && !string.Equals(resource?.ResourcePath, _exactResourcePath, StringComparison.Ordinal))",
+    "path": "OpenDreamRuntime/Resources/SaveCostProfile.cs",
+    "frozen_v3_sha256": "b38fe4acbfdcb8b816ad121db9fac2892d70a70959c3b7c3438fadd563deec69",
+    "replacement": "if (false) /* negative control: all resources selected */",
+    "method": "ScopeAndResourceFilterCoverage",
+    "frame": "<ScopeAndResourceFilterCoverage>",
+    "expected": 1,
+    "actual": 0,
+    "source_line": 106
+  }
+}
