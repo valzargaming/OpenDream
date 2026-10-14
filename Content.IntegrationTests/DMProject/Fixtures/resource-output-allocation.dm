@@ -1,6 +1,6 @@
 /proc/output_savefile_roundtrip()
     var/savefile/F = new("output-roundtrip.sav")
-    var/text = "Unicode é 😀 \uFF00 literal [ascii2text(13)]\n line"
+    var/text = "Unicode é 😀 " + ascii2text(65280) + " literal " + ascii2text(13) + "\n line"
     F["text"] << text
     F["number"] << 17.5
     F["nested"] << list("alpha", "beta", "named" = list(1, 2))
