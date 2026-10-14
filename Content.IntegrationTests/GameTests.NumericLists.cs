@@ -23,7 +23,7 @@ public sealed partial class GameTests {
                         Assert.That(error!.ParamName, Is.EqualTo("index"));
                         Assert.That(payload.RefCount, Is.EqualTo(1), "Invalid numeric list assignment releases incoming owner");
                         Assert.That(previous.RefCount, Is.EqualTo(2));
-                        Assert.That(list.GetValues().Count, Is.EqualTo(1));
+                        Assert.That(list.GetLength(), Is.EqualTo(1));
                         using var unchanged = list.GetValue(new DreamValue(1));
                         Assert.That(unchanged.MustGetValueAsDreamObject(), Is.SameAs(previous));
                     }
@@ -43,7 +43,7 @@ public sealed partial class GameTests {
                 Assert.That(previous.RefCount, Is.EqualTo(2));
             }
             list.SetValue(new DreamValue(2), new DreamValue(payload), allowGrowth: true);
-            Assert.That(list.GetValues().Count, Is.EqualTo(2));
+            Assert.That(list.GetLength(), Is.EqualTo(2));
             Assert.That(payload.RefCount, Is.EqualTo(2));
             using (var appended = list.GetValue(new DreamValue(2)))
                 Assert.That(appended.MustGetValueAsDreamObject(), Is.SameAs(payload));
