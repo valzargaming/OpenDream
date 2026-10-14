@@ -27,7 +27,8 @@ namespace Content.IntegrationTests;
 [Explicit("One fresh guarded process; root-owned isolated full Gaia input plan required")]
 public sealed class GaiaSaveCostHostTests : ContentIntegrationTest {
     private sealed record Plan(string JsonPath, string JsonSha256, string SaveEntryPoint,
-        string OwnedRoot, string OwnershipId, int MaximumTicks, int MaximumFlushes, string WorldParamsPath, string ReadinessGlobal);
+        string OwnedRoot, string OwnershipId, int MaximumTicks, int MaximumFlushes, string WorldParamsPath, string ReadinessGlobal,
+        string? PostSealControlEntryPoint = null);
     private sealed class StrictLogs : ILogHandler {
         public void Log(string sawmillName, LogEvent message) {
             TestContext.Out.WriteLine($"GAIA_SAVE_ACTUAL_LOG [{message.Level}] {sawmillName}: {message.RenderMessage()}");
@@ -61,6 +62,9 @@ public sealed class GaiaSaveCostHostTests : ContentIntegrationTest {
             TestContext.Out.WriteLine(line);
         }
         var json = Full(plan.JsonPath);
+        Assert.That(plan.PostSealControlEntryPoint is null or "gaia_host_write_late_control", Is.True);
+        if (plan.PostSealControlEntryPoint != null)
+            Assert.That(Path.GetFileName(json), Is.EqualTo("seam.json"), "late-write intervention is a small-fixture control only");
         Assert.That(Path.GetDirectoryName(json), Is.EqualTo(owned), "resource root must be the task-owned tree");
         Assert.That(File.ReadAllText(Path.Combine(owned, ".gaia-save-host-owner")).Trim(), Is.EqualTo(plan.OwnershipId));
         Assert.That(Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(json))).ToLowerInvariant(), Is.EqualTo(plan.JsonSha256));
@@ -237,16 +241,41 @@ public sealed class GaiaSaveCostHostTests : ContentIntegrationTest {
                 TestContext.Out.WriteLine("GAIA_SAVE_PROFILE " + JsonSerializer.Serialize(SaveCostProfile.Snapshot()));
             });
             var sealedHashes = shardPaths.Select(DiskSha).ToArray();
-            await server.WaitRunTicks(2);
+            if (plan.PostSealControlEntryPoint != null) {
+                // Only the explicitly bound tiny negative fixture requests this
+                // intervention. Write through actual DM code after sealing and
+                // recording hashes, without guessing when spawn() will execute.
+                await server.WaitAssertion(() => {
+                    var manager = server.ResolveDependency<DreamManager>();
+                    Assert.That(manager.TryGetGlobalProc(plan.PostSealControlEntryPoint, out var control), Is.True);
+                    using var result = DreamThread.Run(control!, manager.WorldInstance, null);
+                    Assert.That(result.MustGetValueAsFloat(), Is.EqualTo(1));
+                });
+            }
+            float postSealStart = 0, postSealElapsedDeciseconds = 0;
+            await server.WaitAssertion(() => postSealStart = server.ResolveDependency<DreamManager>()
+                .WorldInstance.GetVariable("time").MustGetValueAsFloat());
+            int postSealNaturalTicks = 0;
+            // Also require a declared DM-time observation interval, rather than
+            // relying on an undocumented correspondence between host frames.
+            while (postSealNaturalTicks < plan.MaximumTicks &&
+                   (postSealNaturalTicks < 2 || postSealElapsedDeciseconds < 10)) {
+                await server.WaitRunTicks(1);
+                postSealNaturalTicks++;
+                await server.WaitAssertion(() => postSealElapsedDeciseconds = server.ResolveDependency<DreamManager>()
+                    .WorldInstance.GetVariable("time").MustGetValueAsFloat() - postSealStart);
+            }
             await server.WaitAssertion(() => {
                 var manager = server.ResolveDependency<DreamManager>();
+                Assert.That(postSealNaturalTicks, Is.GreaterThanOrEqualTo(2));
+                Assert.That(postSealElapsedDeciseconds, Is.GreaterThanOrEqualTo(10), "bounded post-seal DM time must elapse");
                 Assert.That(manager.LastDMException, Is.Null);
                 Assert.That(WrapperState(manager), Is.EqualTo("returned"));
                 var observed = Observe("stopped-audit");
                 Assert.That(observed.Open == 0 && observed.Dirty == 0, Is.True);
                 Assert.That(shardPaths.Select(DiskSha).ToArray(), Is.EqualTo(sealedHashes), "late owned shard writes invalidate capture");
                 TestContext.Out.WriteLine("GAIA_SAVE_STOPPED_AUDIT " + JsonSerializer.Serialize(new {
-                    postSealNaturalTicks = 2, openOwned = observed.Open, dirtyOwned = observed.Dirty,
+                    postSealNaturalTicks, postSealElapsedDeciseconds, openOwned = observed.Open, dirtyOwned = observed.Dirty,
                     hashesStable = true, frameworkTeardownExcluded = true, finalProcessStoppedAuditRequired = true
                 }));
             });

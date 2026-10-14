@@ -28,11 +28,15 @@ var/global/gaia_host_save_state = "idle"
 		F["payload"] << (mode == "reader-rejection" ? "wrong" : "second")
 	text2file("PASS: SAVE explicit production persistence probe", "new_process_SAVE_result.txt")
 	text2file("small-control", "map_saves/save_complete.txt")
-	if(mode == "late-write")
-		spawn(3)
-			var/savefile/L = new("map_saves/2.sav")
-			L["payload"] << "late"
 	gaia_host_save_state = "returned"
+	return 1
+
+/proc/gaia_host_write_late_control()
+	// The tiny negative host explicitly invokes this after its sealed hashes.
+	// This is an actual DM savefile write, not a synthetic disk mutation.
+	world.log << "GAIA_CONTROL_POST_SEAL_WRITE"
+	var/savefile/L = new("map_saves/2.sav")
+	L["payload"] << "late"
 	return 1
 
 /proc/gaia_host_recovery_control()

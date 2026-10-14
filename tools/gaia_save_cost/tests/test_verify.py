@@ -27,7 +27,7 @@ class VerifyTests(unittest.TestCase):
             pins=dict(engine_head=v.HEAD,game_manifest_sha256=v.GAME,host_test_name=v.TEST,sdk_version='10.0.401',
                       start_gate='explicit-root-start',source_and_binary_build_binding_verified=True,files=files,
                       profile_file_sha256=v.sha(p/'gaia-save-profile.json'))
-            log=['GAIA_SAVE_PROFILE '+json.dumps(profile),'GAIA_SAVE_STOPPED_AUDIT '+json.dumps(dict(hashesStable=True,openOwned=0,dirtyOwned=0))]
+            log=['GAIA_SAVE_PROFILE '+json.dumps(profile),'GAIA_SAVE_STOPPED_AUDIT '+json.dumps(dict(hashesStable=True,openOwned=0,dirtyOwned=0,postSealNaturalTicks=10,postSealElapsedDeciseconds=10))]
             log+=['GAIA_SAVE_SHARD '+json.dumps(x) for x in shards]
             log+=['GAIA_SAVE_SCALARS '+json.dumps(dict(label=x,engineThread=1)) for x in ['before','logical-completion','after-before-seal','stopped-audit']]
             if mutation:mutation(p,profile,guard,pins,log)
@@ -46,6 +46,10 @@ class VerifyTests(unittest.TestCase):
         with self.assertRaises(AssertionError):self.run_case(lambda p,pr,g,*_:g.update(success=False))
     def test_caps(self):
         def mutant(p,profile,g,pins,log):profile['capExcluded']=1;log[0]='GAIA_SAVE_PROFILE '+json.dumps(profile)
+        with self.assertRaises(AssertionError):self.run_case(mutant)
+    def test_short_postseal_observation_rejected(self):
+        def mutant(p,profile,g,pins,log):
+            log[1]='GAIA_SAVE_STOPPED_AUDIT '+json.dumps(dict(hashesStable=True,openOwned=0,dirtyOwned=0,postSealNaturalTicks=2,postSealElapsedDeciseconds=2))
         with self.assertRaises(AssertionError):self.run_case(mutant)
     def test_runtime_failures(self):
         def mutant(p,profile,g,pins,log):profile['origins'][0]['failed']=1;log[0]='GAIA_SAVE_PROFILE '+json.dumps(profile)

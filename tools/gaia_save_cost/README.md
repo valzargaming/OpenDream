@@ -13,7 +13,7 @@ exclusive caller must also impose finite wall-time and memory limits.
 The host samples scalar memory, live-reference and pool counts without forcing
 collection, copying trees or changing flush timing. It awaits the real SAVE
 wrapper, observes natural handle closure, seals the profiler and checks two
-further natural ticks. Its null resource filter aggregates all savefiles in the
+further natural ticks and at least one in-game second. Its null resource filter aggregates all savefiles in the
 window. Counts and aggregate completed flushes do not prove per-shard success.
 Small scalar/profile rows are also appended to `gaia-host-journal.jsonl` in the
 owned directory as they happen, preserving partial leads if the guard stops a
@@ -26,6 +26,11 @@ missing-shard, late-write and cap controls. The cap case requires
 `MaximumFlushes=2`. A reader-rejection SAVE followed by the separate explicit
 reader test verifies rejection of wrong but valid shard data. `verify_control.py`
 classifies the exact TRX assertion and rejects unrelated failures.
+The late-write plan alone sets `PostSealControlEntryPoint` to the tiny fixture's
+`gaia_host_write_late_control`. It writes through actual DM savefile code after
+the host seals and records hashes; the verifier requires its distinct marker.
+This controlled intervention is absent from the full-game plan and avoids
+assuming that a delayed `spawn()` runs on a particular side of the seal.
 The TRX result must link to one matching test definition by ID; its class and
 method identify the selected test independently of the short display name.
 

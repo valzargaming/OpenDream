@@ -10,7 +10,7 @@ _control=importlib.util.module_from_spec(_spec);_spec.loader.exec_module(_contro
 HEAD='5075c426b2f6f37dccb14b0902bb98780bbd62e1'
 GAME='9be2a4d6fd42d52c4dc4a75a526b635f5854aee6cce8ab5193f439e82b3fc278'
 TEST='Content.IntegrationTests.GaiaSaveCostHostTests.FullGaiaSaveWindow'
-HOST_SOURCE_SHA='edd43f0276738e5ad8def6d7d698647704bd42169ecf6c26bcbb7e74a601e8bd'
+HOST_SOURCE_SHA='062dd8c1bb9511ace999a230e60dffc2dbd40b997adff1e727f3239a11d3c1e3'
 def sha(path):
     with Path(path).open('rb') as f:return hashlib.file_digest(f,'sha256').hexdigest()
 def rows(log,prefix):
@@ -40,6 +40,7 @@ def verify(root,log_path,trx_path,guard_path,pins_path):
     assert sum(x['completed'] for x in profile['origins'] if x['name'] in ['Close','DirtyTick'])>=2
     audits=rows(log,'GAIA_SAVE_STOPPED_AUDIT ');assert len(audits)==1
     assert audits[0]['hashesStable'] and audits[0]['openOwned']==audits[0]['dirtyOwned']==0
+    assert audits[0]['postSealNaturalTicks']>=2 and audits[0]['postSealElapsedDeciseconds']>=10
     shard_rows=rows(log,'GAIA_SAVE_SHARD ');assert len(shard_rows)==2
     assert {x['shard'] for x in shard_rows}=={'1.sav','2.sav'}
     for row in shard_rows:

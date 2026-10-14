@@ -35,8 +35,11 @@ def verify(case,source,trx,log):
     elif case in ['close','yield']:
         assert result.attrib['outcome']=='Passed'
         assert 'GAIA_SAVE_STOPPED_AUDIT ' in text
+        audits=[json.loads(x.split('GAIA_SAVE_STOPPED_AUDIT ',1)[1]) for x in text.splitlines() if x.startswith('GAIA_SAVE_STOPPED_AUDIT ')]
+        assert len(audits)==1 and audits[0]['postSealNaturalTicks']>=2 and audits[0]['postSealElapsedDeciseconds']>=10
     else:
         assert result.attrib['outcome']=='Failed'
+        if case=='late-write':assert 'GAIA_CONTROL_POST_SEAL_WRITE' in text,'actual post-seal DM write missing'
         lines=Path(source).read_text().splitlines()
         selected=[i+1 for i,x in enumerate(lines) if NEEDLES[case] in x]
         assert len(selected)==1
