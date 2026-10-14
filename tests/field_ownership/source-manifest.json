@@ -70,9 +70,9 @@
   "expected_sources": {
     ".github/workflows/field-ownership.yml": "f44d979efa95abd77f59fd76073d96bb80507918abdf335f793877ac7eb6dea7",
     "Content.IntegrationTests/GameTests.FieldOwnership.cs": "741f63a1b36bf1a84402a3b66bd9b4b414bce53852579d4f0f8d93b3608e4d55",
-    "Content.IntegrationTests/GameTests.cs": "b0798c4289f199f50b6f4c3efee4e36be457f514aa427e839b789bba116e4ca0",
+    "Content.IntegrationTests/GameTests.cs": "03b38ac0acfa3ce07313943f0dd6f7883fa1c0ed6fb96aba2725c495d82891c1",
     "OpenDreamRuntime/Procs/DMProc.cs": "90d11d9bd08ccc768cce7c085678594b792758cd822dcc9a2f3d34958ca687fc",
-    "tests/call_ext_ownership/control.py": "30e567df55515c74ae5c816e4a12f91fad95b9ccd83d5d9c34fcd322ea8bf8a5",
+    "tests/call_ext_ownership/control.py": "515fe5ef3ce456a72255dc09ad2bcb668ab1c6859ebab2b3f26a89069c6a4021",
     "tests/field_ownership/control.py": "d2f80f5ebcd84a316fd663ff003c20420dc8a0876a3bdd91aa40dae64e4535a2",
     "tests/field_ownership/controls.json": "f9ce9c3de9cb3096f6f59e16a84f50392bb7d5307775df063264337abec77e79",
     "tests/field_ownership/prepare_control.py": "f68b6c6b265c5586621de7703ef7895bdf068c87b57aa23765369b7d1b02f910",
@@ -80,8 +80,8 @@
     "tests/field_ownership/test_receipts.py": "6b2ac43c380bb8e786a58b76b0c2011593a18ae573ea9da44e587be55035e2cf",
     "tests/field_ownership/test_verify.py": "16e601a94d186a6d02a96ec52d608b30f31c0a2d94c6d4bd2fc01b0502938c4f",
     "tests/field_ownership/verify.py": "c1a7244091ce5a409c221e010a60e57f6eacd3b24c919a1658059b5ff57e7c5e",
-    "tests/missing_operator_ownership/control.py": "aa9ca714f28fac4a439b9bba06a6c2c0be1f4617953fce72eff18306c7940d0d",
-    "tests/numeric_list_ownership/control.py": "b543026f521a4191e8e2e70a7835db686de759c28c7b136c0679557cf5137f48",
+    "tests/missing_operator_ownership/control.py": "d9529ca32304547e5586150c8158794333cb3802897a06a7514b698d4699b3e9",
+    "tests/numeric_list_ownership/control.py": "525f71edef3f10ef243b4519655b89bc5bb2fd2fc888e35d1b4507d3de9cc24d",
     "tests/field_ownership/fixtures/nunit-aggregate-messages.json": "f04223141d2e1d8e83c77517989cd75dab8af0627fa51a5e96678980c6a2eedb",
     "tests/index_read_ownership/controls.json": "f0ab8eb3f06adfea15f7185d274da0c6f7d6c58f9232f9816dbc27269d1b9d44"
   },

@@ -13,7 +13,7 @@ PRODUCTION = 'OpenDreamRuntime/Objects/Types/DreamList.cs'
 BASELINE_BLOB = 'd1d3269785bb5fe8a38fcaa95e01e972296b12d8'
 BASELINE_HASH = '872ec67089489fc1f3fdd044a8635131bda293efc96a1648b8a1a8a4083dd48e'
 CANDIDATE_HASH = 'c5c3baed5e30333ce63fcd38e2be40d5b3cc07bda4c900171e8da84d0a588e55'
-FIXTURE_HASHES = {'Content.IntegrationTests/GameTests.cs': 'b0798c4289f199f50b6f4c3efee4e36be457f514aa427e839b789bba116e4ca0', 'Content.IntegrationTests/GameTests.NumericLists.cs': '9f944b642cc6ec06c01e8085ffec2bcbb757a391496da4c40b114b11a97d542d', 'tests/native_argument_ownership/verify.py': 'ff9ba7da2224604cd45d170e15aa3131061ef7aef56a367ea93f204e278be960'}
+FIXTURE_HASHES = {'Content.IntegrationTests/GameTests.cs': '03b38ac0acfa3ce07313943f0dd6f7883fa1c0ed6fb96aba2725c495d82891c1', 'Content.IntegrationTests/GameTests.NumericLists.cs': '9f944b642cc6ec06c01e8085ffec2bcbb757a391496da4c40b114b11a97d542d', 'tests/native_argument_ownership/verify.py': 'ff9ba7da2224604cd45d170e15aa3131061ef7aef56a367ea93f204e278be960'}
 OPTIONS = {
     'baseline': dict(marker='Invalid numeric list assignment releases incoming owner', expected=1, actual=2),
     'replace-acquire-omit': dict(marker='Numeric replacement retains incoming owner', expected=2, actual=1),

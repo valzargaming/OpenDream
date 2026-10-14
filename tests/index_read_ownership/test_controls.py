@@ -34,4 +34,18 @@ class SourceControlTests(unittest.TestCase):
                 release=not peek and not failed
                 self.assertEqual(release,(not peek) if not failed else False)
 
+    def test_existing_operator_controls_fail_before_index_read_dependency(self):
+        here=Path(__file__).resolve().parent
+        hook=(here.parents[1]/'Content.IntegrationTests/GameTests.cs').read_text()
+        earlier=('ExternalCallRejectionsReleaseArguments(', 'SupportedOperatorFallbacksReleaseOwners(', 'MissingOperatorArgumentsReleaseOwners(')
+        for name in earlier:
+            self.assertEqual(hook.count(name),1)
+            self.assertLess(hook.index(name),hook.index('IndexReferenceReadsReleaseOwners('))
+        self.assertLess(hook.index(earlier[0]),hook.index(earlier[1]))
+        self.assertLess(hook.index(earlier[1]),hook.index(earlier[2]))
+        # Existing missing-dispose control must still remove only missing-overload arguments.
+        control=(here.parents[1]/'tests/missing_operator_ownership/control.py').read_text()
+        self.assertIn("if control == 'missing-dispose':",control)
+        self.assertIn('arguments.Dispose();',control)
+
 if __name__=='__main__': unittest.main()
