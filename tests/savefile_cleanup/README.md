@@ -6,6 +6,12 @@ complete production reference bucket. Type/proc integration, resource loading,
 and JSON leaf conversion use explicit inert adapters. Disk writes are confined
 to a unique temporary directory, including temporary savefiles.
 
+When `Flush` delegates to the profiler overload, the harness includes both
+production methods and the complete production `SaveCostProfile` source. A type
+alias binds its resource parameter to the existing inert disk adapter, and the
+receipt records the original and adapted source hashes. Profiling remains
+disabled here; enabled measurements require the separate full-host suite.
+
 It checks repeated null-resource and malformed-input disposal, child-variable
 release, empty reference/open/dirty/cache registries, CLR weak-reference
 collection, normal shared-file contents, survival of the remaining shared

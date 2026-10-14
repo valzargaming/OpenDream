@@ -92,7 +92,7 @@ def package(mode, results):
     env = os.environ.copy(); env.update(OD_SAVE_COST_MODE="original" if mode == "original" else "disabled", COMPlus_gcServer="1")
     command = ["dotnet", "vstest", str(target / "bin/Content.IntegrationTests/Content.IntegrationTests.dll"),
                "/TestCaseFilter:FullyQualifiedName=Content.IntegrationTests.SaveCostProfileHostTests.DisabledFlushAndLifecycle",
-               "/Logger:trx;LogFileName=" + trx.name, "/ResultsDirectory:" + str(results), "--", "NUnit.ExplicitMode=Relaxed"]
+               "/Logger:console;Verbosity=normal", "/Logger:trx;LogFileName=" + trx.name, "/ResultsDirectory:" + str(results), "--", "NUnit.ExplicitMode=Relaxed"]
     code = run(command, target, log, 60, env)
     verdict = verify(trx, "DisabledFlushAndLifecycle", mode, code, log.read_text(errors="replace"))
     rows, size = [], 0

@@ -73,7 +73,7 @@ def prepare(root, mode, head, receipt):
     assert git(root / "RobustToolbox", "rev-parse", "HEAD").decode().strip() == ROBUST, "wrong Robust pin"
     # Frozen manifest and fixtures must be committed at the tested head.
     prefix = PACKAGE.relative_to(root).as_posix()
-    for path in [".gitattributes", "manifest.json", "controls.json", "control.py", "verify.py", "ci.py", "test_verify.py", "run_package.py", "control_batch.py", *manifest["files"]]:
+    for path in [".gitattributes", "manifest.json", "controls.json", "control.py", "verify.py", "ci.py", "test_verify.py", "run_package.py", "control_batch.py", "test_copied_artifact_logging.py", *manifest["files"]]:
         assert (PACKAGE / path).read_bytes() == git(root, "show", head + ":" + prefix + "/" + path), "uncommitted package input"
     originals = {}
     for path in (SAVEFILE, RESOURCE, SEAM):
@@ -106,7 +106,7 @@ def prepare(root, mode, head, receipt):
     data = dict(schema=1, mode=mode, head=head, base=BASE, robust=ROBUST, manifest_sha256=manifest_sha,
                 immutable_originals=originals, reviewed_head_sources=before, prepared_sources=outputs,
                 project_sha256=sha(project.read_bytes()), absent_baseline_helper=True,
-                package_code_sha256={name: sha((PACKAGE / name).read_bytes()) for name in ("controls.json", "control.py", "verify.py", "ci.py", "test_verify.py", "run_package.py", "control_batch.py")})
+                package_code_sha256={name: sha((PACKAGE / name).read_bytes()) for name in ("controls.json", "control.py", "verify.py", "ci.py", "test_verify.py", "run_package.py", "control_batch.py", "test_copied_artifact_logging.py")})
     receipt.parent.mkdir(parents=True, exist_ok=True)
     receipt.write_text(json.dumps(data, indent=2) + "\n")
 
@@ -120,7 +120,7 @@ def verify_receipt(root, mode, head, receipt):
     assert data["absent_baseline_helper"] is True
     assert data["immutable_originals"] == {path: sha(git(root, "show", BASE + ":" + path)) for path in (SAVEFILE, RESOURCE, SEAM)}
     assert data["reviewed_head_sources"] == {path: sha(git(root, "show", head + ":" + path)) for path in (*RUNTIME, HOST, SMOKE)}
-    assert data["package_code_sha256"] == {name: sha((PACKAGE / name).read_bytes()) for name in ("controls.json", "control.py", "verify.py", "ci.py", "test_verify.py", "run_package.py", "control_batch.py")}
+    assert data["package_code_sha256"] == {name: sha((PACKAGE / name).read_bytes()) for name in ("controls.json", "control.py", "verify.py", "ci.py", "test_verify.py", "run_package.py", "control_batch.py", "test_copied_artifact_logging.py")}
     expected = target_sources(mode)
     assert data["prepared_sources"] == {p: None if raw is None else sha(raw) for p, raw in expected.items()}
     for path, raw in expected.items():

@@ -48,7 +48,7 @@ def run(root, output, mode):
         env = os.environ.copy(); env.update(OD_SAVE_COST_MODE=mode, COMPlus_gcServer="1")
         command = ["dotnet", "vstest", str(root / "bin/Content.IntegrationTests/Content.IntegrationTests.dll"),
                    "/TestCaseFilter:FullyQualifiedName=Content.IntegrationTests.SaveCostProfileHostTests.ModerateFlushWorkload",
-                   "/Logger:trx;LogFileName=" + trx.name, "/ResultsDirectory:" + str(output), "--", "NUnit.ExplicitMode=Relaxed"]
+                   "/Logger:console;Verbosity=normal", "/Logger:trx;LogFileName=" + trx.name, "/ResultsDirectory:" + str(output), "--", "NUnit.ExplicitMode=Relaxed"]
         with log.open("wb") as stream:
             process = subprocess.Popen(command, cwd=root, env=env, stdout=stream, stderr=subprocess.STDOUT,
                                        creationflags=subprocess.CREATE_NEW_PROCESS_GROUP if os.name == "nt" else 0)

@@ -1,0 +1,7 @@
+VSTest version 18.7.0 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+Results File: D:\a\OpenDream\OpenDream\save-cost-results\copied-artifact.trx
+
+Passed!  - Failed:     0, Passed:     1, Skipped:     0, Total:     1, Duration: 1 s - Content.IntegrationTests.dll (net10.0)
