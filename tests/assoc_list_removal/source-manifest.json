@@ -9,7 +9,7 @@
   ],
   "expected_sources": {
     ".github/workflows/assoc-list-removal.yml": "a9b9930c6a383ab8a38fc56abe4b30ecee8db93bb42072aac24b58eec4058b29",
-    "Content.IntegrationTests/AssocListRemovalTests.cs": "ade5bb394cc92e30b7ed86621f07a7044f0000413a58f7d00ab77a9f54642461",
+    "Content.IntegrationTests/AssocListRemovalTests.cs": "50c95ed3bbd95f504969aeadfeb91a03e92ab25fe3eaeee7723b30428ce1dbb4",
     "Content.IntegrationTests/DMProject/Fixtures/assoc-list-removal.dm": "1db6c21de322f32f1bed2017d4e6636453cb5c6674f6d796e11ccd7e6d1f678b",
     "OpenDreamRuntime/Objects/Types/DreamAssocList.cs": "0880e91571769649201b056c63762c25643898e424bfc47c1f5e44e68d2bd709",
     "tests/assoc_list_removal/control.py": "9a2f1dcf2b380f16ddd7d1b28506a7578e2070900feca1eac39929b2c9717b4f",
