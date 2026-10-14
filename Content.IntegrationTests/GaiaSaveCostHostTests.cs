@@ -47,7 +47,7 @@ public sealed class GaiaSaveCostHostTests : ContentIntegrationTest {
         var planPath = Environment.GetEnvironmentVariable("OD_GAIA_SAVE_HOST_PLAN")
             ?? throw new InvalidOperationException("Explicit root-reviewed safe host plan required");
         var plan = JsonSerializer.Deserialize<Plan>(File.ReadAllText(planPath))!;
-        Assert.That(plan.MaximumTicks, Is.InRange(1, 600));
+        Assert.That(plan.MaximumTicks, Is.InRange(1, 12000));
         Assert.That(plan.MaximumFlushes, Is.InRange(2, 4096));
         Assert.That(Guid.TryParseExact(plan.OwnershipId, "N", out _), Is.True);
         Assert.That(Path.IsPathFullyQualified(plan.OwnedRoot), Is.True);
@@ -63,7 +63,7 @@ public sealed class GaiaSaveCostHostTests : ContentIntegrationTest {
         Assert.That(plan.ReadinessGlobal, Is.EqualTo("new_process_dispatch_init_complete"));
         var priorDirectory = Directory.GetCurrentDirectory();
         var options = new ServerContentIntegrationOption { OverrideLogHandler = () => new StrictLogs() };
-        options.CVarOverrides[OpenDreamCVars.TopicPort.Name] = (ushort)0;
+        options.CVarOverrides[OpenDreamCVars.TopicPort.Name] = "0";
         options.CVarOverrides[OpenDreamCVars.JsonPath.Name] = json;
         options.CVarOverrides[OpenDreamCVars.WorldParams.Name] = File.ReadAllText(plan.WorldParamsPath); // never log private parameters
         bool finished = false;

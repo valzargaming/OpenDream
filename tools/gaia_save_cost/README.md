@@ -7,6 +7,8 @@ The plan contains `JsonPath`, `JsonSha256`, `SaveEntryPoint`, `OwnedRoot`,
 `OwnershipId`, `MaximumTicks`, `MaximumFlushes`, `WorldParamsPath` and
 `ReadinessGlobal`. Private world parameters are read from the owned file and
 must not be logged. Registry metadata binds the accepted full-game input.
+Natural tick limits must be chosen before launch, between 1 and 12000; the
+exclusive caller must also impose finite wall-time and memory limits.
 
 The host samples scalar memory, live-reference and pool counts without forcing
 collection, copying trees or changing flush timing. It awaits the real SAVE
@@ -26,6 +28,13 @@ TRX, guard and pre-launch binary/source pins. It verifies stopped shard hashes;
 the independent core generation/format check and a separate fresh full-game
 recovery remain mandatory. Neither parser tests nor this host alone establish
 gameplay, persistent memory growth or an OOM fix.
+
+`GaiaSaveRecoveryHostTests.FullGaiaFreshRecovery` runs in a separate fresh
+process using `OD_GAIA_RECOVERY_HOST_PLAN`. The plan pins the compiled game,
+owned directory, private VERIFY parameters, stopped receipt and both shard
+hashes and lengths. It awaits the real core `run_probe`, which validates the
+generation before restoring it, and requires the original VERIFY oracle.
+The root caller must hash the inputs again after every process has exited.
 
 Run parser regressions with a verified Python interpreter:
 `python.exe -m unittest discover -s tools/gaia_save_cost/tests -p "test_*.py"`.

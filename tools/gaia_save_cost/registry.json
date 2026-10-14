@@ -19,5 +19,8 @@
   "maximum_flushes_default": 4096,
   "engine_head": "5075c426b2f6f37dccb14b0902bb98780bbd62e1",
   "fixture_dme": "tools/gaia_save_cost/fixtures/seam.dme",
-  "source_host_plan_sha256": "c01a086064374c2cef052027c784157b65bb5356ba334552e14d47076e7416b0"
+  "source_host_plan_sha256": "c01a086064374c2cef052027c784157b65bb5356ba334552e14d47076e7416b0",
+  "recovery_test": "Content.IntegrationTests.GaiaSaveRecoveryHostTests.FullGaiaFreshRecovery",
+  "recovery_plan_environment": "OD_GAIA_RECOVERY_HOST_PLAN",
+  "maximum_natural_ticks": 12000
 }
