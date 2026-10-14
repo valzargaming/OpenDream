@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "baseline_helper": "absent; two changed baseline sources and third unchanged formatter seam",
+  "base": "644a0eca75c7a5a5d74b16de04ec589cf0ac1faa",
+  "files": {
+    "frozen/fixture/SaveCostProfileHostTests.cs": "c251e7803b0276999081e30b068b382c2daa7daab3da63674d8b57df0e6f087f",
+    "frozen/original/OpenDreamRuntime/OpenDreamRuntime.csproj": "33d89fd18e703e5a801f2b2a81837346ab230cffedd9c0eaac417f6deb682c6d",
+    "frozen/original/OpenDreamRuntime/Objects/Types/DreamObjectSavefile.cs": "fdd5af43e34d0cb54eddb350dee27f402d65517bffa42d12547822abbf91d9cc",
+    "frozen/fixture/Smoke.cs": "322d1cf6d3cbc115c2d60841e25ba2232e39b952ae7bf3b3750307f0ad60efb8",
+    "frozen/original/OpenDreamRuntime/Resources/DreamResource.cs": "ec0d87ccb38024573aa45f367297077d251286ebf5c8db67530ba976b837f673",
+    "frozen/original/OpenDreamShared/Dream/StringFormatDecoder.cs": "15d5c793da3fb9f29593d147bbafdb12d958639be2600fd015d0c844670efa0d",
+    "frozen/candidate/OpenDreamRuntime/Resources/DreamResource.cs": "7eb6c235e91a88f18acc394d9d9a1599747da456a9177679222eeda415a0cc4d",
+    "frozen/candidate/OpenDreamRuntime/Objects/Types/DreamObjectSavefile.cs": "703f8bdb950af75b0ac826d74488fbe863a6668207205b18b15833695b3c110f",
+    "frozen/candidate/OpenDreamRuntime/Resources/SaveCostProfile.cs": "2ba2371a9104633d9e7e104dc56c48f5b640bbff953982fc1b65dbb116d3e7eb"
+  },
+  "robust": "af2a7d0406b410c4d960f0f4b34513651c6dc742"
+}

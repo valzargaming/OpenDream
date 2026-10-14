@@ -1,0 +1,55 @@
+name: Save cost profile serial assertion controls
+on:
+  workflow_dispatch:
+    inputs:
+      control:
+        description: 'One reviewed control or all nine (serial full builds)'
+        type: choice
+        default: all
+        options: [all, zero-wall, cpu-unavailable, failed-as-completed, completed-as-planned, missing-crlf-bytes, clear-after-json, ignore-resource-filter, omit-cap-coverage, wrong-dirty-origin]
+permissions:
+  contents: read
+jobs:
+  controls:
+    runs-on: windows-latest
+    timeout-minutes: 240
+    env:
+      EXPECTED_HEAD: ${{ github.sha }}
+      DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+      MSBUILDDISABLENODEREUSE: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          submodules: recursive
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.401'
+      - uses: actions/setup-python@v5
+        id: python
+        with:
+          python-version: '3.13'
+      - name: Pure adversaries
+        run: |
+          & '${{ steps.python.outputs.python-path }}' -m unittest discover -s tools/save_cost_profile -p 'test_*.py' -v
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: First positive host before adversarial runtime builds
+        run: |
+          & '${{ steps.python.outputs.python-path }}' tools/save_cost_profile/control.py prepare positive --expected-head "$env:EXPECTED_HEAD" --receipt save-cost-control-results/positive/source-receipt.json
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          & '${{ steps.python.outputs.python-path }}' tools/save_cost_profile/ci.py build positive --results save-cost-control-results/positive
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          & '${{ steps.python.outputs.python-path }}' tools/save_cost_profile/control.py run-suite positive --expected-head "$env:EXPECTED_HEAD" --receipt save-cost-control-results/positive/source-receipt.json
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Serial generated controls, exact assertion classification
+        run: |
+          & '${{ steps.python.outputs.python-path }}' tools/save_cost_profile/control_batch.py --control '${{ inputs.control }}' --expected-head "$env:EXPECTED_HEAD" --results save-cost-control-results
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: save-cost-controls-${{ inputs.control }}-${{ github.sha }}
+          path: save-cost-control-results/
+          if-no-files-found: error
+          retention-days: 14
