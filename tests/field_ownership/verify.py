@@ -6,6 +6,30 @@ NS = {'t': 'http://microsoft.com/schemas/VisualStudio/TeamTest/2010'}
 MARKER = 'FIELD_OWNERSHIP_COMPLETE: 1000 setter and getter errors, valid/peek ownership, final buckets'
 FAILURES = ('FIELD_WRITE_OWNER_ASSERT_1000', 'FIELD_READ_OWNER_ASSERT_1000', 'FIELD_PEEK_OWNER_ASSERT')
 UNRELATED_ERROR = re.compile(r'\[ERRO\]|Unhandled exception|Runtime occurred|runtime error|test run aborted|testhost.*(?:crash|exit)', re.IGNORECASE)
+
+def assertion_frames(index):
+    # NUnit 4 includes each assertion's stack inside the aggregate Message.
+    # Admit only the observed ownership fixture -> integration thread sequence.
+    helper = ('FieldMissingOwners1000(DreamObjectTree tree, DreamRefManager refs, Boolean read)'
+              if index < 3 else 'FieldSuccessAndPeekOwnership(DreamObjectTree tree, DreamRefManager refs)')
+    frames = [
+        re.escape('Content.IntegrationTests.GameTests.' + helper),
+        r'Content\.IntegrationTests\.GameTests\.<>c__DisplayClass\d+_\d+\.<FieldReferencesReleaseOwners>b__\d+\(\)',
+        re.escape('NUnit.Framework.Assert.Multiple(TestDelegate testDelegate)'),
+        re.escape('Content.IntegrationTests.GameTests.FieldReferencesReleaseOwners(DreamObjectTree tree, DreamRefManager refs)'),
+        r'Content\.IntegrationTests\.GameTests\.<>c__DisplayClass\d+_\d+\.<NoRuntimesTest>b__\d+\(\)',
+        re.escape('Robust.UnitTesting.RobustIntegrationTest.IntegrationGameLoop.SingleThreadRunUntilEmpty()'),
+        re.escape('Robust.UnitTesting.RobustIntegrationTest.IntegrationGameLoop.Run()'),
+        re.escape('Robust.UnitTesting.RobustIntegrationTest.ServerIntegrationInstance._serverMain()'),
+        re.escape('System.Threading.Thread.StartHelper.Callback(Object state)'),
+    ]
+    files = ['Content.IntegrationTests/GameTests.FieldOwnership.cs',
+             'Content.IntegrationTests/GameTests.FieldOwnership.cs', None,
+             'Content.IntegrationTests/GameTests.FieldOwnership.cs',
+             'Content.IntegrationTests/GameTests.cs'] + ['RobustToolbox/Robust.UnitTesting/RobustIntegrationTest.cs'] * 3 + [None]
+    return ''.join(r'\s+at ' + frame +
+                   (r' in [^\r\n]+/' + re.escape(file) + r':line \d+' if file else '')
+                   for frame, file in zip(frames, files))
 def verify(path, mode, exit_code, log=''):
     tree = ET.parse(path)
     counters = tree.find('.//t:ResultSummary/t:Counters', NS)
@@ -39,7 +63,7 @@ def verify(path, mode, exit_code, log=''):
         for index, marker in enumerate(FAILURES, 1):
             constraint = r'Is\.EqualTo\(1\)' if index < 3 else r'Is\.EqualTo\(peek \? 2 : 1\)'
             actual = 1001 if index < 3 else 2
-            blocks.append(r'\s*'+str(index)+r'\)\s*'+re.escape(marker)+r'\s*Assert\.That\(owner\.RefCount, '+constraint+r'\)\s*Expected:\s*1\s*But was:\s*'+str(actual))
+            blocks.append(r'\s*'+str(index)+r'\)\s*'+re.escape(marker)+r'\s*Assert\.That\(owner\.RefCount, '+constraint+r'\)\s*Expected:\s*1\s*But was:\s*'+str(actual) + r'(?:' + assertion_frames(index) + r')?')
         wanted = r'\AMultiple failures or warnings in test:'+''.join(blocks)+r'\s*\Z'
         assert re.fullmatch(wanted, message.text or ''), 'not exact intended ownership failures'
         stack = row.findtext('t:Output/t:ErrorInfo/t:StackTrace', '', NS)

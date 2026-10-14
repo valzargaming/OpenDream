@@ -1,7 +1,9 @@
 import tempfile
 import unittest
+import json
+import xml.etree.ElementTree as ET
 from pathlib import Path
-from verify import verify, MARKER, FAILURES
+from verify import verify, MARKER, FAILURES, NS
 
 def trx(mode='positive', bad_marker=False, duplicate=False, skip=False):
     positive = mode == 'positive'
@@ -52,4 +54,31 @@ class VerifyTests(unittest.TestCase):
                     xml.replace('total="1"','error="1" total="1"'),
                     xml.replace('className="Content.IntegrationTests.GameTests"','className="OtherClass"')]:
             with self.assertRaises(AssertionError): self.check(bad,'baseline',1)
+    def captured_xml(self, mode):
+        capture = json.loads((Path(__file__).parent/'fixtures'/'nunit-aggregate-messages.json').read_text())
+        tree = ET.fromstring(trx(mode))
+        tree.find('.//t:ErrorInfo/t:Message', NS).text = capture['messages'][mode]
+        return ET.tostring(tree, encoding='unicode')
+    def test_original_captured_nunit_messages(self):
+        for mode in ('baseline', 'omitted-release'):
+            self.assertTrue(self.check(self.captured_xml(mode), mode, 1))
+    def test_captured_messages_reject_unrelated_or_corrupt_frames(self):
+        for mode in ('baseline', 'omitted-release'):
+            xml = self.captured_xml(mode)
+            for before, after in [
+                ('FieldMissingOwners1000(', 'OtherFixture('),
+                ('FieldSuccessAndPeekOwnership(', 'OtherFixture('),
+                ('NUnit.Framework.Assert.Multiple(TestDelegate testDelegate)', 'System.Exception.Throw()'),
+                ('/Content.IntegrationTests/GameTests.FieldOwnership.cs:line', '/OtherFixture.cs:line'),
+                ('But was:  1001', 'But was:  1002'),
+                ('Expected: 1', 'Expected: 2'),
+                ('FIELD_READ_OWNER_ASSERT_1000', 'FIELD_WRITE_OWNER_ASSERT_1000'),
+                ('</ns0:Message>', ' 4) extra failure</ns0:Message>'),
+                ('</ns0:Message>', 'Unhandled exception</ns0:Message>'),
+                ('   at System.Threading.Thread.StartHelper.Callback(Object state)', ''),
+            ]:
+                with self.subTest(mode=mode, corruption=after):
+                    self.assertIn(before, xml)
+                    with self.assertRaises(AssertionError):
+                        self.check(xml.replace(before, after), mode, 1)
 if __name__ == '__main__': unittest.main()
