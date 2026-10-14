@@ -18,6 +18,10 @@ def git(*args): return subprocess.check_output(['git', '-C', str(ROOT), *args])
 def sha(raw): return hashlib.sha256(raw).hexdigest()
 def mutate(raw, mode):
     if mode == 'positive': return raw
+    if mode == 'no-small-path':
+        needle = b'if (text.Length <= 4096) {'
+        assert raw.count(needle) == 1
+        return raw.replace(needle, b'if (false) { // negative control: ordinary output pays writer overhead')
     assert mode == 'platform-newline'
     needle = b'writer.Write("\\r\\n");'
     assert raw.count(needle) == 1
@@ -50,7 +54,7 @@ def prepare(mode, head, output, verify=False):
     else: (output / 'source-receipt.json').write_text(json.dumps(receipt, indent=2))
 
 if __name__ == '__main__':
-    p = argparse.ArgumentParser(); p.add_argument('mode', choices=['positive','baseline','platform-newline'])
+    p = argparse.ArgumentParser(); p.add_argument('mode', choices=['positive','baseline','platform-newline','no-small-path'])
     p.add_argument('--head', required=True); p.add_argument('--output', type=Path, required=True)
     p.add_argument('--verify', action='store_true'); a=p.parse_args()
     prepare(a.mode,a.head,a.output,a.verify)

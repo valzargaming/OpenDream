@@ -17,7 +17,8 @@ def verify(trx, log, mode, exit_code, output):
     definitions=tree.findall('.//t:UnitTest/t:TestMethod',NS)
     assert len(definitions)==3 and all(d.attrib['className']==CLASS for d in definitions)
     failures = {'positive':{},'baseline':{'AllocationWorkloads':'OUTPUT_ALLOCATION_SCALING'},
-                'platform-newline':{'BytesErrorsCacheAndProfile':'OUTPUT_BYTES_CRLF','SavefileRoundTrip':'OUTPUT_BYTES_CRLF'}}[mode]
+                'platform-newline':{'BytesErrorsCacheAndProfile':'OUTPUT_BYTES_CRLF','SavefileRoundTrip':'OUTPUT_BYTES_CRLF'},
+                'no-small-path':{'AllocationWorkloads':'OUTPUT_SMALL_ALLOCATION'}}[mode]
     assert exit_code==(1 if failures else 0)
     assert ('Test Run Failed.' if failures else 'Test Run Successful.') in log
     assert len(tree.findall('.//t:ErrorInfo',NS))==len(failures)
@@ -33,8 +34,9 @@ def verify(trx, log, mode, exit_code, output):
     bench = next(r for r in rows if r.attrib['testName']=='AllocationWorkloads')
     stdout=bench.findtext('t:Output/t:StdOut','',NS)
     metrics=[json.loads(s) for s in re.findall(r'OUTPUT_ALLOCATION_METRIC (\{[^\r\n]+\})',stdout)]
-    assert [m['chars'] for m in metrics]==[16,1024,1048576,8388608]
+    assert [m['chars'] for m in metrics]==[16,1024,4096,4097,1048576,8388608]
     assert all(m['count']==8 and m['allocated']>0 and m['seconds']>=0 and len(m['collections'])==3 for m in metrics)
+    assert all(m['allocated']/8 < 2*m['chars']+1024 for m in metrics if m['chars']<=4096)==(mode!='no-small-path')
     assert (metrics[-1]['allocated']/8 >= 8388608)==(mode=='baseline')
     (output/'verified-metrics.json').write_text(json.dumps({'mode':mode,'metrics':metrics,'expected_failures':failures},indent=2))
 

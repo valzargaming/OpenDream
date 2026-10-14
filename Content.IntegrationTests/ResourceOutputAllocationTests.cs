@@ -29,7 +29,7 @@ public sealed class ResourceOutputAllocationTests : ContentIntegrationTest {
         try {
             var path = Path.Combine(temp, "nested", "output.txt");
             var resource = new DreamResource(1, path, path);
-            var values = new[] { "", "plain", "already\r\n", "é😀\uFF00tail", "\0\t\n", new string('x', 8193) + "😀" };
+            var values = new[] { "", "plain", "already\r\n", "é😀\uFF00tail", "\0\t\n", new string('x', 4096), new string('x', 4097), new string('x', 8193) + "😀" };
             var expected = new StringBuilder();
             foreach (var text in values) {
                 var previous = resource.ResourceData;
@@ -45,9 +45,11 @@ public sealed class ResourceOutputAllocationTests : ContentIntegrationTest {
             var cached = resource.ResourceData;
             Assert.Throws<DMException>(() => resource.Output(new DreamValue(3)));
             Assert.That(resource.ResourceData, Is.SameAs(cached), "invalid value keeps cache");
-            Assert.Throws<EncoderFallbackException>(() => resource.Output(new DreamValue("invalid\uD800")));
-            Assert.That(resource.ResourceData, Is.SameAs(cached), "encoding failure keeps cache");
-            using (File.Open(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None)) { }
+            foreach (var chars in new[] { 0, 4097 }) {
+                Assert.Throws<EncoderFallbackException>(() => resource.Output(new DreamValue(new string('x', chars) + "invalid\uD800")));
+                Assert.That(resource.ResourceData, Is.SameAs(cached), "encoding failure keeps cache");
+                using (File.Open(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None)) { }
+            }
             var missingPath = new DreamResource(1, null, null);
             Assert.Throws<Exception>(() => missingPath.Output(new DreamValue("x")));
             var overrideResource = new OutputOverride();
@@ -57,32 +59,39 @@ public sealed class ResourceOutputAllocationTests : ContentIntegrationTest {
             // A failed append must not invalidate the cached bytes.
             File.Delete(path);
             Directory.CreateDirectory(path);
-            Assert.Throws<UnauthorizedAccessException>(() => resource.Output(new DreamValue("x")));
-            Assert.That(resource.ResourceData, Is.SameAs(cached));
+            foreach (var chars in new[] { 1, 4097 }) {
+                Assert.Throws<UnauthorizedAccessException>(() => resource.Output(new DreamValue(new string('x', chars))));
+                Assert.That(resource.ResourceData, Is.SameAs(cached));
+            }
             Directory.Delete(path);
             SaveCostProfile.Enable(4);
             SaveCostProfile.BeginCapture("output-contract", path);
-            // Flush establishes the context used by the production Output path.
-            var context = SaveCostProfile.Begin(resource, SaveCostProfile.Origin.Direct)!;
-            try { resource.Output(new DreamValue("é\uFF00😀")); }
-            finally { SaveCostProfile.Finish(context, true); }
-            var profileCached = resource.ResourceData;
-            File.Delete(path);
-            Directory.CreateDirectory(path);
-            context = SaveCostProfile.Begin(resource, SaveCostProfile.Origin.Direct)!;
-            try { Assert.Throws<UnauthorizedAccessException>(() => resource.Output(new DreamValue("failed"))); }
-            finally { SaveCostProfile.Finish(context, false); }
-            Assert.That(resource.ResourceData, Is.SameAs(profileCached));
-            Directory.Delete(path);
-            File.WriteAllBytes(path, profileCached!);
+            var profileExpected = new StringBuilder();
+            foreach (var chars in new[] { 0, 4097 }) {
+                // Flush establishes the context used by the production Output path.
+                var text = new string('x', chars) + "é\uFF00😀";
+                var context = SaveCostProfile.Begin(resource, SaveCostProfile.Origin.Direct)!;
+                try { resource.Output(new DreamValue(text)); }
+                finally { SaveCostProfile.Finish(context, true); }
+                profileExpected.Append(StringFormatDecoder.RemoveFormatting(text)).Append("\r\n");
+                var profileCached = resource.ResourceData;
+                File.Delete(path);
+                Directory.CreateDirectory(path);
+                context = SaveCostProfile.Begin(resource, SaveCostProfile.Origin.Direct)!;
+                try { Assert.Throws<UnauthorizedAccessException>(() => resource.Output(new DreamValue(new string('x', chars) + "failed"))); }
+                finally { SaveCostProfile.Finish(context, false); }
+                Assert.That(resource.ResourceData, Is.SameAs(profileCached));
+                Directory.Delete(path);
+                File.WriteAllBytes(path, profileCached!);
+            }
             SaveCostProfile.EndCapture();
-            Assert.That(File.ReadAllBytes(path), Is.EqualTo(new UTF8Encoding(false, true).GetBytes("é😀\r\n")), "OUTPUT_BYTES_CRLF");
+            Assert.That(File.ReadAllBytes(path), Is.EqualTo(new UTF8Encoding(false, true).GetBytes(profileExpected.ToString())), "OUTPUT_BYTES_CRLF");
             var snapshot = JsonSerializer.SerializeToElement(SaveCostProfile.Snapshot());
             var append = snapshot.GetProperty("phases").EnumerateArray().Single(p => p.GetProperty("name").GetString() == "AppendDisk");
-            Assert.That(append.GetProperty("attempted").GetInt64(), Is.EqualTo(2));
-            Assert.That(append.GetProperty("completed").GetInt64(), Is.EqualTo(1));
-            Assert.That(append.GetProperty("failed").GetInt64(), Is.EqualTo(1));
-            Assert.That(snapshot.GetProperty("completedAppendUtf8Bytes").GetInt64(), Is.EqualTo(8));
+            Assert.That(append.GetProperty("attempted").GetInt64(), Is.EqualTo(4));
+            Assert.That(append.GetProperty("completed").GetInt64(), Is.EqualTo(2));
+            Assert.That(append.GetProperty("failed").GetInt64(), Is.EqualTo(2));
+            Assert.That(snapshot.GetProperty("completedAppendUtf8Bytes").GetInt64(), Is.EqualTo(4113));
             TestContext.Out.WriteLine("OUTPUT_PROFILE " + snapshot.GetRawText());
         } finally { Directory.Delete(temp, recursive: true); }
     }
@@ -93,7 +102,8 @@ public sealed class ResourceOutputAllocationTests : ContentIntegrationTest {
         try {
             var resource = new DreamResource(1, path, path);
             long largestBytesPerCall = 0;
-            foreach (var chars in new[] { 16, 1024, 1048576, 8388608 }) {
+            long worstSmallExcess = long.MinValue;
+            foreach (var chars in new[] { 16, 1024, 4096, 4097, 1048576, 8388608 }) {
                 var text = new string('x', chars);
                 var value = new DreamValue(text);
                 for (var warmup = 0; warmup < 3; warmup++) { resource.Clear(); resource.Output(value); }
@@ -114,8 +124,12 @@ public sealed class ResourceOutputAllocationTests : ContentIntegrationTest {
                     chars, count, allocated, seconds = ticks / (double)Stopwatch.Frequency, collections,
                     runtime = Environment.Version.ToString(), os = Environment.OSVersion.ToString()
                 }));
+                if (chars <= 4096) {
+                    worstSmallExcess = Math.Max(worstSmallExcess, allocated / count - (2 * chars + 1024));
+                }
                 if (chars == 8388608) largestBytesPerCall = allocated / count;
             }
+            Assert.That(worstSmallExcess, Is.LessThan(0), "OUTPUT_SMALL_ALLOCATION");
             Assert.That(largestBytesPerCall, Is.LessThan(8388608), "OUTPUT_ALLOCATION_SCALING");
         } finally { File.Delete(path); }
     }

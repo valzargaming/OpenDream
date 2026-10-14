@@ -22,6 +22,7 @@ jobs:
           - {os: windows-latest, mode: positive}
           - {os: ubuntu-latest, mode: baseline}
           - {os: ubuntu-latest, mode: platform-newline}
+          - {os: ubuntu-latest, mode: no-small-path}
     steps:
       - uses: actions/checkout@v4
         with:
