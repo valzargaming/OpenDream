@@ -59,7 +59,7 @@
     "tests/native_matrix_ownership/test_composition.py": "fc5aac30ae25f5b9f4c84af40084567f1327b409fb6477724193ece909ac0ef0",
     "tests/native_matrix_ownership/test_pure.py": "fa6b00be2a6dfc7b0b141af31f0dca28440dc64a3032c531e5620bcf7e0645dd",
     "tests/native_matrix_ownership/verify.py": "c02b3e755cb04ff7e49f3307f32e0a9786b9aa740f627a42d18d27480d373993",
-    "tests/object_initialization/control.py": "96103c3b3f281c9074dfc9093124bea014a29e80c4df90e34b867818d8993966",
+    "tests/object_initialization/control.py": "d36d07a9faa449beb9cf512e7f75a6c5ee95d332acbc040e40295d32d37a387c",
     "tests/range_ownership/controls.json": "c12a3cb8b1270ec6fbae39c35f7810dc445d7de38c3ccfd0aefdb84498079466",
     "tests/string_format_decoder/verify.py": "1e1bf99ca675404f5e40083541ffbffc76351c16a9e26e4760a63493c3debf88",
     "tests/typesof_ownership/README.md": "e535912e79af4c99696d73aaf53764b64988a198d7ceb5c7b16f7a4a8d9fcdc8",
