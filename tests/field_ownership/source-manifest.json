@@ -72,7 +72,7 @@
     "Content.IntegrationTests/GameTests.FieldOwnership.cs": "741f63a1b36bf1a84402a3b66bd9b4b414bce53852579d4f0f8d93b3608e4d55",
     "Content.IntegrationTests/GameTests.cs": "f53a97e17fd7f8f249a2bdb05d3ed8c7b1cfa887e29e490dc6884823668ba27c",
     "OpenDreamRuntime/Procs/DMProc.cs": "90d11d9bd08ccc768cce7c085678594b792758cd822dcc9a2f3d34958ca687fc",
-    "tests/call_ext_ownership/control.py": "8c0df5186c837e8ab525c721050801aa5fc4935236e102aa0ec5332087ef7a33",
+    "tests/call_ext_ownership/control.py": "1935430e8162a1d2d25f2706bfc540798f996fafc4041147cbcdc881c07b1bf4",
     "tests/field_ownership/control.py": "d2f80f5ebcd84a316fd663ff003c20420dc8a0876a3bdd91aa40dae64e4535a2",
     "tests/field_ownership/controls.json": "f9ce9c3de9cb3096f6f59e16a84f50392bb7d5307775df063264337abec77e79",
     "tests/field_ownership/prepare_control.py": "f68b6c6b265c5586621de7703ef7895bdf068c87b57aa23765369b7d1b02f910",
@@ -80,7 +80,7 @@
     "tests/field_ownership/test_receipts.py": "6b2ac43c380bb8e786a58b76b0c2011593a18ae573ea9da44e587be55035e2cf",
     "tests/field_ownership/test_verify.py": "16e601a94d186a6d02a96ec52d608b30f31c0a2d94c6d4bd2fc01b0502938c4f",
     "tests/field_ownership/verify.py": "c1a7244091ce5a409c221e010a60e57f6eacd3b24c919a1658059b5ff57e7c5e",
-    "tests/missing_operator_ownership/control.py": "7d26f7ef5cf26f15850230fd0edd4d20854eff0df2f02f639a6732861b758b9d",
+    "tests/missing_operator_ownership/control.py": "a30b8e1f59f23e34288340651d279c198913f3e11039ec593b2317ce0a6c7497",
     "tests/numeric_list_ownership/control.py": "acc92ade2f46f0911a5ece1d1691de19a183dc09540afeca1bda4e002b440a5a",
     "tests/field_ownership/fixtures/nunit-aggregate-messages.json": "f04223141d2e1d8e83c77517989cd75dab8af0627fa51a5e96678980c6a2eedb",
     "tests/index_read_ownership/controls.json": "f0ab8eb3f06adfea15f7185d274da0c6f7d6c58f9232f9816dbc27269d1b9d44"
