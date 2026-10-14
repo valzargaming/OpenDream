@@ -1,0 +1,89 @@
+name: String format decoder allocation regression
+on:
+  pull_request:
+    paths:
+      - OpenDreamShared/Dream/StringFormatDecoder.cs
+      - Content.IntegrationTests/StringFormatDecoderTests.cs
+      - tests/string_format_decoder/**
+      - .github/workflows/string-format-decoder.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  decoder:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [positive, baseline]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          submodules: recursive
+      - name: Verify exact head
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.401
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Pure strict-verifier tests
+        run: python -m unittest discover -s tests/string_format_decoder -p 'test_*.py' -v
+      - name: Prepare immutable source control
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: python tests/string_format_decoder/control.py '${{ matrix.mode }}' --expected-head "$EXPECTED_HEAD" --receipt decoder-results/source-receipt.json
+      - name: Exact SDK and actual solution build
+        id: build
+        shell: bash
+        run: |
+          test "$(dotnet --version)" = '10.0.401'
+          dotnet --info > decoder-results/sdk-info.log
+          dotnet build OpenDream.slnx --configuration Release --property WarningLevel=4 -m:1 -p:UseSharedCompilation=false --disable-build-servers 2>&1 | tee decoder-results/build.log
+          sha256sum bin/Content.IntegrationTests/Content.IntegrationTests.dll bin/Content.Shared/OpenDreamShared.dll > decoder-results/binary-sha256.txt
+          mkdir -p decoder-results/binaries
+          cp bin/Content.IntegrationTests/Content.IntegrationTests.dll bin/Content.IntegrationTests/Content.IntegrationTests.pdb bin/Content.Shared/OpenDreamShared.dll bin/Content.Shared/OpenDreamShared.pdb decoder-results/binaries/
+      - name: Focused public decoder NUnit tests and strict TRX
+        shell: bash
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+          MODE: ${{ matrix.mode }}
+        run: |
+          filter='FullyQualifiedName~Content.IntegrationTests.StringFormatDecoderTests'
+          if [ "$MODE" = baseline ]; then
+            filter="$filter&FullyQualifiedName!~ConcurrentCallsPreserveContent"
+          fi
+          set +e
+          dotnet test Content.IntegrationTests/Content.IntegrationTests.csproj --configuration Release --no-build --filter "$filter" --logger 'trx;LogFileName=decoder.trx' --results-directory decoder-results -v n > decoder-results/test.log 2>&1
+          code=$?
+          set -e
+          printf '%s\n' "$code" > decoder-results/test-exit-code.txt
+          tail -80 decoder-results/test.log
+          python tests/string_format_decoder/control.py "$MODE" --expected-head "$EXPECTED_HEAD" --receipt decoder-results/source-receipt.json --verify
+          python tests/string_format_decoder/verify.py decoder-results/decoder.trx "$MODE" "$code" --log decoder-results/test.log
+      - name: Existing connected savefile lifecycle and complete DM regression suite
+        if: always() && steps.build.outcome == 'success'
+        shell: bash
+        env:
+          MODE: ${{ matrix.mode }}
+        run: |
+          set +e
+          dotnet test Content.IntegrationTests/Content.IntegrationTests.csproj --configuration Release --no-build --filter 'FullyQualifiedName=Content.IntegrationTests.GameTests.NoRuntimesTest' --logger 'trx;LogFileName=runtime.trx' --results-directory decoder-results -v n > decoder-results/runtime.log 2>&1
+          code=$?
+          set -e
+          printf '%s\n' "$code" > decoder-results/runtime-exit-code.txt
+          tail -80 decoder-results/runtime.log
+          python tests/string_format_decoder/verify.py decoder-results/runtime.trx "$MODE" "$code" --log decoder-results/runtime.log --runtime
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: string-format-decoder-${{ matrix.mode }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: decoder-results/
+          if-no-files-found: error
+          retention-days: 14
