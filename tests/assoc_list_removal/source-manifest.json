@@ -17,6 +17,7 @@
     "tests/assoc_list_removal/test_controls.py": "b56b5f2e5e2860ba923e0826553c17f4a3d995aeb19e51c684903795403f3f4d",
     "tests/assoc_list_removal/verify.py": "7acbc7ab608b88ba0582fd9301770ad23504bb922f5538582151ef64c8d432ff",
     "tests/assoc_list_removal/README.md": "931fd37e759f1d628612a7c4bc1368e5b74daa5cd8d67dac00cd2edb467c3ff5",
-    "tests/string_format_decoder/verify.py": "1e1bf99ca675404f5e40083541ffbffc76351c16a9e26e4760a63493c3debf88"
+    "tests/string_format_decoder/verify.py": "1e1bf99ca675404f5e40083541ffbffc76351c16a9e26e4760a63493c3debf88",
+    ".github/workflows/check-test-parity.yml": "933a567d3508b64f37a6ac4e82b8f3dca4212eb037dd26d478e7efef9e808dbf"
   }
 }

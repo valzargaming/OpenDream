@@ -12,10 +12,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-            fetch-depth: 2
+            fetch-depth: 0
       - name: Fetch master for diffing
         run: |
-            git fetch origin master:master --depth=1
+            git fetch origin master:master
         
       - name: Check for test changes
         id: changed-files
