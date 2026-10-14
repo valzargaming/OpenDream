@@ -8,7 +8,7 @@
     "Content.IntegrationTests/DMProject/Fixtures/savefile-resource-bytes.dm": "8cb3d1c08d948a260aa51670a557224e9933dd4f967c6b49491e6d02d51fc26d",
     "Content.IntegrationTests/GameTests.Savefile.cs": "221826b0c3867195b1a828750bd260560f06e97b6e934db211bdb50a89a14020",
     "Content.IntegrationTests/GameTests.cs": "f53a97e17fd7f8f249a2bdb05d3ed8c7b1cfa887e29e490dc6884823668ba27c",
-    "Content.IntegrationTests/SavefileResourceBytesTests.cs": "7a9db8a9c34a2791efed26a74c16102096b25e72a101edd433a0a837a8c188ca",
+    "Content.IntegrationTests/SavefileResourceBytesTests.cs": "e86a7da66731d058f080613b590bb81cc5f6f0284af0ce74fe5dd4793c36d9db",
     "Directory.Packages.props": "7392daa4c44a429ccd0feb736ac7a5429f104f35993c79adca09429ae8738d56",
     "OpenDreamRuntime/AtomManager.cs": "a832d678465e8794fb74fa1486cbe480c93e363878f9591769f151b4e4d9546e",
     "OpenDreamRuntime/DreamAczProvider.cs": "d301d67604e34fdf8bcd9b6010120d5d6bdeb6bc38dc54ca33beb5f5f2fd86b6",

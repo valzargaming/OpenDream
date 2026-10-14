@@ -93,7 +93,9 @@ public sealed class SavefileResourceBytesTests : ContentIntegrationTest {
             Assert.That(values[3].MustGetValueAsFloat(), Is.EqualTo(1));
             Assert.That(values[4].MustGetValueAsFloat(), Is.EqualTo(1));
         }
-        Assert.That(resources.LoadResource("payload.bin"), Is.SameAs(resources.LoadResource("payload.bin")));
+        var firstFile = resources.LoadResource("payload.bin");
+        var secondFile = resources.LoadResource("payload.bin");
+        Assert.That(secondFile, Is.SameAs(firstFile));
         var direct1 = resources.CreateResource([1, 2, 3]);
         var direct2 = resources.CreateResource([1, 2, 3]);
         Assert.That(direct1, Is.Not.SameAs(direct2));
