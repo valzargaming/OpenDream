@@ -1,0 +1,79 @@
+{
+  "schema": 1,
+  "production_path": "OpenDreamRuntime/Procs/DMOpcodeHandlers.cs",
+  "base_sha256": "7f3ffd180fa5facbce09bd661524b22bc673d922de461c8bde6897eb0c66fba0",
+  "candidate_sha256": "bbbed04358c789254f900fb2b4640ccceda052ec64945f21f002384cbd029510",
+  "fixed": "        public static ProcStatus IsInRange(DMProcState state) {\n            using var end = state.Pop();\n            using var start = state.Pop();\n            using var value = state.Pop();\n\n            // Retain the popped owners while coercing non-numeric operands to zero.\n            float valueNumber = value.Type == DreamValue.DreamValueType.Float ? value.MustGetValueAsFloat() : 0f;\n            float startNumber = start.Type == DreamValue.DreamValueType.Float ? start.MustGetValueAsFloat() : 0f;\n            float endNumber = end.Type == DreamValue.DreamValueType.Float ? end.MustGetValueAsFloat() : 0f;\n\n            bool inRange = startNumber <= valueNumber && valueNumber <= endNumber;\n            state.Push(new DreamValue(inRange ? 1 : 0));\n            return ProcStatus.Continue;\n        }\n\n",
+  "original": "        public static ProcStatus IsInRange(DMProcState state) {\n            var end = state.Pop();\n            var start = state.Pop();\n            var var = state.Pop();\n\n            if (var.Type != DreamValue.DreamValueType.Float) var = new DreamValue(0f);\n            if (start.Type != DreamValue.DreamValueType.Float) start = new DreamValue(0f);\n            if (end.Type != DreamValue.DreamValueType.Float) end = new DreamValue(0f);\n\n            bool inRange = (IsEqual(start, var) || IsLessThan(start, var)) && (IsEqual(var, end) || IsLessThan(var, end));\n            state.Push(new DreamValue(inRange ? 1 : 0));\n            end.Dispose();\n            start.Dispose();\n            var.Dispose();\n            return ProcStatus.Continue;\n        }\n\n",
+  "omitted_value_release": "        public static ProcStatus IsInRange(DMProcState state) {\n            using var end = state.Pop();\n            using var start = state.Pop();\n            var value = state.Pop();\n\n            // Retain the popped owners while coercing non-numeric operands to zero.\n            float valueNumber = value.Type == DreamValue.DreamValueType.Float ? value.MustGetValueAsFloat() : 0f;\n            float startNumber = start.Type == DreamValue.DreamValueType.Float ? start.MustGetValueAsFloat() : 0f;\n            float endNumber = end.Type == DreamValue.DreamValueType.Float ? end.MustGetValueAsFloat() : 0f;\n\n            bool inRange = startNumber <= valueNumber && valueNumber <= endNumber;\n            state.Push(new DreamValue(inRange ? 1 : 0));\n            return ProcStatus.Continue;\n        }\n\n",
+  "baseline_failures": [
+    {
+      "marker": "RANGE_DATUM_0_OWNER_ASSERT_1000",
+      "expected": 1,
+      "actual": 1001
+    },
+    {
+      "marker": "RANGE_DATUM_1_OWNER_ASSERT_1000",
+      "expected": 1,
+      "actual": 1001
+    },
+    {
+      "marker": "RANGE_DATUM_2_OWNER_ASSERT_1000",
+      "expected": 1,
+      "actual": 1001
+    },
+    {
+      "marker": "RANGE_DATUM_ALIAS_OWNER_ASSERT_1000",
+      "expected": 1,
+      "actual": 3001
+    },
+    {
+      "marker": "RANGE_LIST_0_OWNER_ASSERT_1000",
+      "expected": 1,
+      "actual": 1001
+    },
+    {
+      "marker": "RANGE_LIST_1_OWNER_ASSERT_1000",
+      "expected": 1,
+      "actual": 1001
+    },
+    {
+      "marker": "RANGE_LIST_2_OWNER_ASSERT_1000",
+      "expected": 1,
+      "actual": 1001
+    },
+    {
+      "marker": "RANGE_LIST_ALIAS_OWNER_ASSERT_1000",
+      "expected": 1,
+      "actual": 3001
+    }
+  ],
+  "omitted_value_failures": [
+    {
+      "marker": "RANGE_DATUM_0_OWNER_ASSERT_1000",
+      "expected": 1,
+      "actual": 1001
+    },
+    {
+      "marker": "RANGE_DATUM_ALIAS_OWNER_ASSERT_1000",
+      "expected": 1,
+      "actual": 1001
+    },
+    {
+      "marker": "RANGE_LIST_0_OWNER_ASSERT_1000",
+      "expected": 1,
+      "actual": 1001
+    },
+    {
+      "marker": "RANGE_LIST_ALIAS_OWNER_ASSERT_1000",
+      "expected": 1,
+      "actual": 1001
+    }
+  ],
+  "replacements": [
+    [
+      "        public static ProcStatus IsInRange(DMProcState state) {\n            using var end = state.Pop();\n            using var start = state.Pop();\n            using var value = state.Pop();\n\n            // Retain the popped owners while coercing non-numeric operands to zero.\n            float valueNumber = value.Type == DreamValue.DreamValueType.Float ? value.MustGetValueAsFloat() : 0f;\n            float startNumber = start.Type == DreamValue.DreamValueType.Float ? start.MustGetValueAsFloat() : 0f;\n            float endNumber = end.Type == DreamValue.DreamValueType.Float ? end.MustGetValueAsFloat() : 0f;\n\n            bool inRange = startNumber <= valueNumber && valueNumber <= endNumber;\n            state.Push(new DreamValue(inRange ? 1 : 0));\n            return ProcStatus.Continue;\n        }\n\n",
+      "        public static ProcStatus IsInRange(DMProcState state) {\n            var end = state.Pop();\n            var start = state.Pop();\n            var var = state.Pop();\n\n            if (var.Type != DreamValue.DreamValueType.Float) var = new DreamValue(0f);\n            if (start.Type != DreamValue.DreamValueType.Float) start = new DreamValue(0f);\n            if (end.Type != DreamValue.DreamValueType.Float) end = new DreamValue(0f);\n\n            bool inRange = (IsEqual(start, var) || IsLessThan(start, var)) && (IsEqual(var, end) || IsLessThan(var, end));\n            state.Push(new DreamValue(inRange ? 1 : 0));\n            end.Dispose();\n            start.Dispose();\n            var.Dispose();\n            return ProcStatus.Continue;\n        }\n\n"
+    ]
+  ]
+}

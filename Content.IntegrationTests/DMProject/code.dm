@@ -272,3 +272,6 @@ var/global/list/areas_by_type = list()
     var/result = new /datum/operator_defined
     result[payload] = payload
     return payload
+
+/proc/range_ownership_compiled_probe(value, start, end)
+    return (value in start to end)

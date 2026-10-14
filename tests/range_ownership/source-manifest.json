@@ -1,0 +1,28 @@
+{
+  "base_commit": "47c0982c4cb85402f4bf733062f38668ad4021d9",
+  "original_inputs": [
+    {
+      "path": "OpenDreamRuntime/Procs/DMOpcodeHandlers.cs",
+      "sha256": "7f3ffd180fa5facbce09bd661524b22bc673d922de461c8bde6897eb0c66fba0",
+      "git_blob_oid": "4aa446ca84ec23620e9cc3aa9f43b8c0d8f15db1"
+    }
+  ],
+  "expected_sources": {
+    ".github/workflows/range-ownership.yml": "2d799b02fe5f7e80b88355d13202fc1540cc293a0e3c3016af6894eb5a4b842b",
+    "Content.IntegrationTests/DMProject/code.dm": "446623e93b65fd8ca3a5d1ca9fe219cf8ca0ef909e97321489dc389dd051d840",
+    "Content.IntegrationTests/GameTests.cs": "f53a97e17fd7f8f249a2bdb05d3ed8c7b1cfa887e29e490dc6884823668ba27c",
+    "Content.IntegrationTests/GameTests.RangeOwnership.cs": "3e6d632e7fb3d5a40c97fbbf727d64799054a552a3b27fb5c7bb714112b130fb",
+    "OpenDreamRuntime/Procs/DMOpcodeHandlers.cs": "bbbed04358c789254f900fb2b4640ccceda052ec64945f21f002384cbd029510",
+    "tests/call_ext_ownership/control.py": "8c0df5186c837e8ab525c721050801aa5fc4935236e102aa0ec5332087ef7a33",
+    "tests/field_ownership/source-manifest.json": "c60046eac12ad5ac5b73c65f837f72e9728a9578cc29cac7a1f2b81c53eba671",
+    "tests/index_read_ownership/source-manifest.json": "efd8b71a2c612a52239e5adbd14a292864f1ed60a23e8156980e5de1fd2c7c1d",
+    "tests/missing_operator_ownership/control.py": "7d26f7ef5cf26f15850230fd0edd4d20854eff0df2f02f639a6732861b758b9d",
+    "tests/numeric_list_ownership/control.py": "acc92ade2f46f0911a5ece1d1691de19a183dc09540afeca1bda4e002b440a5a",
+    "tests/range_ownership/control.py": "59ab9f5bd519e3a36fdb22a3b44d1357134a1456d809076c0d4f5d05619bacc4",
+    "tests/range_ownership/controls.json": "c37f5be4d7db135153d1d317edb61c5ec9dd83885c099a8a16af3c11152aada4",
+    "tests/range_ownership/test_controls.py": "ea9054bfc3bd21bfc3a30d23212e9708001a592ee073ae608dac0772d289c595",
+    "tests/range_ownership/test_receipts.py": "66549c98fb94ee49eafe28e560f5fd4fea9c4170eaff2d8e7e9c474194d26bd8",
+    "tests/range_ownership/test_verify.py": "355afd27b0b830c5b7ced124a26423e3f275a0d8e1299e9906e62cecad513fb6",
+    "tests/range_ownership/verify.py": "68fee00629d5f565befd14ca015b89ca1f2c1f5be3124a32502ccce291f8dbb8"
+  }
+}
