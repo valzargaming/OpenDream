@@ -2,7 +2,7 @@
   "schema": 1,
   "base_commit": "5075c426b2f6f37dccb14b0902bb98780bbd62e1",
   "sources": {
-    ".github/workflows/savefile-resource-bytes.yml": "e730e13b3299d2bccaf1785b6f1718bd87eeb8b358bbe622cfb226c8e237652e",
+    ".github/workflows/savefile-resource-bytes.yml": "f9007e8a8f739e3ed4c41920b6f0e92a94d4f02f9f8a5d65b6315d5979185b48",
     "Content.IntegrationTests/Content.IntegrationTests.csproj": "aa6ae5d2a1b611cd0d456c71c13e555b6bee1a9caef95cb6072ef3ee001988b6",
     "Content.IntegrationTests/ContentIntegrationTest.cs": "11440e100252e5f0c634a160c168cd7bb7646948613425746a84f759413e8ddb",
     "Content.IntegrationTests/DMProject/Fixtures/savefile-resource-bytes.dm": "89dd6f2eb39370a8348a547d8eef60db0a374bc7da3e294a41e86b7567f24d2d",
@@ -25,7 +25,7 @@
     "tests/savefile_resource_bytes/capture.py": "7270c97d5d108f2e2b3dfabf0a4df8fb80a824d232630ad98d5ccc652a285639",
     "tests/savefile_resource_bytes/control.py": "103eb1b8c4108d34440e346e7b75e077256d18249f100574d37a36b3fb505948",
     "tests/savefile_resource_bytes/controls.json": "d387f87c1de79d4146c7a4f5f9e818749ad98c8f592e92b2943c4d434f3906f5",
-    "tests/savefile_resource_bytes/test_controls.py": "c638a4071def8ef362bd2192acf847eed26c9a0543af9583084a8d538d7fb191",
+    "tests/savefile_resource_bytes/test_controls.py": "11e99befefa76f49cd465cc0bedb5b1d0e4a6fbf9cde345ae7278bc0a996e575",
     "tests/savefile_resource_bytes/verify.py": "869e03484dfda87294a87b2e58247e41c828df672c730e73145b6251fee58ae9",
     "tests/string_format_decoder/verify.py": "1e1bf99ca675404f5e40083541ffbffc76351c16a9e26e4760a63493c3debf88",
     "tools/save_cost_profile/control.py": "bcf82199ebe6a87d9e4f1f4a5636e8d7d24506a537ab04139249ccc587269f2e",

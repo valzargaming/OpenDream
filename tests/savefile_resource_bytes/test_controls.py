@@ -99,6 +99,9 @@ class ParserTests(unittest.TestCase):
         with self.assertRaises(AssertionError): self.run_case('hash-only',mutate)
 
 class SourceTests(unittest.TestCase):
+    def test_upload_retains_hidden_prepared_workflow(self):
+        workflow=(control.ROOT/'.github/workflows/savefile-resource-bytes.yml').read_text()
+        self.assertIn('include-hidden-files: true',workflow)
     def test_all_pins(self):
         manifest=json.loads((control.HERE/'source-manifest.json').read_text())
         for path,pin in manifest['sources'].items(): self.assertEqual(control.sha((control.ROOT/path).read_bytes()),pin,path)

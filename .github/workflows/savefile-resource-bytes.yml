@@ -90,5 +90,6 @@ jobs:
         with:
           name: resource-bytes-${{ matrix.mode }}-${{ github.event.pull_request.head.sha || github.sha }}
           path: resource-results/
+          include-hidden-files: true
           if-no-files-found: error
           retention-days: 14
