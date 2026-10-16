@@ -39,6 +39,8 @@ jobs:
         run: |
           python tests/turf_tile_queue/control.py '${{ matrix.mode }}' --head "$EXPECTED_HEAD" --receipt tile-results/source-receipt.json
           python tests/turf_tile_queue/capture.py tile-results
+      - name: Apply pinned trusted client host patch
+        run: python tools/civ13-provenance/prepare-robust.py
       - name: Build with original output
         id: build
         shell: bash

@@ -5,6 +5,9 @@ using OpenDreamRuntime;
 using OpenDreamRuntime.Objects;
 using OpenDreamRuntime.Objects.Types;
 using OpenDreamRuntime.Procs;
+using Robust.Client.NativeByond;
+using OpenDreamShared;
+using Robust.Shared.IoC;
 
 namespace Content.IntegrationTests;
 [TestFixture]
@@ -92,11 +95,27 @@ public sealed partial class GameTests : ContentIntegrationTest {
     /// </summary>
     [Test]
     public async Task NoRuntimesTest() {
-        var (client, server) = await StartConnectedServerClientPair();
+        var clientOptions = new ClientContentIntegrationOption {
+            ContentBeforeIoC = () => {
+                var identity = new NativeIdentityCoordinator(new InjectedNativeObserver());
+                IoCManager.RegisterInstance<NativeIdentityCoordinator>(identity, true);
+            },
+            ContentBeforeConnect = () => {
+                // Observe after the real client Initialize transition clears stale identity.
+                var identity = IoCManager.Resolve<NativeIdentityCoordinator>();
+                identity.Begin();
+                Assert.That(identity.Poll(), Is.True);
+                // The test transport connects directly; mark the same one-use handshake consumed.
+                identity.AuthorizeHandshake(_ => { });
+            }
+        };
+        var serverOptions = new ServerContentIntegrationOption();
+        serverOptions.CVarOverrides[OpenDreamCVars.RequireNativeIdentity.Name] = "true";
+        var (client, server) = await StartConnectedServerClientPair(clientOptions, serverOptions);
         await RunTicksSync(client, server, 1000);
         Assert.That(server.IsAlive);
         var manager = server.ResolveDependency<DreamManager>();
-        // Wait for actual client creation, beyond the asynchronous transport handshake.
+        // Transport connection alone does not establish interface/admission completion.
         var admissionWait = System.Diagnostics.Stopwatch.StartNew();
         var joined = false;
         while (!joined && admissionWait.Elapsed < System.TimeSpan.FromSeconds(15)) {
@@ -108,6 +127,7 @@ public sealed partial class GameTests : ContentIntegrationTest {
         if(manager.LastDMException is not null) {
             Assert.Fail($"Runtime occurred on server boot: {manager.LastDMException}");
         }
+        await server.WaitAssertion(() => NativeIdentityCreatesObservedClient(manager));
         await AsyncReturnsOwnValues(manager, server.ResolveDependency<DreamObjectTree>(),
             server.ResolveDependency<DreamRefManager>(), action => server.WaitAssertion(action),
             ticks => RunTicksSync(client, server, ticks));

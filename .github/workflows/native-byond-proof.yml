@@ -1,0 +1,129 @@
+name: Isolated native identity handoff
+on:
+  pull_request:
+    paths: ['OpenDreamRuntime/NativeByondBridge/**', 'OpenDreamRuntime/DreamManager*.cs', 'OpenDreamRuntime/DreamConnection.cs', 'OpenDreamRuntime/Objects/Types/DreamObjectClient.cs', 'OpenDreamShared/**', 'OpenDreamClient/**', 'Content.IntegrationTests/**', 'tests/native_identity_integration/**', 'tests/native_client_identity/**', 'tests/native_byond_proof/**', 'tools/native-byond-bridge/**', '.github/workflows/native-byond-proof.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    strategy:
+      fail-fast: false
+      matrix:
+        probe: [positive, consume, current, deadline, provider-binding, provider-disposal, channel-replay]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Positive linked admission and observer lifecycle
+        if: matrix.probe == 'positive'
+        run: python tests/native_identity_integration/run.py
+      - name: Reject omitted admission or observation ownership
+        if: matrix.probe != 'positive'
+        run: python tests/native_identity_integration/run.py --control '${{ matrix.probe }}'
+  client-identity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    strategy:
+      fail-fast: false
+      matrix:
+        probe: [positive, name, reuse, reconnect, binding, deadline]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Positive injected native observer probe
+        if: matrix.probe == 'positive'
+        run: python tests/native_client_identity/run.py
+      - name: Reject omitted client identity guard
+        if: matrix.probe != 'positive'
+        run: python tests/native_client_identity/run.py --control '${{ matrix.probe }}'
+  ledger:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    strategy:
+      fail-fast: false
+      matrix:
+        probe: [positive, epoch, replay, disconnect, deadline]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Positive linked-source ledger probe
+        if: matrix.probe == 'positive'
+        run: python tests/native_byond_proof/run.py
+      - name: Reject one omitted ownership or admission guard
+        if: matrix.probe != 'positive'
+        run: python tests/native_byond_proof/run.py --control '${{ matrix.probe }}'
+  native-compile:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Install native BYOND516.1681 compiler dependencies
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo apt-get update
+          sudo apt-get install -y libstdc++6:i386 libgcc-s1:i386 libc6:i386 libcurl4:i386 lib32z1 libncurses6:i386 unzip make
+      - name: Compile standalone native observer with pinned native compiler
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/native-compiler"
+          cd "$RUNNER_TEMP/native-compiler"
+          curl --fail --location --max-time 90 -o byond.zip https://civ13.com/downloads/516.1681_byond_linux.zip
+          sha256sum byond.zip
+          unzip -q byond.zip
+          cd byond
+          make here
+          # The vendor setup reads optional unset environment variables.
+          set +u
+          source bin/byondsetup
+          set -u
+          cd "$GITHUB_WORKSPACE/tools/native-byond-bridge"
+          DreamMaker -max_errors 0 bridge.dme | tee native-compile.log
+          grep -F '516.1681' native-compile.log
+          grep -F '0 errors, 0 warnings' native-compile.log
+          python - <<'PY'
+          import hashlib, json, os, pathlib
+          paths = [pathlib.Path(name) for name in ['bridge.dmb', 'bridge.rsc']]
+          # Resource-free worlds may have no RSC; bind that absence instead of fabricating one.
+          manifest = {'schema': 1, 'byond_version': '516.1681', 'source_commit': os.environ['OBSERVER_SOURCE_SHA'], 'files': {str(p): hashlib.sha256(p.read_bytes()).hexdigest() if p.exists() else None for p in paths}, 'sources': {name: hashlib.sha256(pathlib.Path(name).read_bytes()).hexdigest() for name in ['bridge.dm', 'bridge.dme']}}
+          if manifest['files']['bridge.dmb'] is None:
+              raise SystemExit('Native compiler produced no DMB')
+          pathlib.Path('native-observer.json').write_text(json.dumps(manifest, indent=2) + '\n')
+          PY
+        env:
+          OBSERVER_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-observer-compile-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            tools/native-byond-bridge/native-compile.log
+            tools/native-byond-bridge/native-observer.json
+            tools/native-byond-bridge/bridge.dmb
+            tools/native-byond-bridge/bridge.rsc
+          if-no-files-found: warn

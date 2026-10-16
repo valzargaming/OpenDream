@@ -1,4 +1,6 @@
 using System.Text.RegularExpressions;
+using Robust.Client.NativeByond;
+using Robust.Shared.Timing;
 using Robust.Client;
 using Robust.Client.ResourceManagement;
 using Robust.Client.State;
@@ -19,21 +21,25 @@ public sealed partial class MainMenuState : State {
     [Dependency] private IResourceCache _resourceCache = default!;
     [Dependency] private IConfigurationManager _configurationManager = default!;
     [Dependency] private IGameController _controllerProxy = default!;
+    [Dependency] private NativeIdentityCoordinator _nativeIdentity = default!;
 
     private MainMenuControl _mainMenuControl = default!;
     private bool _isConnecting;
+    private string? _pendingAddress;
+    private bool _handingOff;
 
     // ReSharper disable once InconsistentNaming
     private static readonly Regex IPv6Regex = new(@"\[(.*:.*:.*)](?::(\d+))?");
 
     protected override void Startup() {
         _mainMenuControl = new MainMenuControl(_resourceCache, _configurationManager);
+        if (!string.IsNullOrEmpty(_nativeIdentity.StartupAddress))
+            _mainMenuControl.AddressBox.Text = _nativeIdentity.StartupAddress;
         _userInterfaceManager.StateRoot.AddChild(_mainMenuControl);
 
         _mainMenuControl.QuitButton.OnPressed += QuitButtonPressed;
         _mainMenuControl.ConnectButton.OnPressed += ConnectButtonPressed;
         _mainMenuControl.AddressBox.OnTextEntered += AddressBoxEntered;
-        _mainMenuControl.UserNameBox.OnTextChanged += UsernameBoxChanged;
 
         _client.RunLevelChanged += RunLevelChanged;
     }
@@ -43,10 +49,7 @@ public sealed partial class MainMenuState : State {
         _netManager.ConnectFailed -= _onConnectFailed;
 
         _mainMenuControl.Dispose();
-    }
-
-    private void UsernameBoxChanged(LineEdit.LineEditEventArgs args) {
-        _configurationManager.SetCVar(CVars.PlayerName, _mainMenuControl.UserNameBox.Text);
+        if (!_handingOff) _nativeIdentity.Clear();
     }
 
     private void RunLevelChanged(object? obj, RunLevelChangedEventArgs args) {
@@ -74,29 +77,35 @@ public sealed partial class MainMenuState : State {
     }
 
     private void TryConnect(string address) {
-        var inputName = _mainMenuControl.UserNameBox.Text.Trim();
-        if (!UsernameHelpers.IsNameValid(inputName, out var reason)) {
-            var invalidReason = Loc.GetString(reason.ToText());
-            _userInterfaceManager.Popup(
-                Loc.GetString("main-menu-invalid-username-with-reason", ("invalidReason", invalidReason)),
-                Loc.GetString("main-menu-invalid-username"));
+        if (_isConnecting) return;
+        _setConnectingState(true);
+        _pendingAddress = address;
+        _mainMenuControl.NativeAccount.Text = "Reading logged-in BYOND account...";
+        _nativeIdentity.Begin();
+    }
+
+    public override void FrameUpdate(FrameEventArgs e) {
+        base.FrameUpdate(e);
+        if (_pendingAddress == null || !_nativeIdentity.Poll()) return;
+        var address = _pendingAddress;
+        _pendingAddress = null;
+        if (_nativeIdentity.Identity is not { } report) {
+            _mainMenuControl.NativeAccount.Text = "BYOND identity unavailable";
+            _userInterfaceManager.Popup("Log into BYOND. The native identity bridge must be installed before connecting.", "BYOND account required");
+            _setConnectingState(false);
             return;
         }
-
-        var configName = _configurationManager.GetCVar(CVars.PlayerName);
-        if (_mainMenuControl.UserNameBox.Text != configName) {
-            _configurationManager.SetCVar(CVars.PlayerName, inputName);
-            _configurationManager.SaveToFile();
-        }
-
-        _setConnectingState(true);
+        _mainMenuControl.NativeAccount.Text = report.Key;
         _netManager.ConnectFailed += _onConnectFailed;
         try {
             ParseAddress(address, out var ip, out var port);
+            _handingOff = true;
             _client.ConnectToServer(ip, port);
-        } catch (ArgumentException e) {
-            _userInterfaceManager.Popup($"Unable to connect: {e.Message}", "Connection error.");
-            Logger.GetSawmill("opendream").Warning(e.ToString());
+        } catch (Exception error) when (error is ArgumentException or InvalidOperationException) {
+            _handingOff = false;
+            _nativeIdentity.Clear();
+            _userInterfaceManager.Popup($"Unable to connect: {error.Message}", "Connection error.");
+            Logger.GetSawmill("opendream").Warning(error.ToString());
             _netManager.ConnectFailed -= _onConnectFailed;
             _setConnectingState(false);
         }

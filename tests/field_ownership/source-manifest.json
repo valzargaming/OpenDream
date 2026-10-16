@@ -68,11 +68,11 @@
     }
   ],
   "expected_sources": {
-    ".github/workflows/field-ownership.yml": "f44d979efa95abd77f59fd76073d96bb80507918abdf335f793877ac7eb6dea7",
+    ".github/workflows/field-ownership.yml": "4ba4a12d6e8bb7ab3fdf21a6aaf89ec87a7911ea774383cc2c1183b6b05001e9",
     "Content.IntegrationTests/GameTests.FieldOwnership.cs": "741f63a1b36bf1a84402a3b66bd9b4b414bce53852579d4f0f8d93b3608e4d55",
-    "Content.IntegrationTests/GameTests.cs": "f53a97e17fd7f8f249a2bdb05d3ed8c7b1cfa887e29e490dc6884823668ba27c",
+    "Content.IntegrationTests/GameTests.cs": "8890b994a6b8aae212f414262503e3b45925694f79469f181c0285af8140f25b",
     "OpenDreamRuntime/Procs/DMProc.cs": "90d11d9bd08ccc768cce7c085678594b792758cd822dcc9a2f3d34958ca687fc",
-    "tests/call_ext_ownership/control.py": "1935430e8162a1d2d25f2706bfc540798f996fafc4041147cbcdc881c07b1bf4",
+    "tests/call_ext_ownership/control.py": "abaa7baaf6b29a6acfd0257f78dc103fe7bb03c8166ffdd581e1a4a2f34ae831",
     "tests/field_ownership/control.py": "7df48bfeb248fcc422d42a1f26ee3692b2a04fd0948525ac8412906b08034fd7",
     "tests/field_ownership/controls.json": "f9ce9c3de9cb3096f6f59e16a84f50392bb7d5307775df063264337abec77e79",
     "tests/field_ownership/prepare_control.py": "f68b6c6b265c5586621de7703ef7895bdf068c87b57aa23765369b7d1b02f910",
@@ -80,11 +80,11 @@
     "tests/field_ownership/test_receipts.py": "6b2ac43c380bb8e786a58b76b0c2011593a18ae573ea9da44e587be55035e2cf",
     "tests/field_ownership/test_verify.py": "16e601a94d186a6d02a96ec52d608b30f31c0a2d94c6d4bd2fc01b0502938c4f",
     "tests/field_ownership/verify.py": "c1a7244091ce5a409c221e010a60e57f6eacd3b24c919a1658059b5ff57e7c5e",
-    "tests/missing_operator_ownership/control.py": "ef7052ca814fac0a75f534ba93821a79020a1c8b9f83515c3c1ffc3955d20fac",
-    "tests/numeric_list_ownership/control.py": "20127d2a5fadfbce3ae3561b77b3ba5bb6e2651c07a7527ed6bcc886d4a22104",
+    "tests/missing_operator_ownership/control.py": "d0e911a0e8b2971fe0474e9ce353e3cdf9446cb3add1d99d2bb74b5636c7c442",
+    "tests/numeric_list_ownership/control.py": "9992cac5da97284afe35e1153cc09cc3ea68742aaa3bfe9ba05536039433bb11",
     "tests/field_ownership/fixtures/nunit-aggregate-messages.json": "f04223141d2e1d8e83c77517989cd75dab8af0627fa51a5e96678980c6a2eedb",
     "tests/index_read_ownership/controls.json": "f0ab8eb3f06adfea15f7185d274da0c6f7d6c58f9232f9816dbc27269d1b9d44",
-    "tests/list_pool_capacity/dependency_composition.py": "0b58dedd30ff517e2e22408fa43fcb36d6d5f1e936a8906013411aa8f37473fe",
+    "tests/list_pool_capacity/dependency_composition.py": "0594a22bd61c16e1fda2a61a788fafda04276c65582fde6295294d62ae5f5f60",
     "tests/list_pool_capacity/frozen_dependencies/list-original.cs": "c5c3baed5e30333ce63fcd38e2be40d5b3cc07bda4c900171e8da84d0a588e55",
     "tests/list_pool_capacity/frozen_dependencies/numeric-original.py": "acc92ade2f46f0911a5ece1d1691de19a183dc09540afeca1bda4e002b440a5a",
     "tests/list_pool_capacity/frozen_dependencies/numeric-composed.py": "20127d2a5fadfbce3ae3561b77b3ba5bb6e2651c07a7527ed6bcc886d4a22104",
@@ -101,15 +101,15 @@
   "dependency_compositions": {
     "tests/numeric_list_ownership/control.py": {
       "original_sha256": "acc92ade2f46f0911a5ece1d1691de19a183dc09540afeca1bda4e002b440a5a",
-      "candidate_sha256": "20127d2a5fadfbce3ae3561b77b3ba5bb6e2651c07a7527ed6bcc886d4a22104",
+      "candidate_sha256": "9992cac5da97284afe35e1153cc09cc3ea68742aaa3bfe9ba05536039433bb11",
       "original_commit": "8b46fd2a6dda5095df1d0fc8db7fd029cd186ba4",
-      "composition_commit": "12fc9410a7f68b89d2dd796fa9f77900bbb076d1"
+      "composition_commit": "7497005929f2972efd112fd792b873a06ca1364a"
     },
     "tests/missing_operator_ownership/control.py": {
       "original_sha256": "a30b8e1f59f23e34288340651d279c198913f3e11039ec593b2317ce0a6c7497",
-      "candidate_sha256": "ef7052ca814fac0a75f534ba93821a79020a1c8b9f83515c3c1ffc3955d20fac",
+      "candidate_sha256": "d0e911a0e8b2971fe0474e9ce353e3cdf9446cb3add1d99d2bb74b5636c7c442",
       "original_commit": "53554597f7b594ea8a75570240d69d7d3003d56f",
-      "composition_commit": "8b46fd2a6dda5095df1d0fc8db7fd029cd186ba4"
+      "composition_commit": "7497005929f2972efd112fd792b873a06ca1364a"
     }
   }
 }

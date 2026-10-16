@@ -41,6 +41,8 @@ jobs:
           cp OpenDreamRuntime/Procs/DMOpcodeHandlers.cs Content.IntegrationTests/AssocListConstructionTests.cs Content.IntegrationTests/DMProject/Fixtures/assoc-list-construction.dm assoc-results/prepared-source/
           sha256sum assoc-results/prepared-source/* > assoc-results/prepared-source-sha256.txt
           python tests/assoc_list_construction/warning_coordinates.py --capture assoc-results/warning-source
+      - name: Apply pinned trusted client host patch
+        run: python tools/civ13-provenance/prepare-robust.py
       - name: Full build with original log
         shell: bash
         run: |

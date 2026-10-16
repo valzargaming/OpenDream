@@ -34,6 +34,7 @@ public sealed partial class DreamConnection {
     [ViewVariables] public ICommonSession? Session { get; private set; }
     [ViewVariables] public DreamObjectClient? Client { get; private set; }
     [ViewVariables] public string Key { get; }
+    public string? NativeComputerId { get; }
 
     [ViewVariables] public DreamObjectMob? Mob {
         get => _mob;
@@ -100,9 +101,10 @@ public sealed partial class DreamConnection {
         }
     }
 
-    public DreamConnection(string key) {
+    public DreamConnection(string key, string? nativeComputerId = null) {
         IoCManager.InjectDependencies(this);
         Key = key;
+        NativeComputerId = nativeComputerId;
 
         _entitySystemManager.TryGetEntitySystem(out _screenOverlaySystem);
         _entitySystemManager.TryGetEntitySystem(out _clientImagesSystem);

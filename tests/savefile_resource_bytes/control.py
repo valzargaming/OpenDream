@@ -36,8 +36,12 @@ def mutate(raw, mode, spec):
 
 def prepare(root, mode, head, receipt, verify=False):
     assert mode in MODES and git(root, 'rev-parse', 'HEAD').decode().strip() == head
-    changed = git(root, 'diff', '--name-only', 'HEAD').decode().splitlines()
-    assert set(changed) <= ({MANAGER, SAVEFILE} if verify else set()), 'unreviewed tracked changes'
+    changed = git(root, 'diff', '--ignore-submodules=none', '--name-only', 'HEAD').decode().splitlines()
+    allowed = {MANAGER, SAVEFILE} if verify else set()
+    assert set(changed) <= allowed | {'RobustToolbox'}, 'unreviewed changes'
+    if 'RobustToolbox' in changed:
+        import runpy
+        runpy.run_path(str(root/'tools/civ13-provenance/prepare-robust.py'))['verify_root_changes'](root, changed, allowed)
     manifest_path = root/'tests/savefile_resource_bytes/source-manifest.json'
     raw_manifest = manifest_path.read_bytes()
     assert raw_manifest == git(root, 'cat-file', 'blob', head+':tests/savefile_resource_bytes/source-manifest.json')

@@ -40,6 +40,8 @@ jobs:
         env:
           EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
         run: python tests/index_read_ownership/control.py '${{ matrix.mode }}' --expected-head "$EXPECTED_HEAD" --receipt index-read-results/source-receipt.json
+      - name: Apply pinned trusted client host patch
+        run: python tools/civ13-provenance/prepare-robust.py
       - name: Verify SDK and full build
         run: |
           test "$(dotnet --version)" = '10.0.401'

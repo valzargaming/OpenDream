@@ -11,9 +11,9 @@
                               HorizontalAlignment="Center">
                     <BoxContainer Orientation="Horizontal"
                                   SeparationOverride="4">
-                        <Label Text="Username: " FontColorOverride="#FFFFFF"/>
-                        <LineEdit Name="UsernameBoxProtected"
-                                  PlaceHolder="JoeGenero"
+                        <Label Text="BYOND account: " FontColorOverride="#FFFFFF"/>
+                        <Label Name="NativeAccountProtected"
+                                  Text="Log into BYOND to connect"
                                   HorizontalExpand="True" />
                     </BoxContainer>
                     <Control MinSize="0 2" />
@@ -25,6 +25,8 @@
                                   HorizontalExpand="True" />
                     </BoxContainer>
                     <Control MinSize="0 2" />
+                    <Label Text="Connect opens a temporary BYOND world." />
+                    <Label Text="This may leave your current BYOND game." />
                     <Button Name="ConnectButtonProtected"
                             Text="Connect"
                             TextAlign="Center" />

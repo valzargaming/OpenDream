@@ -16,7 +16,7 @@ CANDIDATE_HASH = '1d3006d536a0ae846ed4aaebf42256c45baea7af44de91f3b1b475f23945a5
 COMPOSED_BASELINE_HASH = '442cde807cb325e745efb05f6f6f4dc16d6f3ef565b7588c6f1978c5c6475b0f'
 INITSPAWN_HISTORICAL = b'            Initialize(creationArguments);\n            creationArguments.Dispose();\n'
 INITSPAWN_REVIEWED = b'            try {\n                Initialize(creationArguments);\n            } finally {\n                creationArguments.Dispose();\n            }\n'
-FIXTURE_HASHES = {'Content.IntegrationTests/GameTests.cs': 'f53a97e17fd7f8f249a2bdb05d3ed8c7b1cfa887e29e490dc6884823668ba27c', 'Content.IntegrationTests/GameTests.MissingOperators.cs': '6889e1105578334707162f77f8b04d737e26e2c3f90944001545480b2d5f46a1', 'Content.IntegrationTests/DMProject/code.dm': '446623e93b65fd8ca3a5d1ca9fe219cf8ca0ef909e97321489dc389dd051d840', 'tests/native_argument_ownership/verify.py': 'ff9ba7da2224604cd45d170e15aa3131061ef7aef56a367ea93f204e278be960'}
+FIXTURE_HASHES = {'Content.IntegrationTests/GameTests.cs': '8890b994a6b8aae212f414262503e3b45925694f79469f181c0285af8140f25b', 'Content.IntegrationTests/GameTests.MissingOperators.cs': '6889e1105578334707162f77f8b04d737e26e2c3f90944001545480b2d5f46a1', 'Content.IntegrationTests/DMProject/code.dm': '446623e93b65fd8ca3a5d1ca9fe219cf8ca0ef909e97321489dc389dd051d840', 'tests/native_argument_ownership/verify.py': 'ff9ba7da2224604cd45d170e15aa3131061ef7aef56a367ea93f204e278be960'}
 OPTIONS = {
     'baseline': dict(marker='Supported operator releases payload owner: operator_multiply_fallback_probe', expected=1, actual=2),
     'missing-dispose': dict(marker='Supported operator releases payload owner: operator_divide_fallback_probe', expected=1, actual=2),

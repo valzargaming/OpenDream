@@ -9,12 +9,21 @@ LIST_HEAD = '12fc9410a7f68b89d2dd796fa9f77900bbb076d1'
 CACHE_HEAD = '383c5c98b3a1a4a4cd28ae029a624fbf00190cad'
 LIST = 'OpenDreamRuntime/Objects/Types/DreamList.cs'
 NUMERIC = 'tests/numeric_list_ownership/control.py'
+# The reviewed native-identity integration only extends the shared test driver.
+# Keep the frozen pool/cache compositions intact and layer this exact fixture pin.
+IDENTITY_FIXTURE_COMMIT = '7497005929f2972efd112fd792b873a06ca1364a'
+IDENTITY_FIXTURE_PREVIOUS = b'f53a97e17fd7f8f249a2bdb05d3ed8c7b1cfa887e29e490dc6884823668ba27c'
+IDENTITY_FIXTURE_CURRENT = b'8890b994a6b8aae212f414262503e3b45925694f79469f181c0285af8140f25b'
 CAP_DECL = b'    // Bound idle backing storage without limiting the size of live DM lists.\n    private const int MaximumPooledCapacity = 65_536;\n'
 POOL_DECL = b'    private static readonly Stack<List<DreamValue>> ListPool = new();\n'
 OLD_GUARD = b'_values.Capacity > DreamManager.ListPoolThreshold && ListPool.Count < DreamManager.ListPoolSize'
 CAP_GUARD = b'_values.Capacity > DreamManager.ListPoolThreshold && _values.Capacity <= MaximumPooledCapacity\n            && ListPool.Count < DreamManager.ListPoolSize'
 
 def sha(raw): return hashlib.sha256(raw).hexdigest()
+
+def identity_fixture_pin(raw):
+    assert raw.count(IDENTITY_FIXTURE_PREVIOUS) == 1, 'native identity fixture pin is not unique'
+    return raw.replace(IDENTITY_FIXTURE_PREVIOUS, IDENTITY_FIXTURE_CURRENT, 1)
 
 def frozen():
     values = {name:(HERE/'frozen_dependencies'/name).read_bytes().replace(b'\r\n',b'\n') for name in FROZEN_HASHES}
@@ -31,9 +40,9 @@ def compositions():
     return {
         # Prior accepted fixture-only compositions; frozen originals remain bound.
         'Content.IntegrationTests/Content.IntegrationTests.csproj':(values['project-original.txt'],values['project-composed.txt'],'4e6e4c4dd523230ca94ffe39d04812592a3b8615',BASE),
-        'tests/missing_operator_ownership/control.py':(values['missing-original.py'],values['missing-composed.py'],'53554597f7b594ea8a75570240d69d7d3003d56f',BASE),
+        'tests/missing_operator_ownership/control.py':(values['missing-original.py'],identity_fixture_pin(values['missing-composed.py']),'53554597f7b594ea8a75570240d69d7d3003d56f',IDENTITY_FIXTURE_COMMIT),
         LIST:(original,composed,BASE,LIST_HEAD),
-        NUMERIC:(values['numeric-original.py'],values['numeric-composed.py'],BASE,LIST_HEAD),
+        NUMERIC:(values['numeric-original.py'],identity_fixture_pin(values['numeric-composed.py']),BASE,IDENTITY_FIXTURE_COMMIT),
         '.gitattributes':(cached,listed+cached[len(base):],CACHE_HEAD,LIST_HEAD),
     }
 

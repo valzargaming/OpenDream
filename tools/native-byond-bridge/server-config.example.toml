@@ -1,0 +1,3 @@
+[opendream]
+# Explicit server-side activation; compilation/tests do not authorize production activation.
+require_native_identity = true

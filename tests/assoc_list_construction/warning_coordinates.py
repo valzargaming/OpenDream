@@ -4,12 +4,15 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 ORIGINAL = '52df08ee4e5711df1c3fd5e907c81f87a986e371'
-CANDIDATE = '90fbbd647817cee18d3fdc6804d216573db13b56'
+CANDIDATE = '7497005929f2972efd112fd792b873a06ca1364a'
 SOURCES = {
     'OpenDreamRuntime/Objects/Types/DreamList.cs': ('c5c3baed5e30333ce63fcd38e2be40d5b3cc07bda4c900171e8da84d0a588e55', '380196bc158ade1044094bb414b46bb36266e43e6f6cff5bfa12c9b6e6edb156'),
     'OpenDreamRuntime/Objects/Types/DreamObjectSavefile.cs': ('151a92e3a2691adf0a85787fa15dbe9ff669f4a94309019d6e7e523993b8ee6d', '565b7d86e547ddf96d28cc33ef85e38bde0c771da69d7f2a88807f805395547f'),
     'OpenDreamRuntime/Resources/DreamResourceManager.cs': ('88afaba4893e4a64904328483c02b091867087f3ef4e79848d32045e6b204ea4', 'ad62b66bfa26039da65ce38ae282d9edefb9fd7392877ae4dcd765f4c9ad84a3'),
     'OpenDreamRuntime/Map/DreamMapManager.cs': ('e50c7257001405285ab0ebc6293cb5f971dc603a3ab6e480bebcabf13b813c09', '7756a5276f625fc8c66a6dc30005212054888462c4040f51f8c4ff648d73bf59'),
+    'OpenDreamClient/States/MainMenu/MainMenuState.cs': ('7cb075f3678beee6f7279a447caf9cdcaf0b54ccba349538c73b6fa9f4e8c4c6', 'f99c51f12f148e9e62eae679c7d22765bfbdd8f0308f3dd1ccd2fd7fd3c38384'),
+    'OpenDreamRuntime/DreamConnection.cs': ('09c684570619c69b1d582ca1a3621ac407154eeb2a8a3442bd29193de04daefa', '5938f66866b911f268db30d96d44b1554718befa5697c118d4edebf537215453'),
+    'OpenDreamRuntime/DreamManager.cs': ('a5f27183dc4013ce2f23cb10934ec330339501065d133ac388b385f152de19f7', '973ba18d864b81da6621aac71c10d6df24715d36a06a0ffaafa199fee79788ea'),
 }
 
 def sha(raw): return hashlib.sha256(raw).hexdigest()
