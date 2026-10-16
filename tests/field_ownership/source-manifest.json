@@ -1,0 +1,115 @@
+{
+  "base_commit": "2e057d36085b0a26d7993f5f8468a8b2c7d1a921",
+  "original_inputs": [
+    {
+      "path": "OpenDreamRuntime/Procs/DMProc.cs",
+      "sha256": "ea9ca339c3a4d04b89a1f9e1e414316d64bd47660e055d1c49345b9eeaebf014",
+      "git_blob_oid": "8e054633731941aa112735cd2f75995bfc2ed903"
+    },
+    {
+      "path": "OpenDreamRuntime/DreamReference.cs",
+      "sha256": "b43b3e273becf892baf421da00814c8a98be6fc0219ab58be4bdb26f3db848e4",
+      "git_blob_oid": "c9cace39fae5998b8a416a7fc02eff7fe0eaf685"
+    },
+    {
+      "path": "OpenDreamRuntime/Objects/DreamObject.cs",
+      "sha256": "0338a6aaa6a8b1391bb2240117756076c2ee23809308dc078c04659fe72b7ed4",
+      "git_blob_oid": "5d8d64922d3195a2ec7b1afa3ed18242786648ed"
+    },
+    {
+      "path": "OpenDreamRuntime/Objects/DreamRefManager.cs",
+      "sha256": "b3865a4e99022445794fb19bf0f14d57c17d1c811748c55d8fe19388d2698697",
+      "git_blob_oid": "838613051d5a1086c597b3ecba58995c0c50697c"
+    },
+    {
+      "path": "OpenDreamRuntime/Objects/DreamObjectTree.cs",
+      "sha256": "857c77edd837c0d470c49e49ac79ced31c192c8df09cd1ee2fd21d0dfbc0c550",
+      "git_blob_oid": "5f8ad12c962930a162867baae108f8db906efaf8"
+    },
+    {
+      "path": "OpenDreamRuntime/DreamThread.cs",
+      "sha256": "57099ffb22c3426183d5ede75cd9c7dc0bddbfd850549df6dfa50c164e5dc082",
+      "git_blob_oid": "e5c5aaf7668af42c4c10a9799fa84c5c1a964766"
+    },
+    {
+      "path": "DMCompiler/Json/DreamProcJson.cs",
+      "sha256": "68d79aae26dfec8af96414c0489f158e3052f86f62b06445503f35eb3fc1d467",
+      "git_blob_oid": "eb9f4a0ebcf3ddc73a521808c9197bab13a7a048"
+    },
+    {
+      "path": "Content.Tests/DMTests.cs",
+      "sha256": "0b5f491c4e7bb1953f89d3911c6b7762fe92a2ecacd78dd27cd7d6429e3bc4a7",
+      "git_blob_oid": "38f7a956d51b3efb2af420efe00a041510e0a315"
+    },
+    {
+      "path": "Content.Tests/ContentUnitTest.cs",
+      "sha256": "d4dd84a080d7c32998c20f24d780c2acc5fb2fd8d91dafd08be1ed4959d58e3b",
+      "git_blob_oid": "b309b09f7316d6f75bdac0de9f2c029881b2add8"
+    },
+    {
+      "path": "Content.Tests/DMProject/environment.dme",
+      "sha256": "2e60e80a9951cc7366f2550e371e5f7a8aed261790b6896675ecf682ad1ca5d0",
+      "git_blob_oid": "d7ac113690b1d6eb17ffacb755f4407727d42b36"
+    },
+    {
+      "path": "Content.IntegrationTests/GameTests.cs",
+      "sha256": "2e57e4ee43f384647721017b1123d8a155a5a5e7660c7d9f60d5dc86841b35f3",
+      "git_blob_oid": "73327575143f6bd09f4849cd7e0c95d38c8a2c42"
+    },
+    {
+      "path": "tests/call_ext_ownership/control.py",
+      "sha256": "a0cc0d13a974c3defd41a8a9e2b354d8f2b9399303abb216e719089fe4c3323f",
+      "git_blob_oid": "b1a26656bd9a9013052dc0e5b34ef9607b1b04e9"
+    },
+    {
+      "path": "tests/missing_operator_ownership/control.py",
+      "sha256": "630e4dff09f4ebedf788c0a041d93b23385662035ebf12f2752d5f86f3561f31",
+      "git_blob_oid": "728983ac442ff3e9a27d1490360cf859dd540d05"
+    }
+  ],
+  "expected_sources": {
+    ".github/workflows/field-ownership.yml": "f44d979efa95abd77f59fd76073d96bb80507918abdf335f793877ac7eb6dea7",
+    "Content.IntegrationTests/GameTests.FieldOwnership.cs": "741f63a1b36bf1a84402a3b66bd9b4b414bce53852579d4f0f8d93b3608e4d55",
+    "Content.IntegrationTests/GameTests.cs": "f53a97e17fd7f8f249a2bdb05d3ed8c7b1cfa887e29e490dc6884823668ba27c",
+    "OpenDreamRuntime/Procs/DMProc.cs": "90d11d9bd08ccc768cce7c085678594b792758cd822dcc9a2f3d34958ca687fc",
+    "tests/call_ext_ownership/control.py": "1935430e8162a1d2d25f2706bfc540798f996fafc4041147cbcdc881c07b1bf4",
+    "tests/field_ownership/control.py": "7df48bfeb248fcc422d42a1f26ee3692b2a04fd0948525ac8412906b08034fd7",
+    "tests/field_ownership/controls.json": "f9ce9c3de9cb3096f6f59e16a84f50392bb7d5307775df063264337abec77e79",
+    "tests/field_ownership/prepare_control.py": "f68b6c6b265c5586621de7703ef7895bdf068c87b57aa23765369b7d1b02f910",
+    "tests/field_ownership/test_controls.py": "6ea5e8e2812c02922494dc88b3a89adffacb8f4f8c995759bf10da82bb485368",
+    "tests/field_ownership/test_receipts.py": "6b2ac43c380bb8e786a58b76b0c2011593a18ae573ea9da44e587be55035e2cf",
+    "tests/field_ownership/test_verify.py": "16e601a94d186a6d02a96ec52d608b30f31c0a2d94c6d4bd2fc01b0502938c4f",
+    "tests/field_ownership/verify.py": "c1a7244091ce5a409c221e010a60e57f6eacd3b24c919a1658059b5ff57e7c5e",
+    "tests/missing_operator_ownership/control.py": "ef7052ca814fac0a75f534ba93821a79020a1c8b9f83515c3c1ffc3955d20fac",
+    "tests/numeric_list_ownership/control.py": "20127d2a5fadfbce3ae3561b77b3ba5bb6e2651c07a7527ed6bcc886d4a22104",
+    "tests/field_ownership/fixtures/nunit-aggregate-messages.json": "f04223141d2e1d8e83c77517989cd75dab8af0627fa51a5e96678980c6a2eedb",
+    "tests/index_read_ownership/controls.json": "f0ab8eb3f06adfea15f7185d274da0c6f7d6c58f9232f9816dbc27269d1b9d44",
+    "tests/list_pool_capacity/dependency_composition.py": "0b58dedd30ff517e2e22408fa43fcb36d6d5f1e936a8906013411aa8f37473fe",
+    "tests/list_pool_capacity/frozen_dependencies/list-original.cs": "c5c3baed5e30333ce63fcd38e2be40d5b3cc07bda4c900171e8da84d0a588e55",
+    "tests/list_pool_capacity/frozen_dependencies/numeric-original.py": "acc92ade2f46f0911a5ece1d1691de19a183dc09540afeca1bda4e002b440a5a",
+    "tests/list_pool_capacity/frozen_dependencies/numeric-composed.py": "20127d2a5fadfbce3ae3561b77b3ba5bb6e2651c07a7527ed6bcc886d4a22104",
+    "tests/list_pool_capacity/frozen_dependencies/attributes-base.txt": "bc56fc6d4eccdb7efc0a9d3e89ac0fcc5945ec22c2749c0ef5038f3d672500a5",
+    "tests/list_pool_capacity/frozen_dependencies/attributes-list.txt": "fdb9c3c71829da1aca39dcbc6ab59bc82ba552872b3401afcadc02beabea4cfc",
+    "tests/list_pool_capacity/frozen_dependencies/attributes-cache.txt": "58af3dc05d8ab0532982e769ad40ec02b51cfcd648fc4faac9f5884c3f2d2a4d",
+    "tests/list_pool_capacity/frozen_dependencies/project-original.txt": "aeaee5ef044c58f1c79da81a3ad2a4efd3f0583c577aa19af16a711d1828706f",
+    "tests/list_pool_capacity/frozen_dependencies/project-composed.txt": "7d2ed2e3871ebe160b8b2324d980ea9192725b226dca2d1d752236ae490114a3",
+    "tests/list_pool_capacity/frozen_dependencies/missing-original.py": "a30b8e1f59f23e34288340651d279c198913f3e11039ec593b2317ce0a6c7497",
+    "tests/list_pool_capacity/frozen_dependencies/missing-composed.py": "ef7052ca814fac0a75f534ba93821a79020a1c8b9f83515c3c1ffc3955d20fac"
+  },
+  "integration_base": "8a19c5737ac4b47d8fbb6367897c5dafc132c1a0",
+  "integration_note": "Preserves tested numeric-list hook and refreshes all three shared fixture pins; field production unchanged from reviewed-v2",
+  "dependency_compositions": {
+    "tests/numeric_list_ownership/control.py": {
+      "original_sha256": "acc92ade2f46f0911a5ece1d1691de19a183dc09540afeca1bda4e002b440a5a",
+      "candidate_sha256": "20127d2a5fadfbce3ae3561b77b3ba5bb6e2651c07a7527ed6bcc886d4a22104",
+      "original_commit": "8b46fd2a6dda5095df1d0fc8db7fd029cd186ba4",
+      "composition_commit": "12fc9410a7f68b89d2dd796fa9f77900bbb076d1"
+    },
+    "tests/missing_operator_ownership/control.py": {
+      "original_sha256": "a30b8e1f59f23e34288340651d279c198913f3e11039ec593b2317ce0a6c7497",
+      "candidate_sha256": "ef7052ca814fac0a75f534ba93821a79020a1c8b9f83515c3c1ffc3955d20fac",
+      "original_commit": "53554597f7b594ea8a75570240d69d7d3003d56f",
+      "composition_commit": "8b46fd2a6dda5095df1d0fc8db7fd029cd186ba4"
+    }
+  }
+}

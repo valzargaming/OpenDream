@@ -1,0 +1,94 @@
+name: Associative list construction ownership
+on:
+  pull_request:
+    paths:
+      - OpenDreamRuntime/Procs/DMOpcodeHandlers.cs
+      - Content.IntegrationTests/AssocListConstructionTests.cs
+      - Content.IntegrationTests/DMProject/Fixtures/assoc-list-construction.dm
+      - tests/assoc_list_construction/**
+      - .github/workflows/assoc-list-construction.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  assoc-list-construction:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [positive, baseline, timing-negative]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          submodules: recursive
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.401
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Pure source and evidence verifier controls
+        run: python -m unittest discover -s tests/assoc_list_construction -p 'test_*.py' -v
+      - name: Verify exact committed sources and freeze control preparation
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          python tests/assoc_list_construction/control.py '${{ matrix.mode }}' --expected-head "$EXPECTED_HEAD" --receipt assoc-results/source-receipt.json
+          mkdir -p assoc-results/prepared-source
+          cp OpenDreamRuntime/Procs/DMOpcodeHandlers.cs Content.IntegrationTests/AssocListConstructionTests.cs Content.IntegrationTests/DMProject/Fixtures/assoc-list-construction.dm assoc-results/prepared-source/
+          sha256sum assoc-results/prepared-source/* > assoc-results/prepared-source-sha256.txt
+          python tests/assoc_list_construction/warning_coordinates.py --capture assoc-results/warning-source
+      - name: Full build with original log
+        shell: bash
+        run: |
+          test "$(dotnet --version)" = '10.0.401'
+          dotnet --info > assoc-results/sdk-info.log
+          set +e
+          dotnet build OpenDream.slnx --configuration Release --property WarningLevel=4 -m:1 -p:UseSharedCompilation=false --disable-build-servers > assoc-results/build.log 2>&1
+          code=$?
+          set -e
+          printf '%s\n' "$code" > assoc-results/build-exit-code.txt
+          tail -80 assoc-results/build.log
+          test "$code" = 0
+          sha256sum bin/Content.IntegrationTests/Content.IntegrationTests.dll bin/Content.IntegrationTests/Content.IntegrationTests.pdb OpenDreamRuntime/bin/Release/net10.0/OpenDreamRuntime.dll OpenDreamRuntime/bin/Release/net10.0/OpenDreamRuntime.pdb > assoc-results/binary-sha256.txt
+          mkdir -p assoc-results/binaries
+          cp bin/Content.IntegrationTests/Content.IntegrationTests.dll bin/Content.IntegrationTests/Content.IntegrationTests.pdb OpenDreamRuntime/bin/Release/net10.0/OpenDreamRuntime.dll OpenDreamRuntime/bin/Release/net10.0/OpenDreamRuntime.pdb assoc-results/binaries/
+      - name: Dedicated engine fixture and strict result classification
+        shell: bash
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set +e
+          COMPlus_gcServer=1 dotnet test Content.IntegrationTests/Content.IntegrationTests.csproj --configuration Release --no-build --filter 'FullyQualifiedName=Content.IntegrationTests.AssocListConstructionTests.RejectedConstructionReleasesOwners' --logger 'trx;LogFileName=assoc.trx' --results-directory assoc-results -v n -- NUnit.ExplicitMode=Relaxed > assoc-results/assoc.log 2>&1
+          code=$?
+          set -e
+          printf '%s\n' "$code" > assoc-results/test-exit-code.txt
+          tail -80 assoc-results/assoc.log
+          python tests/assoc_list_construction/control.py '${{ matrix.mode }}' --expected-head "$EXPECTED_HEAD" --receipt assoc-results/source-receipt.json --verify
+          python tests/assoc_list_construction/verify.py assoc-results/assoc.trx '${{ matrix.mode }}' "$code" --log assoc-results/assoc.log
+      - name: Unchanged game and savefile lifecycle in separate test host
+        shell: bash
+        run: |
+          set +e
+          COMPlus_gcServer=1 dotnet test Content.IntegrationTests/Content.IntegrationTests.csproj --configuration Release --no-build --filter 'FullyQualifiedName=Content.IntegrationTests.GameTests.NoRuntimesTest' --logger 'trx;LogFileName=runtime.trx' --results-directory assoc-results -v n > assoc-results/runtime.log 2>&1
+          code=$?
+          set -e
+          printf '%s\n' "$code" > assoc-results/runtime-exit-code.txt
+          tail -60 assoc-results/runtime.log
+          python tests/string_format_decoder/verify.py assoc-results/runtime.trx positive "$code" --log assoc-results/runtime.log --runtime
+      - name: Preserve byte-exact original logs in bounded archive
+        if: always()
+        run: python tests/assoc_list_construction/archive_logs.py --results assoc-results --allow-incomplete
+      - name: Replay strict classifiers from archived original bytes
+        if: success()
+        run: python tests/assoc_list_construction/archive_logs.py --results assoc-results --replay --mode '${{ matrix.mode }}'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: assoc-list-construction-${{ matrix.mode }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: assoc-results/
+          if-no-files-found: error
+          retention-days: 14

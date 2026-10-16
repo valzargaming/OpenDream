@@ -6,12 +6,15 @@
     <IsPackable>false</IsPackable>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <LangVersion>12</LangVersion>
+    <DefineConstants Condition="'$(SaveCostHostProfile)' == 'true'">$(DefineConstants);SAVECOST_PROFILE</DefineConstants>
     <NoWarn>NU1507</NoWarn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <RootNamespace>Content.IntegrationTests</RootNamespace>
     <AssemblyName>Content.IntegrationTests</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
+    <!-- Historical profiling builds remove the profiler from production sources. -->
+    <Compile Remove="ResourceOutputAllocationTests.cs" Condition="'$(SaveCostHostOriginal)' == 'true'" />
     <PackageReference Include="coverlet.collector">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

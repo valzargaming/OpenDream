@@ -1,0 +1,71 @@
+name: Save cost profile immutable Windows host
+on:
+  pull_request:
+    paths:
+      - 'OpenDreamRuntime/Objects/Types/DreamObjectSavefile.cs'
+      - 'OpenDreamRuntime/Resources/DreamResource.cs'
+      - 'OpenDreamRuntime/Resources/SaveCostProfile.cs'
+      - 'Content.IntegrationTests/SaveCostProfileHostTests.cs'
+      - 'Content.IntegrationTests/Smoke.cs'
+      - 'Content.IntegrationTests/Content.IntegrationTests.csproj'
+      - 'tools/save_cost_profile/**'
+      - '.github/workflows/save-cost-profile.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  host:
+    runs-on: windows-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [positive, original]
+    env:
+      EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+      DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+      MSBUILDDISABLENODEREUSE: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          submodules: recursive
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.401'
+      - uses: actions/setup-python@v5
+        id: python
+        with:
+          python-version: '3.13'
+      - name: Pure verifier adversaries
+        run: |
+          & '${{ steps.python.outputs.python-path }}' -m unittest discover -s tools/save_cost_profile -p 'test_*.py' -v
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Exact-head source and immutable baseline preparation
+        run: |
+          & '${{ steps.python.outputs.python-path }}' tools/save_cost_profile/control.py prepare '${{ matrix.mode }}' --expected-head "$env:EXPECTED_HEAD" --receipt save-cost-results/source-receipt.json
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Full pinned engine build and binary hashes
+        run: |
+          & '${{ steps.python.outputs.python-path }}' tools/save_cost_profile/ci.py build '${{ matrix.mode }}' --results save-cost-results
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Dedicated fixtures and three workload trials per mode
+        run: |
+          & '${{ steps.python.outputs.python-path }}' tools/save_cost_profile/control.py run-suite '${{ matrix.mode }}' --expected-head "$env:EXPECTED_HEAD" --receipt save-cost-results/source-receipt.json
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Ordinary NoRuntimes in a separate fresh host
+        run: |
+          & '${{ steps.python.outputs.python-path }}' tools/save_cost_profile/ci.py no-runtimes '${{ matrix.mode }}' --results save-cost-results
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Bounded runnable package and copied-artifact probe
+        run: |
+          & '${{ steps.python.outputs.python-path }}' tools/save_cost_profile/ci.py package '${{ matrix.mode }}' --results save-cost-results
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: save-cost-windows-${{ matrix.mode }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: save-cost-results/
+          if-no-files-found: error
+          retention-days: 14

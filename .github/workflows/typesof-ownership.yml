@@ -1,0 +1,92 @@
+name: Typesof result ownership
+on:
+  pull_request:
+    paths:
+      - OpenDreamRuntime/Procs/Native/DreamProcNativeRoot.cs
+      - Content.IntegrationTests/TypesOfOwnershipTests.cs
+      - Content.IntegrationTests/DMProject/Fixtures/typesof-ownership.dm
+      - tests/typesof_ownership/**
+      - .github/workflows/typesof-ownership.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  typesof-ownership:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [positive, baseline]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          submodules: recursive
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.401
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Pure source and evidence verifier controls
+        run: python -m unittest discover -s tests/typesof_ownership -p 'test_*.py' -v
+      - name: Verify exact committed sources and freeze control preparation
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          python tests/typesof_ownership/control.py '${{ matrix.mode }}' --expected-head "$EXPECTED_HEAD" --receipt typesof-results/source-receipt.json
+          mkdir -p typesof-results/prepared-source
+          cp OpenDreamRuntime/Procs/Native/DreamProcNativeRoot.cs Content.IntegrationTests/TypesOfOwnershipTests.cs Content.IntegrationTests/DMProject/Fixtures/typesof-ownership.dm typesof-results/prepared-source/
+          sha256sum typesof-results/prepared-source/* > typesof-results/prepared-source-sha256.txt
+      - name: Full build with original log
+        id: build
+        shell: bash
+        run: |
+          test "$(dotnet --version)" = '10.0.401'
+          dotnet --info > typesof-results/sdk-info.log
+          set +e
+          dotnet build OpenDream.slnx --configuration Release --property WarningLevel=4 -m:1 -p:UseSharedCompilation=false --disable-build-servers > typesof-results/build.log 2>&1
+          code=$?
+          set -e
+          printf '%s\n' "$code" > typesof-results/build-exit-code.txt
+          tail -80 typesof-results/build.log
+          test "$code" = 0
+          sha256sum bin/Content.IntegrationTests/Content.IntegrationTests.dll bin/Content.IntegrationTests/Content.IntegrationTests.pdb OpenDreamRuntime/bin/Release/net10.0/OpenDreamRuntime.dll OpenDreamRuntime/bin/Release/net10.0/OpenDreamRuntime.pdb > typesof-results/binary-sha256.txt
+          mkdir -p typesof-results/binaries
+          cp bin/Content.IntegrationTests/Content.IntegrationTests.dll bin/Content.IntegrationTests/Content.IntegrationTests.pdb OpenDreamRuntime/bin/Release/net10.0/OpenDreamRuntime.dll OpenDreamRuntime/bin/Release/net10.0/OpenDreamRuntime.pdb typesof-results/binaries/
+      - name: Dedicated engine fixture and strict result classification
+        shell: bash
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set +e
+          COMPlus_gcServer=1 dotnet test Content.IntegrationTests/Content.IntegrationTests.csproj --configuration Release --no-build --filter 'FullyQualifiedName=Content.IntegrationTests.TypesOfOwnershipTests.RejectedTypesOfReleasesCreator' --logger 'trx;LogFileName=typesof.trx' --results-directory typesof-results -v n -- NUnit.ExplicitMode=Relaxed > typesof-results/typesof.log 2>&1
+          code=$?
+          set -e
+          printf '%s\n' "$code" > typesof-results/test-exit-code.txt
+          tail -80 typesof-results/typesof.log
+          python tests/typesof_ownership/control.py '${{ matrix.mode }}' --expected-head "$EXPECTED_HEAD" --receipt typesof-results/source-receipt.json --verify
+          python tests/typesof_ownership/verify.py typesof-results/typesof.trx '${{ matrix.mode }}' "$code" --log typesof-results/typesof.log
+      - name: Unchanged game and savefile lifecycle in separate test host
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        shell: bash
+        run: |
+          set +e
+          COMPlus_gcServer=1 dotnet test Content.IntegrationTests/Content.IntegrationTests.csproj --configuration Release --no-build --filter 'FullyQualifiedName=Content.IntegrationTests.GameTests.NoRuntimesTest' --logger 'trx;LogFileName=runtime.trx' --results-directory typesof-results -v n > typesof-results/runtime.log 2>&1
+          code=$?
+          set -e
+          printf '%s\n' "$code" > typesof-results/runtime-exit-code.txt
+          tail -60 typesof-results/runtime.log
+          python tests/string_format_decoder/verify.py typesof-results/runtime.trx positive "$code" --log typesof-results/runtime.log --runtime
+      - name: Retain byte-exact original runner logs
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: python tests/typesof_ownership/archive_logs.py --results typesof-results
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: typesof-ownership-${{ matrix.mode }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: typesof-results/
+          if-no-files-found: error
+          retention-days: 14

@@ -1,4 +1,5 @@
 using System.Text.Json;
+using OpenDreamRuntime.Resources;
 
 // External effects use only the runner's unique temporary working directory.
 // The generated source supplies production object teardown and savefile bodies.
@@ -42,11 +43,14 @@ public static class DreamResourceManager {
         return resource;
     }
 }
+namespace OpenDreamRuntime.Resources {
 public sealed class DreamResource(string path) {
     public string ResourcePath { get; } = path;
     public Exception? ClearFailure;
     public int ClearCalls;
     public string? ReadAsString() => File.Exists(ResourcePath) ? File.ReadAllText(ResourcePath) : null;
+    // This teardown adapter reads disk directly and has no raw byte cache.
+    public void ReleaseFileDataCache() { }
     public void Clear() {
         ClearCalls++;
         if (ClearFailure != null) throw ClearFailure;
@@ -56,6 +60,7 @@ public sealed class DreamResource(string path) {
         value.TryGetValueAsString(out var text);
         File.WriteAllText(ResourcePath, text);
     }
+}
 }
 public sealed partial class DreamObjectSavefile : DreamObject {
     public static readonly List<DreamObjectSavefile> Savefiles = new();

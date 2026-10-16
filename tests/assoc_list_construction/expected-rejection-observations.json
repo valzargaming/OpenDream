@@ -1,0 +1,770 @@
+[
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_caught_0_first_datum_distinct",
+    "iterations": 1000,
+    "expected_owners": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "frozen_original_owners": [
+      1001,
+      1,
+      1001,
+      1001
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_caught_0_middle_datum_distinct",
+    "iterations": 1000,
+    "expected_owners": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "frozen_original_owners": [
+      1001,
+      1001,
+      1,
+      1001
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_caught_0_last_datum_distinct",
+    "iterations": 1000,
+    "expected_owners": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "frozen_original_owners": [
+      1001,
+      1001,
+      1001,
+      1
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_caught_99_first_datum_distinct",
+    "iterations": 1000,
+    "expected_owners": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "frozen_original_owners": [
+      1001,
+      1,
+      1001,
+      1001
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_caught_99_middle_datum_distinct",
+    "iterations": 1000,
+    "expected_owners": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "frozen_original_owners": [
+      1001,
+      1001,
+      1,
+      1001
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_caught_99_last_datum_distinct",
+    "iterations": 1000,
+    "expected_owners": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "frozen_original_owners": [
+      1001,
+      1001,
+      1001,
+      1
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_uncaught_0_first_datum_distinct",
+    "iterations": 1000,
+    "expected_owners": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "frozen_original_owners": [
+      1001,
+      1,
+      1001,
+      1001
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_uncaught_0_middle_datum_distinct",
+    "iterations": 1000,
+    "expected_owners": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "frozen_original_owners": [
+      1001,
+      1001,
+      1,
+      1001
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_uncaught_0_last_datum_distinct",
+    "iterations": 1000,
+    "expected_owners": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "frozen_original_owners": [
+      1001,
+      1001,
+      1001,
+      1
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_uncaught_99_first_datum_distinct",
+    "iterations": 1000,
+    "expected_owners": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "frozen_original_owners": [
+      1001,
+      1,
+      1001,
+      1001
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_uncaught_99_middle_datum_distinct",
+    "iterations": 1000,
+    "expected_owners": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "frozen_original_owners": [
+      1001,
+      1001,
+      1,
+      1001
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_uncaught_99_last_datum_distinct",
+    "iterations": 1000,
+    "expected_owners": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "frozen_original_owners": [
+      1001,
+      1001,
+      1001,
+      1
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_caught_0_first_datum_alias",
+    "iterations": 1000,
+    "expected_owners": [
+      1
+    ],
+    "frozen_original_owners": [
+      3001
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_caught_0_middle_datum_alias",
+    "iterations": 1000,
+    "expected_owners": [
+      1
+    ],
+    "frozen_original_owners": [
+      3001
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_caught_0_last_datum_alias",
+    "iterations": 1000,
+    "expected_owners": [
+      1
+    ],
+    "frozen_original_owners": [
+      3001
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_caught_99_first_datum_alias",
+    "iterations": 1000,
+    "expected_owners": [
+      1
+    ],
+    "frozen_original_owners": [
+      3001
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_caught_99_middle_datum_alias",
+    "iterations": 1000,
+    "expected_owners": [
+      1
+    ],
+    "frozen_original_owners": [
+      3001
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_caught_99_last_datum_alias",
+    "iterations": 1000,
+    "expected_owners": [
+      1
+    ],
+    "frozen_original_owners": [
+      3001
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_uncaught_0_first_datum_alias",
+    "iterations": 1000,
+    "expected_owners": [
+      1
+    ],
+    "frozen_original_owners": [
+      3001
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_uncaught_0_middle_datum_alias",
+    "iterations": 1000,
+    "expected_owners": [
+      1
+    ],
+    "frozen_original_owners": [
+      3001
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_uncaught_0_last_datum_alias",
+    "iterations": 1000,
+    "expected_owners": [
+      1
+    ],
+    "frozen_original_owners": [
+      3001
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_uncaught_99_first_datum_alias",
+    "iterations": 1000,
+    "expected_owners": [
+      1
+    ],
+    "frozen_original_owners": [
+      3001
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_uncaught_99_middle_datum_alias",
+    "iterations": 1000,
+    "expected_owners": [
+      1
+    ],
+    "frozen_original_owners": [
+      3001
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_uncaught_99_last_datum_alias",
+    "iterations": 1000,
+    "expected_owners": [
+      1
+    ],
+    "frozen_original_owners": [
+      3001
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_caught_0_first_list_distinct",
+    "iterations": 1000,
+    "expected_owners": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "frozen_original_owners": [
+      1001,
+      1,
+      1001,
+      1001
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_caught_0_middle_list_distinct",
+    "iterations": 1000,
+    "expected_owners": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "frozen_original_owners": [
+      1001,
+      1001,
+      1,
+      1001
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_caught_0_last_list_distinct",
+    "iterations": 1000,
+    "expected_owners": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "frozen_original_owners": [
+      1001,
+      1001,
+      1001,
+      1
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_caught_99_first_list_distinct",
+    "iterations": 1000,
+    "expected_owners": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "frozen_original_owners": [
+      1001,
+      1,
+      1001,
+      1001
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_caught_99_middle_list_distinct",
+    "iterations": 1000,
+    "expected_owners": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "frozen_original_owners": [
+      1001,
+      1001,
+      1,
+      1001
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_caught_99_last_list_distinct",
+    "iterations": 1000,
+    "expected_owners": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "frozen_original_owners": [
+      1001,
+      1001,
+      1001,
+      1
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_uncaught_0_first_list_distinct",
+    "iterations": 1000,
+    "expected_owners": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "frozen_original_owners": [
+      1001,
+      1,
+      1001,
+      1001
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_uncaught_0_middle_list_distinct",
+    "iterations": 1000,
+    "expected_owners": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "frozen_original_owners": [
+      1001,
+      1001,
+      1,
+      1001
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_uncaught_0_last_list_distinct",
+    "iterations": 1000,
+    "expected_owners": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "frozen_original_owners": [
+      1001,
+      1001,
+      1001,
+      1
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_uncaught_99_first_list_distinct",
+    "iterations": 1000,
+    "expected_owners": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "frozen_original_owners": [
+      1001,
+      1,
+      1001,
+      1001
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_uncaught_99_middle_list_distinct",
+    "iterations": 1000,
+    "expected_owners": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "frozen_original_owners": [
+      1001,
+      1001,
+      1,
+      1001
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_uncaught_99_last_list_distinct",
+    "iterations": 1000,
+    "expected_owners": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "frozen_original_owners": [
+      1001,
+      1001,
+      1001,
+      1
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_caught_0_first_list_alias",
+    "iterations": 1000,
+    "expected_owners": [
+      1
+    ],
+    "frozen_original_owners": [
+      3001
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_caught_0_middle_list_alias",
+    "iterations": 1000,
+    "expected_owners": [
+      1
+    ],
+    "frozen_original_owners": [
+      3001
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_caught_0_last_list_alias",
+    "iterations": 1000,
+    "expected_owners": [
+      1
+    ],
+    "frozen_original_owners": [
+      3001
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_caught_99_first_list_alias",
+    "iterations": 1000,
+    "expected_owners": [
+      1
+    ],
+    "frozen_original_owners": [
+      3001
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_caught_99_middle_list_alias",
+    "iterations": 1000,
+    "expected_owners": [
+      1
+    ],
+    "frozen_original_owners": [
+      3001
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_caught_99_last_list_alias",
+    "iterations": 1000,
+    "expected_owners": [
+      1
+    ],
+    "frozen_original_owners": [
+      3001
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_uncaught_0_first_list_alias",
+    "iterations": 1000,
+    "expected_owners": [
+      1
+    ],
+    "frozen_original_owners": [
+      3001
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_uncaught_0_middle_list_alias",
+    "iterations": 1000,
+    "expected_owners": [
+      1
+    ],
+    "frozen_original_owners": [
+      3001
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_uncaught_0_last_list_alias",
+    "iterations": 1000,
+    "expected_owners": [
+      1
+    ],
+    "frozen_original_owners": [
+      3001
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_uncaught_99_first_list_alias",
+    "iterations": 1000,
+    "expected_owners": [
+      1
+    ],
+    "frozen_original_owners": [
+      3001
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_uncaught_99_middle_list_alias",
+    "iterations": 1000,
+    "expected_owners": [
+      1
+    ],
+    "frozen_original_owners": [
+      3001
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  },
+  {
+    "id": "ASSOC_CONSTRUCT_REJECT_uncaught_99_last_list_alias",
+    "iterations": 1000,
+    "expected_owners": [
+      1
+    ],
+    "frozen_original_owners": [
+      3001
+    ],
+    "expected_extra_lists": 0,
+    "frozen_original_extra_lists": 1000,
+    "expected_extra_datums": 0
+  }
+]

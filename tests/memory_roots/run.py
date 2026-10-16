@@ -3,6 +3,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 import subprocess
 import sys
@@ -19,6 +20,12 @@ def body(source, marker):
         level += (source[end] == '{') - (source[end] == '}')
         end += 1
     return source[start:end]
+
+def pool_capacity_declaration(source):
+    declarations = re.findall(r'^    private const int MaximumPooledCapacity = [0-9_]+;$', source, re.MULTILINE)
+    if len(declarations) != 1:
+        raise ValueError('Missing unique production pool-cap declaration')
+    return declarations[0]
 
 def run(dotnet, output, control, work):
     paths = ['OpenDreamRuntime/Procs/DreamEnumerators.cs', 'OpenDreamRuntime/Procs/DMOpcodeHandlers.cs',
@@ -48,7 +55,7 @@ def run(dotnet, output, control, work):
             assert native.count('centerContents.Dispose();') == 1
             native = native.replace('centerContents.Dispose();', '')
         (temp/'ProductionRange.cs').write_text('using OpenDreamRuntime.Objects.Types; namespace OpenDreamRuntime.Procs.Native; public static partial class DreamProcNativeHelpers { '+native+' }')
-        methods = '\n'.join(body(sources[paths[5]], marker) for marker in ('public virtual void AddValue(', 'public Dictionary<DreamValue, DreamValue> CopyAssocValues(', 'protected override void HandleDeletion('))
+        methods = pool_capacity_declaration(sources[paths[5]]) + '\n' + '\n'.join(body(sources[paths[5]], marker) for marker in ('public virtual void AddValue(', 'public Dictionary<DreamValue, DreamValue> CopyAssocValues(', 'protected override void HandleDeletion('))
         if control == 'list-deletion':
             fragment = 'foreach (var value in _values)\n            value.DecRef();'
             assert methods.count(fragment) == 1

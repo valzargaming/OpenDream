@@ -13,8 +13,8 @@ module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
 BASELINE_COMMIT = 'e96f60769ae38e05599119b4f5ed1fcb2cb8a91b'
 EXPECTED_CANDIDATE_HASHES = {
-    'OpenDreamRuntime/Objects/DreamObject.cs': 'f44279ad182b66f0eed33ad09d2e32a9e2e82a4b71e826f624c15a9f74e6f824',
-    'OpenDreamRuntime/Procs/DMOpcodeHandlers.cs': '7f3ffd180fa5facbce09bd661524b22bc673d922de461c8bde6897eb0c66fba0',
+    'OpenDreamRuntime/Objects/DreamObject.cs': '1d3006d536a0ae846ed4aaebf42256c45baea7af44de91f3b1b475f23945a5ff',
+    'OpenDreamRuntime/Procs/DMOpcodeHandlers.cs': 'c467c88732460adcf3349ec6e5608cd8fd9e3208e889c8452c01cc7445673121',
     'OpenDreamRuntime/Procs/InitDreamObject.cs': 'b76207eaf0fa47e3063d0b4022f809f23c0bff82cc317719d01e1b1d4e1b87d5',
 }
 CONTROL_OPTIONS = {

@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Configurations>Debug;Release;Tools</Configurations>
+    <Platforms>AnyCPU</Platforms>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DMCompiler\DMCompiler.csproj" />
+    <ProjectReference Include="..\OpenDreamPackaging\OpenDreamPackaging.csproj" />
+    <ProjectReference Include="..\OpenDreamShared\OpenDreamShared.csproj" />
+  </ItemGroup>
+
+  <Import Project="..\RobustToolbox\Imports\Server.props" />
+  <Import Project="..\RobustToolbox\Imports\Shared.props" />
+
+  <ItemGroup>
+    <PackageReference Include="Byond.TopicSender" />
+    <PackageReference Include="Tracy-CSharp" />
+    <PackageReference Include="OpenDreamByondApi" />
+    <PackageReference Include="SpaceWizards.Sodium" />
+    <PackageReference Include="SixLabors.ImageSharp" />
+    <PackageReference Include="Microsoft.Data.Sqlite.Core" />
+  </ItemGroup>
+
+  <Import Project="..\RobustToolbox\MSBuild\Robust.Properties.targets" />
+</Project>

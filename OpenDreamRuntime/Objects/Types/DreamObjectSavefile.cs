@@ -96,7 +96,12 @@ public sealed class DreamObjectSavefile : DreamObject {
 
         if (!SavefileDirectories.TryGetValue(filename, out var directory)) {
             //if the savefile hasn't already been loaded, load it or create it
-            var data = Resource.ReadAsString();
+            string? data;
+            try {
+                data = Resource.ReadAsString();
+            } finally {
+                Resource.ReleaseFileDataCache();
+            }
 
             if (!string.IsNullOrEmpty(data)) {
                 try{
@@ -113,7 +118,7 @@ public sealed class DreamObjectSavefile : DreamObject {
                 SavefileDirectories.Add(filename, _rootNode);
 
                 //create the file immediately
-                Flush();
+                Flush(SaveCostProfile.Origin.Initialize);
             }
         } else {
             //if the savefile has already been loaded, just point to it
@@ -227,7 +232,7 @@ public sealed class DreamObjectSavefile : DreamObject {
         foreach (DreamObjectSavefile savefile in SavefilesToFlush) {
             try {
                 // We need to avoid Flush() recreating a nonexistent file
-                if (File.Exists(savefile.Resource!.ResourcePath)) savefile.Flush();
+                if (File.Exists(savefile.Resource!.ResourcePath)) savefile.Flush(SaveCostProfile.Origin.DirtyTick);
             } catch (Exception e) {
                 _sawmill.Error($"Error flushing savefile {savefile.Resource!.ResourcePath}: {e}");
             }
@@ -242,7 +247,7 @@ public sealed class DreamObjectSavefile : DreamObject {
                 return;
 
             // We need to avoid Flush() recreating a nonexistent file
-            if (File.Exists(Resource.ResourcePath)) Flush();
+            if (File.Exists(Resource.ResourcePath)) Flush(SaveCostProfile.Origin.Close);
             if (_isTemporary) {
                 File.Delete(Resource.ResourcePath);
             }
@@ -266,9 +271,35 @@ public sealed class DreamObjectSavefile : DreamObject {
         }
     }
 
-    public void Flush() {
-        Resource!.Clear();
-        Resource!.Output(new DreamValue(JsonSerializer.Serialize(_rootNode)));
+    public void Flush() => Flush(SaveCostProfile.Origin.Direct);
+
+    private void Flush(SaveCostProfile.Origin origin) {
+        var profile = SaveCostProfile.Begin(Resource, origin);
+        if (profile == null) {
+            // A capped nested Flush must not be attributed to its outer context.
+            var parent = SaveCostProfile.SuspendObservation();
+            try {
+                Resource!.Clear();
+                Resource!.Output(new DreamValue(JsonSerializer.Serialize(_rootNode)));
+            } finally { SaveCostProfile.RestoreObservation(parent); }
+            return;
+        }
+        bool successful = false;
+        try {
+            var clear = SaveCostProfile.Start(SaveCostProfile.Phase.ClearDisk);
+            bool cleared = false;
+            try { Resource!.Clear(); cleared = true; }
+            finally { SaveCostProfile.End(clear, cleared); }
+
+            var serialize = SaveCostProfile.Start(SaveCostProfile.Phase.SerializeTree);
+            bool serialized = false;
+            string json;
+            try { json = JsonSerializer.Serialize(_rootNode); serialized = true; }
+            finally { SaveCostProfile.End(serialize, serialized); }
+            SaveCostProfile.Serialized(json);
+            Resource!.Output(new DreamValue(json));
+            successful = true;
+        } finally { SaveCostProfile.Finish(profile, successful); }
     }
 
     /// <summary>
@@ -374,7 +405,7 @@ public sealed class DreamObjectSavefile : DreamObject {
     public DreamValue DeserializeJsonValue(SfDreamJsonValue value) {
         switch (value) {
             case SfDreamFileValue sfDreamFileValue:
-                return new DreamValue(DreamResourceManager.CreateResource(Convert.FromBase64String(sfDreamFileValue.Data)));
+                return new DreamValue(DreamResourceManager.CreateResourceFromSavefile(Convert.FromBase64String(sfDreamFileValue.Data)));
             case SfDreamListValue sfDreamListValue:
                 var l = ObjectTree.CreateList();
                 for (int i=0; i < sfDreamListValue.AssocKeys.Count; i++) {
@@ -508,7 +539,7 @@ public sealed class DreamObjectSavefile : DreamObject {
                 if (val.TryGetValueAsDreamObject(out var dreamObject) && !(dreamObject is null)) { //dreamobject can be null if it's disposed
                     if (val.TryGetValueAsDreamObject<DreamObjectSavefile>(out var savefile)) {
                         //if this is a savefile, just return a filedata object with it encoded
-                        savefile.Flush(); //flush the savefile to make sure the backing resource is up to date
+                        savefile.Flush(SaveCostProfile.Origin.EmbeddedSavefile); //flush the savefile to make sure the backing resource is up to date
                         return new SfDreamFileValue {
                             Name = savefile.Resource!.ResourcePath,
                             Ext = ".sav",

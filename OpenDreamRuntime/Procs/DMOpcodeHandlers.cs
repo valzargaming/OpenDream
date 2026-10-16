@@ -85,22 +85,33 @@ namespace OpenDreamRuntime.Procs {
         public static ProcStatus CreateAssociativeList(DMProcState state) {
             var size = state.ReadInt();
             var list = state.Proc.ObjectTree.CreateList(size);
-            var popped = state.PopCount(size * 2);
+            try {
+                var popped = state.PopCount(size * 2);
+                var firstUnprocessed = 0;
+                try {
+                    for (int i = 0; i < popped.Length; i += 2) {
+                        using var key = popped[i];
+                        using var value = popped[i + 1];
+                        firstUnprocessed = i + 2;
 
-            for (int i = 0; i < popped.Length; i += 2) {
-                using var key = popped[i];
-                using var value = popped[i + 1];
-
-                if (key.IsNull) {
-                    list.AddValue(value);
-                } else {
-                    list.SetValue(key, value, allowGrowth: true);
+                        if (key.IsNull) {
+                            list.AddValue(value);
+                        } else {
+                            list.SetValue(key, value, allowGrowth: true);
+                        }
+                    }
+                } finally {
+                    // Processed/current pairs use per-pair disposal, including on throws.
+                    // Release only untouched operands before Push can overwrite the span.
+                    for (int i = firstUnprocessed; i < popped.Length; i++)
+                        popped[i].Dispose();
                 }
-            }
 
-            state.Push(new DreamValue(list));
-            list.DecRef();
-            return ProcStatus.Continue;
+                state.Push(new DreamValue(list));
+                return ProcStatus.Continue;
+            } finally {
+                list.DecRef();
+            }
         }
 
         public static ProcStatus CreateStrictAssociativeList(DMProcState state) {
@@ -1585,19 +1596,17 @@ namespace OpenDreamRuntime.Procs {
         }
 
         public static ProcStatus IsInRange(DMProcState state) {
-            var end = state.Pop();
-            var start = state.Pop();
-            var var = state.Pop();
+            using var end = state.Pop();
+            using var start = state.Pop();
+            using var value = state.Pop();
 
-            if (var.Type != DreamValue.DreamValueType.Float) var = new DreamValue(0f);
-            if (start.Type != DreamValue.DreamValueType.Float) start = new DreamValue(0f);
-            if (end.Type != DreamValue.DreamValueType.Float) end = new DreamValue(0f);
+            // Retain the popped owners while coercing non-numeric operands to zero.
+            float valueNumber = value.Type == DreamValue.DreamValueType.Float ? value.MustGetValueAsFloat() : 0f;
+            float startNumber = start.Type == DreamValue.DreamValueType.Float ? start.MustGetValueAsFloat() : 0f;
+            float endNumber = end.Type == DreamValue.DreamValueType.Float ? end.MustGetValueAsFloat() : 0f;
 
-            bool inRange = (IsEqual(start, var) || IsLessThan(start, var)) && (IsEqual(var, end) || IsLessThan(var, end));
+            bool inRange = startNumber <= valueNumber && valueNumber <= endNumber;
             state.Push(new DreamValue(inRange ? 1 : 0));
-            end.Dispose();
-            start.Dispose();
-            var.Dispose();
             return ProcStatus.Continue;
         }
 

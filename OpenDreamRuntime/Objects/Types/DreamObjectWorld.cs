@@ -161,7 +161,7 @@ public sealed partial class DreamObjectWorld : DreamObject {
                 return true;
 
             case "realtime":
-                value = new DreamValue((DateTime.Now - new DateTime(2000, 1, 1)).Milliseconds / 100);
+                value = new DreamValue((DateTime.UtcNow - new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds / 100);
                 return true;
 
             case "tick_usage":

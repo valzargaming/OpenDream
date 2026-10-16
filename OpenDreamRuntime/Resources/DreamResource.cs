@@ -60,6 +60,14 @@ public class DreamResource(int id, string? filePath, string? resourcePath) {
         return resourceString;
     }
 
+    internal void ReleaseFileDataCache() {
+        // In-memory resources own their bytes; only disk-backed data can be reloaded.
+        if (string.IsNullOrEmpty(filePath))
+            return;
+
+        ResourceData = null; // The setter also balances TOOLS memory accounting.
+    }
+
     public void Clear() {
         if (string.IsNullOrEmpty(filePath))
             return;
@@ -79,12 +87,43 @@ public class DreamResource(int id, string? filePath, string? resourcePath) {
             throw new DMException($"Invalid output operation '{ResourcePath}' << {value}");
         }
 
-        // Prune any remaining formatting
-        text = StringFormatDecoder.RemoveFormatting(text);
+        var profile = SaveCostProfile.For(this);
+        if (profile == null) {
+            // Prune any remaining formatting
+            text = StringFormatDecoder.RemoveFormatting(text);
 
-        CreateDirectory();
-        File.AppendAllText(ResourcePath, text + "\r\n");
-        _resourceDataBacking = null;
+            CreateDirectory();
+            AppendTextLine(text);
+            _resourceDataBacking = null;
+            return;
+        }
+        var formatting = SaveCostProfile.Start(SaveCostProfile.Phase.RemoveFormatting);
+        bool formatted = false;
+        try { text = StringFormatDecoder.RemoveFormatting(text); formatted = true; }
+        finally { SaveCostProfile.End(formatting, formatted); }
+        SaveCostProfile.PlannedAppend(profile, text);
+        var append = SaveCostProfile.Start(SaveCostProfile.Phase.AppendDisk);
+        bool appended = false;
+        try {
+            CreateDirectory();
+            AppendTextLine(text);
+            _resourceDataBacking = null;
+            appended = true;
+        } finally { SaveCostProfile.End(append, appended); }
+        SaveCostProfile.Appended(profile);
+    }
+
+    private void AppendTextLine(string text) {
+        // Preserve the lean AppendAllText path with a bounded temporary copy.
+        if (text.Length <= 4096) {
+            File.AppendAllText(ResourcePath!, text + "\r\n");
+            return;
+        }
+        // Keep the terminator separate: savefile snapshots can be very large.
+        // Default StreamWriter matches AppendAllText's strict UTF8 without BOM.
+        using var writer = new StreamWriter(ResourcePath!, append: true);
+        writer.Write(text);
+        writer.Write("\r\n");
     }
 
     private void CreateDirectory() {

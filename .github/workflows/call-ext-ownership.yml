@@ -1,0 +1,53 @@
+name: External call argument ownership controls
+on:
+  pull_request:
+    paths: ['OpenDreamRuntime/Procs/DMOpcodeHandlers.CallExt.cs', 'Content.IntegrationTests/GameTests.CallExt.cs', 'Content.IntegrationTests/GameTests.cs', 'Content.IntegrationTests/DMProject/code.dm', 'tests/call_ext_ownership/**', 'tests/native_argument_ownership/verify.py', '.github/workflows/call-ext-ownership.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  ownership:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        control: [positive, string-omit, byond-omit]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          submodules: recursive
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.401
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify structured ownership oracle
+        run: |
+          python -m unittest discover -s tests/native_argument_ownership -p test_verify.py -v
+          python -m unittest discover -s tests/call_ext_ownership -p test_verify.py -v
+      - name: Record reviewed source and apply one exact control in disposable checkout
+        run: python tests/call_ext_ownership/control.py '${{ matrix.control }}'
+      - name: Build real engine and connected tests
+        run: dotnet build --configuration Release --property WarningLevel=4 -m:1 -p:UseSharedCompilation=false --disable-build-servers
+      - name: Exercise real production external-call rejections and verify structured result
+        shell: bash
+        run: |
+          set +e
+          COMPlus_gcServer=1 dotnet test --no-build Content.IntegrationTests/Content.IntegrationTests.csproj --filter 'FullyQualifiedName=Content.IntegrationTests.GameTests.NoRuntimesTest' --logger 'trx;LogFileName=call-ext.trx' --results-directory call-ext-results -v n > call-ext.log 2>&1
+          result=$?
+          set -e
+          tail -80 call-ext.log
+          python tests/call_ext_ownership/control.py '${{ matrix.control }}' --verify call-ext.log --trx call-ext-results/call-ext.trx --exit-code "$result"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: call-ext-${{ matrix.control }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            call-ext-control-source.json
+            call-ext.log
+            call-ext-results/call-ext.trx
+          retention-days: 14

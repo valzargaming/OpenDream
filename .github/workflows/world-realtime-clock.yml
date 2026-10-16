@@ -1,0 +1,86 @@
+name: World realtime UTC clock
+on:
+  pull_request:
+    paths:
+      - OpenDreamRuntime/Objects/Types/DreamObjectWorld.cs
+      - Content.IntegrationTests/WorldRealtimeClockTests.cs
+      - Content.IntegrationTests/DMProject/Fixtures/world-realtime-clock.dm
+      - tests/world_realtime_clock/**
+      - .github/workflows/world-realtime-clock.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  world-realtime-clock:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [positive, baseline]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          submodules: recursive
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.401
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Pure source and evidence controls
+        run: python -m unittest discover -s tests/world_realtime_clock -p 'test_*.py' -v
+      - name: Freeze exact head and source preparation
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          python tests/world_realtime_clock/control.py '${{ matrix.mode }}' --expected-head "$EXPECTED_HEAD" --receipt clock-results/source-receipt.json
+          mkdir -p clock-results/prepared-source
+          cp OpenDreamRuntime/Objects/Types/DreamObjectWorld.cs Content.IntegrationTests/WorldRealtimeClockTests.cs Content.IntegrationTests/DMProject/Fixtures/world-realtime-clock.dm clock-results/prepared-source/
+      - name: Full build and original output
+        shell: bash
+        run: |
+          test "$(dotnet --version)" = '10.0.401'
+          dotnet --info > clock-results/sdk-info.log
+          set +e
+          dotnet build OpenDream.slnx --configuration Release --property WarningLevel=4 -m:1 -p:UseSharedCompilation=false --disable-build-servers > clock-results/build.log 2>&1
+          code=$?
+          set -e
+          printf '%s\n' "$code" > clock-results/build-exit-code.txt
+          tail -80 clock-results/build.log
+          test "$code" = 0
+          sha256sum bin/Content.IntegrationTests/Content.IntegrationTests.dll OpenDreamRuntime/bin/Release/net10.0/OpenDreamRuntime.dll > clock-results/binary-sha256.txt
+          mkdir -p clock-results/binaries
+          cp bin/Content.IntegrationTests/Content.IntegrationTests.dll bin/Content.IntegrationTests/Content.IntegrationTests.pdb OpenDreamRuntime/bin/Release/net10.0/OpenDreamRuntime.dll OpenDreamRuntime/bin/Release/net10.0/OpenDreamRuntime.pdb clock-results/binaries/
+      - name: Dedicated public getter and compiled DM clock fixture
+        shell: bash
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set +e
+          COMPlus_gcServer=1 dotnet test Content.IntegrationTests/Content.IntegrationTests.csproj --configuration Release --no-build --filter 'FullyQualifiedName=Content.IntegrationTests.WorldRealtimeClockTests.UtcEpochDeciseconds' --logger 'trx;LogFileName=clock.trx' --results-directory clock-results -v n -- NUnit.ExplicitMode=Relaxed > clock-results/clock.log 2>&1
+          code=$?
+          set -e
+          printf '%s\n' "$code" > clock-results/test-exit-code.txt
+          tail -80 clock-results/clock.log
+          python tests/world_realtime_clock/control.py '${{ matrix.mode }}' --expected-head "$EXPECTED_HEAD" --receipt clock-results/source-receipt.json --verify
+          python tests/world_realtime_clock/verify.py clock-results/clock.trx '${{ matrix.mode }}' "$code" --log clock-results/clock.log
+      - name: Unchanged game and savefile lifecycle in separate test host
+        shell: bash
+        run: |
+          set +e
+          COMPlus_gcServer=1 dotnet test Content.IntegrationTests/Content.IntegrationTests.csproj --configuration Release --no-build --filter 'FullyQualifiedName=Content.IntegrationTests.GameTests.NoRuntimesTest' --logger 'trx;LogFileName=runtime.trx' --results-directory clock-results -v n > clock-results/runtime.log 2>&1
+          code=$?
+          set -e
+          printf '%s\n' "$code" > clock-results/runtime-exit-code.txt
+          tail -60 clock-results/runtime.log
+          python tests/string_format_decoder/verify.py clock-results/runtime.trx positive "$code" --log clock-results/runtime.log --runtime
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: world-realtime-clock-${{ matrix.mode }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: clock-results/
+          if-no-files-found: error
+          retention-days: 14

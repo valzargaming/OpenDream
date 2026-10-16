@@ -3,23 +3,29 @@ using System.Text;
 namespace OpenDreamShared.Dream;
 
 public static class StringFormatDecoder {
-    /// <summary>
-    /// Refer to DMCompiler.Bytecode.StringFormatEncoder for documentation (can't cref cross-project)
-    /// </summary>
     private static readonly ushort FormatPrefix = 0xFF00;
 
-    private static readonly StringBuilder UnformattedStringBuilder = new();
-
-    /// <returns>A new version of the string, with all formatting characters removed.</returns>
+    /// <returns>The input if unformatted, otherwise a string with formatting removed.</returns>
     public static string RemoveFormatting(string input) {
-        UnformattedStringBuilder.Clear();
-        UnformattedStringBuilder.EnsureCapacity(input.Length); // Trying to keep it to one malloc here
-        foreach(char c in input) {
-            ushort bytes = c;
-            if((bytes & FormatPrefix) != FormatPrefix)
-                UnformattedStringBuilder.Append(c);
+        var firstFormat = -1;
+        for (var i = 0; i < input.Length; i++) {
+            if ((input[i] & FormatPrefix) == FormatPrefix) {
+                firstFormat = i;
+                break;
+            }
         }
 
-        return UnformattedStringBuilder.ToString();
+        // Default JSON escaping means serialized savefile text takes this path.
+        if (firstFormat == -1)
+            return input;
+
+        // Local lifetime: do not retain the largest formatted input forever.
+        var result = new StringBuilder(input.Length);
+        result.Append(input, 0, firstFormat);
+        for (var i = firstFormat + 1; i < input.Length; i++) {
+            if ((input[i] & FormatPrefix) != FormatPrefix)
+                result.Append(input[i]);
+        }
+        return result.ToString();
     }
 }

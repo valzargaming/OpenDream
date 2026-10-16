@@ -14,6 +14,8 @@ namespace OpenDreamRuntime.Objects.Types;
 [Virtual]
 public class DreamList : DreamObject, IDreamList {
     private static readonly Stack<List<DreamValue>> ListPool = new();
+    // Bound idle backing storage without limiting the size of live DM lists.
+    private const int MaximumPooledCapacity = 65_536;
 
     public override bool ShouldCallNew => false;
 
@@ -105,7 +107,8 @@ public class DreamList : DreamObject, IDreamList {
             foreach (var assocValue in _associativeValues.Values)
                 assocValue.DecRef();
 
-        if (_values.Capacity > DreamManager.ListPoolThreshold && ListPool.Count < DreamManager.ListPoolSize) {
+        if (_values.Capacity > DreamManager.ListPoolThreshold && _values.Capacity <= MaximumPooledCapacity
+            && ListPool.Count < DreamManager.ListPoolSize) {
             _values.Clear();
             ListPool.Push(_values);
         }
@@ -188,12 +191,15 @@ public class DreamList : DreamObject, IDreamList {
 
     public virtual void SetValue(DreamValue key, DreamValue value, bool allowGrowth = false) {
         if (key.TryGetValueAsInteger(out int keyInteger)) {
-            value.IncRef();
-
             if (allowGrowth && keyInteger == _values.Count + 1) {
+                value.IncRef();
                 _values.Add(value);
             } else {
-                _values[keyInteger - 1].DecRef();
+                // Validate the index before acquiring an incoming owner. Keep acquisition
+                // before release so a sole list-owned value survives self-replacement.
+                var oldValue = _values[keyInteger - 1];
+                value.IncRef();
+                oldValue.DecRef();
                 _values[keyInteger - 1] = value;
             }
         } else {
