@@ -77,7 +77,10 @@ original = target.read_bytes()
 try:
     subprocess.run(["git", "config", "--local", "diff.ignoreSubmodules", "all"], cwd=ROOT/"RobustToolbox", check=True)
     target.write_bytes(original+b"\n// Unexpected nested tracked edit\n")
-    check("nested tracked modification with parent ignore", "Tracked nested dependency inputs differ")
+    # The strict prepared-host diff now sees the dirty nested gitlink even when
+    # the parent repository config requests ignoring submodules. Require that
+    # exact earlier rejection; do not accept an arbitrary builder failure.
+    check("nested tracked modification with parent ignore", "Robust effective diff differs from the exact declared fork patch")
 finally:
     target.write_bytes(original)
     if config.returncode == 0:

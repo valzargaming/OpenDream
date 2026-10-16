@@ -52,7 +52,7 @@
     ".gitattributes": "011eed8c7cc4815654e15578bd7e60474ca4f7c5cd4bfdc848ea716eb92a6d9f",
     "tests/resource_output_allocation/control.py": "cb07daf018e9ea366b0b8866740dc6e5176181f395c75019063dd425cad0667d",
     "tests/resource_output_allocation/test_controls.py": "06417904b9c46b77e08e61f913a1f850fe5cc98c700d843fd7ecb4c86beb632e",
-    "tests/savefile_resource_bytes/source-manifest.json": "7677bf3acca04b94bc2e3ce83df7d77f3f199165b92ecbccfe9d1c5034f6712a",
+    "tests/savefile_resource_bytes/source-manifest.json": "1c24a5830747581e1d72ff401801c82020be5415f7344957e4c2782b91591de2",
     "tests/string_format_decoder/source-manifest.json": "9dc7577fa4b38c85ca3d7f727c92e32acf91e0c40e60a83d6a1cdcfd93fcfd9b",
     "Content.IntegrationTests/SetupCompileDM.cs": "b36fbd0d33ae6a14a2d8e9fc65784b1520aaa8fc2747c02e00c58a14468526b9",
     "DMCompiler/DMCompiler.csproj": "0f323d9bd962d7fea71bdabb3252952a4202d142b587587bc01a7f80703f3bbc",
@@ -69,7 +69,7 @@
     "tests/list_pool_capacity/frozen_dependencies/missing-composed.py": "ef7052ca814fac0a75f534ba93821a79020a1c8b9f83515c3c1ffc3955d20fac",
     "tools/civ13-provenance/prepare-robust.py": "f0fb2772d073bb4e41ad7744cc79ce72c1cb73f4a7358363e02a44df5a4265b4",
     "tools/civ13-provenance/robust-auth.patch": "74d9231cdc842f8aec2082c147e214cc6d34433db806d4b543d9677fe3431a1d",
-    "tools/civ13-provenance/test_robust_preparation.py": "5141779a81a97b82c559483991b0a697a81c33b1ff4a06c29df9a1442bd54a21"
+    "tools/civ13-provenance/test_robust_preparation.py": "7e3963fb4e7f401ac74ad69564e2d34844024855585238951a3d105a236c8909"
   },
   "dependency_compositions": {
     ".gitattributes": {

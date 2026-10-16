@@ -23,6 +23,6 @@
     "OpenDreamShared/Dream/MutableAppearance.cs": "592f419f16a40c3e8cc433fd59716c17a9de1aaa9f41a0d2781414306d1b836a",
     "tools/civ13-provenance/prepare-robust.py": "f0fb2772d073bb4e41ad7744cc79ce72c1cb73f4a7358363e02a44df5a4265b4",
     "tools/civ13-provenance/robust-auth.patch": "74d9231cdc842f8aec2082c147e214cc6d34433db806d4b543d9677fe3431a1d",
-    "tools/civ13-provenance/test_robust_preparation.py": "5141779a81a97b82c559483991b0a697a81c33b1ff4a06c29df9a1442bd54a21"
+    "tools/civ13-provenance/test_robust_preparation.py": "7e3963fb4e7f401ac74ad69564e2d34844024855585238951a3d105a236c8909"
   }
 }

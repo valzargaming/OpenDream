@@ -43,6 +43,7 @@ class RobustPreparation(unittest.TestCase):
     def test_wrong_engine_patch_drift_extra_edit_and_untracked_rejected(self):
         for values in [dict(head='foreign'), dict(declared=b'drift'),
                        dict(effective=b''), dict(effective=b'reviewed patch\nextra edit'),
+                       dict(effective=b'reviewed patch\nSubproject commit ' + HELPER['PIN'].encode() + b'-dirty\n'),
                        dict(untracked=b'Unexpected.cs\0')]:
             with self.subTest(values=values), self.assertRaises(AssertionError):
                 self.verify(**values)
