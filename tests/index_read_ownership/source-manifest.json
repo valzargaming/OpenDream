@@ -11,7 +11,7 @@
     "OpenDreamRuntime/Procs/DMProc.cs": "90d11d9bd08ccc768cce7c085678594b792758cd822dcc9a2f3d34958ca687fc",
     "Content.IntegrationTests/GameTests.cs": "8890b994a6b8aae212f414262503e3b45925694f79469f181c0285af8140f25b",
     "Content.IntegrationTests/GameTests.IndexReadOwnership.cs": "318f6b38ef151dac2b18f8c7add7340bdb96203f26d3b8d1294fc0b7be61a237",
-    ".github/workflows/index-read-ownership.yml": "ddd092ec1af5d783af4e7675520d2f98ad409288506e570a5b7a878ad52f930f",
+    ".github/workflows/index-read-ownership.yml": "b2483fe1f9ab2ecd0cd3de57d357a8dd72a082ba3445a74a0c3409da2da9b91f",
     "tests/index_read_ownership/control.py": "3b4bcf5e4c2f3f9d7ded7d4a977b8d7d69dd5ddb4ab78fac9999d825c1e8a9fc",
     "tests/index_read_ownership/controls.json": "f0ab8eb3f06adfea15f7185d274da0c6f7d6c58f9232f9816dbc27269d1b9d44",
     "tests/index_read_ownership/test_receipts.py": "c910995e28fe0aa66ded2e3854132e97d3bdd855ed71e4442f62f33df08ce7da",

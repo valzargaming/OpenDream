@@ -31,6 +31,8 @@ jobs:
           python -m unittest discover -s tests/missing_operator_ownership -p test_verify.py -v
       - name: Record reviewed source and apply one exact control in disposable checkout
         run: python tests/missing_operator_ownership/control.py '${{ matrix.control }}'
+      - name: Apply pinned trusted client host patch
+        run: python tools/civ13-provenance/prepare-robust.py
       - name: Build real engine and connected tests
         run: dotnet build --configuration Release --property WarningLevel=4 -m:1 -p:UseSharedCompilation=false --disable-build-servers
       - name: Exercise real production operators and verify structured result

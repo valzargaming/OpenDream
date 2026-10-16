@@ -40,6 +40,8 @@ jobs:
           mkdir -p typesof-results/prepared-source
           cp OpenDreamRuntime/Procs/Native/DreamProcNativeRoot.cs Content.IntegrationTests/TypesOfOwnershipTests.cs Content.IntegrationTests/DMProject/Fixtures/typesof-ownership.dm typesof-results/prepared-source/
           sha256sum typesof-results/prepared-source/* > typesof-results/prepared-source-sha256.txt
+      - name: Apply pinned trusted client host patch
+        run: python tools/civ13-provenance/prepare-robust.py
       - name: Full build with original log
         id: build
         shell: bash

@@ -42,6 +42,8 @@ jobs:
         run: |
           python -m unittest discover -s tests/resource_output_allocation -v
           python tests/resource_output_allocation/control.py '${{ matrix.mode }}' --head "$HEAD" --output output-results
+      - name: Apply pinned trusted client host patch
+        run: python tools/civ13-provenance/prepare-robust.py
       - name: Build and preserve original output
         id: build
         shell: bash

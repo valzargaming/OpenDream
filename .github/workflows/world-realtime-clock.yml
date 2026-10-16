@@ -39,6 +39,8 @@ jobs:
           python tests/world_realtime_clock/control.py '${{ matrix.mode }}' --expected-head "$EXPECTED_HEAD" --receipt clock-results/source-receipt.json
           mkdir -p clock-results/prepared-source
           cp OpenDreamRuntime/Objects/Types/DreamObjectWorld.cs Content.IntegrationTests/WorldRealtimeClockTests.cs Content.IntegrationTests/DMProject/Fixtures/world-realtime-clock.dm clock-results/prepared-source/
+      - name: Apply pinned trusted client host patch
+        run: python tools/civ13-provenance/prepare-robust.py
       - name: Full build and original output
         shell: bash
         run: |

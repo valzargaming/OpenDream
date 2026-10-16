@@ -38,7 +38,7 @@
     }
   ],
   "expected_sources": {
-    ".github/workflows/world-realtime-clock.yml": "5788016feab66353cfecf3926c79e77379efc48bb0a11348fad8ff00f4d9e3ac",
+    ".github/workflows/world-realtime-clock.yml": "d6bba2e1c108b8ba5ba2710fcd997b43dbaaaba3099e9873c431f747560c0d45",
     "Content.IntegrationTests/DMProject/Fixtures/world-realtime-clock.dm": "b60bf77f951e54685f69c7dc72c7ccc10d898502b8c3537fb00ccba2be7e04ba",
     "Content.IntegrationTests/WorldRealtimeClockTests.cs": "241e9b62c445431c81212b4977e326e78ee1dbbfdd5f95bab2c7ac21eb44bc9f",
     "OpenDreamRuntime/Objects/Types/DreamObjectWorld.cs": "2d95ca68c9be03cde5eb1aa1982677ebc24840873f0907466839419182851db9",

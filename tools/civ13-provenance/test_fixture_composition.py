@@ -2,6 +2,7 @@
 import ast
 import hashlib
 import pathlib
+import re
 import runpy
 import unittest
 
@@ -10,6 +11,22 @@ COMPOSITION = runpy.run_path(str(ROOT / 'tests/list_pool_capacity/dependency_com
 
 
 class NativeFixtureCompositionTests(unittest.TestCase):
+    def test_client_dependent_build_workflows_prepare_trusted_host(self):
+        checked = []
+        for path in (ROOT / '.github/workflows').glob('*.yml'):
+            source = path.read_text()
+            builds = [match.start() for match in re.finditer(r'^.*dotnet build.*$', source, re.M)
+                      if ('Content.IntegrationTests/' in match.group() or 'OpenDream.slnx' in match.group()
+                          or 'dotnet build --configuration' in match.group())]
+            if not builds:
+                continue
+            with self.subTest(workflow=path.name):
+                self.assertIn('run: python tools/civ13-provenance/prepare-robust.py', source)
+                self.assertLess(source.index('run: python tools/civ13-provenance/prepare-robust.py'), min(builds))
+                checked.append(path.name)
+        self.assertIn('field-ownership.yml', checked)
+        self.assertIn('numeric-list-ownership.yml', checked)
+
     def test_combined_driver_matches_reviewed_pin(self):
         raw = (ROOT / 'Content.IntegrationTests/GameTests.cs').read_bytes()
         self.assertEqual(hashlib.sha256(raw).hexdigest().encode(), COMPOSITION['IDENTITY_FIXTURE_CURRENT'])

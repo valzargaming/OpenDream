@@ -39,6 +39,8 @@ jobs:
         env:
           EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
         run: python tests/string_format_decoder/control.py '${{ matrix.mode }}' --expected-head "$EXPECTED_HEAD" --receipt decoder-results/source-receipt.json
+      - name: Apply pinned trusted client host patch
+        run: python tools/civ13-provenance/prepare-robust.py
       - name: Exact SDK and actual solution build
         id: build
         shell: bash

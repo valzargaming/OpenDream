@@ -5,7 +5,7 @@
   "baseline_lf_sha256": "2723652b58569d1f261dac0ef561a1c00ce357a53070822a0685bf8cf735304d",
   "candidate_lf_sha256": "7082f95f8623674c4ab0849f5d5878c33e31993d18bc1b9c91684601b78d8cc9",
   "expected_sources": {
-    ".github/workflows/string-format-decoder.yml": "9e85e4a6127f37d4947174f570441cc802f85102c2d8242db78ec668eb43c062",
+    ".github/workflows/string-format-decoder.yml": "ced42c0d86b092750ec3eff890ce603b35f433faed08680407aea9e84e23c2eb",
     "Content.IntegrationTests/StringFormatDecoderTests.cs": "0316e6d03a9c16abd165ab8c7e5fa26e772e38c6767e4d8863cf2a3c6a6a6325",
     "OpenDreamShared/Dream/StringFormatDecoder.cs": "7082f95f8623674c4ab0849f5d5878c33e31993d18bc1b9c91684601b78d8cc9",
     "tests/string_format_decoder/Benchmark.cs": "58a7f6cb21934089678e0a28936d23434cd289edc30ef958988048b65384e82e",

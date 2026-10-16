@@ -39,6 +39,8 @@ jobs:
           python tests/assoc_list_removal/control.py '${{ matrix.mode }}' --expected-head "$EXPECTED_HEAD" --receipt assoc-results/source-receipt.json
           mkdir -p assoc-results/prepared-source
           cp OpenDreamRuntime/Objects/Types/DreamAssocList.cs Content.IntegrationTests/AssocListRemovalTests.cs Content.IntegrationTests/DMProject/Fixtures/assoc-list-removal.dm assoc-results/prepared-source/
+      - name: Apply pinned trusted client host patch
+        run: python tools/civ13-provenance/prepare-robust.py
       - name: Full build with original log
         shell: bash
         run: |

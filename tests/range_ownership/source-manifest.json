@@ -8,14 +8,14 @@
     }
   ],
   "expected_sources": {
-    ".github/workflows/range-ownership.yml": "2d799b02fe5f7e80b88355d13202fc1540cc293a0e3c3016af6894eb5a4b842b",
+    ".github/workflows/range-ownership.yml": "d87dcdd96145810806e9bf3a1472d193b98c68653a9550421f26c4f2f82816cb",
     "Content.IntegrationTests/DMProject/code.dm": "446623e93b65fd8ca3a5d1ca9fe219cf8ca0ef909e97321489dc389dd051d840",
     "Content.IntegrationTests/GameTests.cs": "8890b994a6b8aae212f414262503e3b45925694f79469f181c0285af8140f25b",
     "Content.IntegrationTests/GameTests.RangeOwnership.cs": "75df4e298ea4218c39a7d863a9e8591972fed045cd0bad842a1196fdc1c6d43d",
     "OpenDreamRuntime/Procs/DMOpcodeHandlers.cs": "c467c88732460adcf3349ec6e5608cd8fd9e3208e889c8452c01cc7445673121",
     "tests/call_ext_ownership/control.py": "abaa7baaf6b29a6acfd0257f78dc103fe7bb03c8166ffdd581e1a4a2f34ae831",
-    "tests/field_ownership/source-manifest.json": "3c918fb1ebba8219aff4da2f24154355b86f5c800b654141028d40dc0775918a",
-    "tests/index_read_ownership/source-manifest.json": "684bd0c70fd5f26f544e4bd659debff42841cf09fbc45fe699cdd8d89f943570",
+    "tests/field_ownership/source-manifest.json": "9760c967dd67bb9a30eb93846d4021e1bea42d643dc9024ed07659cb0b4cd43b",
+    "tests/index_read_ownership/source-manifest.json": "99aea8fb54c331357bd7efac0f7100414625fbebe234c4fdc4315cf4c901ed56",
     "tests/missing_operator_ownership/control.py": "d0e911a0e8b2971fe0474e9ce353e3cdf9446cb3add1d99d2bb74b5636c7c442",
     "tests/numeric_list_ownership/control.py": "9992cac5da97284afe35e1153cc09cc3ea68742aaa3bfe9ba05536039433bb11",
     "tests/range_ownership/control.py": "13cbf6eeffa72e9dd0f2cffe43e8705d6db2ec6c1716d51b22f3b2027b3d5467",
