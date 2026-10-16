@@ -9,7 +9,7 @@
   ],
   "expected_sources": {
     "OpenDreamRuntime/Procs/DMProc.cs": "90d11d9bd08ccc768cce7c085678594b792758cd822dcc9a2f3d34958ca687fc",
-    "Content.IntegrationTests/GameTests.cs": "f53a97e17fd7f8f249a2bdb05d3ed8c7b1cfa887e29e490dc6884823668ba27c",
+    "Content.IntegrationTests/GameTests.cs": "8890b994a6b8aae212f414262503e3b45925694f79469f181c0285af8140f25b",
     "Content.IntegrationTests/GameTests.IndexReadOwnership.cs": "318f6b38ef151dac2b18f8c7add7340bdb96203f26d3b8d1294fc0b7be61a237",
     ".github/workflows/index-read-ownership.yml": "ddd092ec1af5d783af4e7675520d2f98ad409288506e570a5b7a878ad52f930f",
     "tests/index_read_ownership/control.py": "3b4bcf5e4c2f3f9d7ded7d4a977b8d7d69dd5ddb4ab78fac9999d825c1e8a9fc",

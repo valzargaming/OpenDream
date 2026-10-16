@@ -10,21 +10,21 @@
   "expected_sources": {
     ".github/workflows/range-ownership.yml": "2d799b02fe5f7e80b88355d13202fc1540cc293a0e3c3016af6894eb5a4b842b",
     "Content.IntegrationTests/DMProject/code.dm": "446623e93b65fd8ca3a5d1ca9fe219cf8ca0ef909e97321489dc389dd051d840",
-    "Content.IntegrationTests/GameTests.cs": "f53a97e17fd7f8f249a2bdb05d3ed8c7b1cfa887e29e490dc6884823668ba27c",
+    "Content.IntegrationTests/GameTests.cs": "8890b994a6b8aae212f414262503e3b45925694f79469f181c0285af8140f25b",
     "Content.IntegrationTests/GameTests.RangeOwnership.cs": "75df4e298ea4218c39a7d863a9e8591972fed045cd0bad842a1196fdc1c6d43d",
     "OpenDreamRuntime/Procs/DMOpcodeHandlers.cs": "c467c88732460adcf3349ec6e5608cd8fd9e3208e889c8452c01cc7445673121",
-    "tests/call_ext_ownership/control.py": "1935430e8162a1d2d25f2706bfc540798f996fafc4041147cbcdc881c07b1bf4",
-    "tests/field_ownership/source-manifest.json": "900e8cfb6924822dd0fe842e8736f71768c038f696d8e78dfd5772e9497df408",
-    "tests/index_read_ownership/source-manifest.json": "efd8b71a2c612a52239e5adbd14a292864f1ed60a23e8156980e5de1fd2c7c1d",
-    "tests/missing_operator_ownership/control.py": "ef7052ca814fac0a75f534ba93821a79020a1c8b9f83515c3c1ffc3955d20fac",
-    "tests/numeric_list_ownership/control.py": "20127d2a5fadfbce3ae3561b77b3ba5bb6e2651c07a7527ed6bcc886d4a22104",
+    "tests/call_ext_ownership/control.py": "abaa7baaf6b29a6acfd0257f78dc103fe7bb03c8166ffdd581e1a4a2f34ae831",
+    "tests/field_ownership/source-manifest.json": "f43d71135f5aeeb48532c74f0114707de5f3ffc41c45f4335f7207316e5ff5a8",
+    "tests/index_read_ownership/source-manifest.json": "684bd0c70fd5f26f544e4bd659debff42841cf09fbc45fe699cdd8d89f943570",
+    "tests/missing_operator_ownership/control.py": "d0e911a0e8b2971fe0474e9ce353e3cdf9446cb3add1d99d2bb74b5636c7c442",
+    "tests/numeric_list_ownership/control.py": "9992cac5da97284afe35e1153cc09cc3ea68742aaa3bfe9ba05536039433bb11",
     "tests/range_ownership/control.py": "13cbf6eeffa72e9dd0f2cffe43e8705d6db2ec6c1716d51b22f3b2027b3d5467",
     "tests/range_ownership/controls.json": "c12a3cb8b1270ec6fbae39c35f7810dc445d7de38c3ccfd0aefdb84498079466",
     "tests/range_ownership/test_controls.py": "ea9054bfc3bd21bfc3a30d23212e9708001a592ee073ae608dac0772d289c595",
     "tests/range_ownership/test_receipts.py": "c11480882b986ca06c885eeea91a3bc6758286af25c96db4882db50fadb35095",
     "tests/range_ownership/test_verify.py": "355afd27b0b830c5b7ced124a26423e3f275a0d8e1299e9906e62cecad513fb6",
     "tests/range_ownership/verify.py": "68fee00629d5f565befd14ca015b89ca1f2c1f5be3124a32502ccce291f8dbb8",
-    "tests/list_pool_capacity/dependency_composition.py": "0b58dedd30ff517e2e22408fa43fcb36d6d5f1e936a8906013411aa8f37473fe",
+    "tests/list_pool_capacity/dependency_composition.py": "6d93417164975ceafda1e77d54659baf92b8fb7476fb185c43746dca8526070f",
     "tests/list_pool_capacity/frozen_dependencies/list-original.cs": "c5c3baed5e30333ce63fcd38e2be40d5b3cc07bda4c900171e8da84d0a588e55",
     "tests/list_pool_capacity/frozen_dependencies/numeric-original.py": "acc92ade2f46f0911a5ece1d1691de19a183dc09540afeca1bda4e002b440a5a",
     "tests/list_pool_capacity/frozen_dependencies/numeric-composed.py": "20127d2a5fadfbce3ae3561b77b3ba5bb6e2651c07a7527ed6bcc886d4a22104",
@@ -40,15 +40,15 @@
   "dependency_compositions": {
     "tests/numeric_list_ownership/control.py": {
       "original_sha256": "acc92ade2f46f0911a5ece1d1691de19a183dc09540afeca1bda4e002b440a5a",
-      "candidate_sha256": "20127d2a5fadfbce3ae3561b77b3ba5bb6e2651c07a7527ed6bcc886d4a22104",
+      "candidate_sha256": "9992cac5da97284afe35e1153cc09cc3ea68742aaa3bfe9ba05536039433bb11",
       "original_commit": "8b46fd2a6dda5095df1d0fc8db7fd029cd186ba4",
-      "composition_commit": "12fc9410a7f68b89d2dd796fa9f77900bbb076d1"
+      "composition_commit": "7497005929f2972efd112fd792b873a06ca1364a"
     },
     "tests/missing_operator_ownership/control.py": {
       "original_sha256": "a30b8e1f59f23e34288340651d279c198913f3e11039ec593b2317ce0a6c7497",
-      "candidate_sha256": "ef7052ca814fac0a75f534ba93821a79020a1c8b9f83515c3c1ffc3955d20fac",
+      "candidate_sha256": "d0e911a0e8b2971fe0474e9ce353e3cdf9446cb3add1d99d2bb74b5636c7c442",
       "original_commit": "53554597f7b594ea8a75570240d69d7d3003d56f",
-      "composition_commit": "8b46fd2a6dda5095df1d0fc8db7fd029cd186ba4"
+      "composition_commit": "7497005929f2972efd112fd792b873a06ca1364a"
     }
   }
 }
