@@ -31,6 +31,8 @@ jobs:
         run: python -B -m unittest discover -s tools/civ13-provenance -p test_standalone.py -v
       - name: Verify shared native identity fixture composition
         run: python -B -m unittest discover -s tools/civ13-provenance -p test_fixture_composition.py -v
+      - name: Verify exact prepared Robust dependency admission
+        run: python -B -m unittest discover -s tools/civ13-provenance -p test_robust_preparation.py -v
       - name: Verify file-only server acceptance distribution contracts
         run: python -B -m unittest discover -s tools/civ13-provenance -p test_server_acceptance.py -v
       - name: Build pinned client, Shared and authentication loader with behavior controls

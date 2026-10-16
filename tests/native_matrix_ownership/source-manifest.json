@@ -90,8 +90,10 @@
     "OpenDreamRuntime/Objects/Types/DreamObjectSavefile.cs": "565b7d86e547ddf96d28cc33ef85e38bde0c771da69d7f2a88807f805395547f",
     "OpenDreamRuntime/Resources/DreamResourceManager.cs": "ad62b66bfa26039da65ce38ae282d9edefb9fd7392877ae4dcd765f4c9ad84a3",
     "OpenDreamRuntime/Map/DreamMapManager.cs": "7756a5276f625fc8c66a6dc30005212054888462c4040f51f8c4ff648d73bf59",
-    "tests/assoc_list_construction/warning_coordinates.py": "73ad2ac6972e1e1ea34f08953e3682e6d605c5fe1e40a1efd90157cbbe7e84f6",
-    "tests/assoc_list_construction/test_warning_coordinates.py": "51bb8a381358b261cf1170dee226171690f47f73bcda1996d3b00739d2b2bfd6"
+    "tests/assoc_list_construction/warning_coordinates.py": "f9aaf4e90cc26e4c388cb40593d9073d50f2533f0121857984fe93cd022ddc1c",
+    "tests/assoc_list_construction/test_warning_coordinates.py": "56e030e97d66e6c7802466a41a2e0acd9abc917cc7d03ce50dc8e25dabc2c33d",
+    "OpenDreamClient/States/MainMenu/MainMenuState.cs": "f99c51f12f148e9e62eae679c7d22765bfbdd8f0308f3dd1ccd2fd7fd3c38384",
+    "OpenDreamRuntime/DreamConnection.cs": "5938f66866b911f268db30d96d44b1554718befa5697c118d4edebf537215453"
   },
   "dependency_compositions": {
     "OpenDreamRuntime/Objects/Types/DreamList.cs": {

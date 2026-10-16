@@ -8,7 +8,8 @@ import subprocess
 ROOT = Path(__file__).resolve().parents[2]
 BASE = '31b11b063e4b10be15472de8a566d9a466781e4c'
 RESOURCE = 'OpenDreamRuntime/Resources/DreamResource.cs'
-PATHS = [RESOURCE, 'OpenDreamRuntime/Resources/SaveCostProfile.cs',
+PATHS = ['tools/civ13-provenance/prepare-robust.py',
+         'tools/civ13-provenance/robust-auth.patch', RESOURCE, 'OpenDreamRuntime/Resources/SaveCostProfile.cs',
          'OpenDreamRuntime/Objects/Types/DreamObjectSavefile.cs',
          'OpenDreamShared/Dream/StringFormatDecoder.cs',
          'Content.IntegrationTests/ResourceOutputAllocationTests.cs',
@@ -36,8 +37,12 @@ def mutate(raw, mode):
 
 def prepare(mode, head, output, verify=False):
     assert git('rev-parse', 'HEAD').decode().strip() == head
-    changed = git('diff', '--name-only', 'HEAD').decode().splitlines()
-    assert set(changed) <= ({RESOURCE} if verify else set())
+    changed = git('diff', '--ignore-submodules=none', '--name-only', 'HEAD').decode().splitlines()
+    allowed = {RESOURCE} if verify else set()
+    assert set(changed) <= allowed | {'RobustToolbox'}, 'unreviewed changes'
+    if 'RobustToolbox' in changed:
+        import runpy
+        runpy.run_path(str(ROOT/'tools/civ13-provenance/prepare-robust.py'))['verify_root_changes'](ROOT, changed, allowed)
     records = {}
     for name in PATHS:
         committed = git('cat-file', 'blob', head + ':' + name)
@@ -48,7 +53,10 @@ def prepare(mode, head, output, verify=False):
             wanted = compose_cache_resource(original) if mode == 'baseline' else mutate(committed, mode)
             records['immutable_original_sha256'] = sha(original)
         actual = (ROOT / name).read_bytes()
-        assert actual == (wanted if verify else committed), 'source drift: ' + name
+        expected = wanted if verify else committed
+        if name.startswith('tools/civ13-provenance/'):
+            actual, expected = actual.replace(b'\r\n', b'\n'), expected.replace(b'\r\n', b'\n')
+        assert actual == expected, 'source drift: ' + name
         records[name] = {'committed': sha(committed), 'prepared': sha(wanted)}
         if not verify:
             target = output / 'prepared-source' / name

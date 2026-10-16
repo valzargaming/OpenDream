@@ -8,7 +8,8 @@ import subprocess
 ROOT = Path(__file__).resolve().parents[2]
 BASE = '8b46fd2a6dda5095df1d0fc8db7fd029cd186ba4'
 LIST = 'OpenDreamRuntime/Objects/Types/DreamList.cs'
-PATHS = [LIST, 'OpenDreamRuntime/Objects/DreamObject.cs',
+PATHS = ['tools/civ13-provenance/prepare-robust.py',
+         'tools/civ13-provenance/robust-auth.patch', LIST, 'OpenDreamRuntime/Objects/DreamObject.cs',
          'OpenDreamRuntime/Objects/DreamObjectTree.cs', 'OpenDreamRuntime/Objects/DreamRefManager.cs',
          'OpenDreamRuntime/DreamValue.cs', 'OpenDreamRuntime/DreamManager.cs',
          'OpenDreamShared/OpenDreamCVars.cs', 'Content.IntegrationTests/ListPoolCapacityTests.cs']
@@ -26,8 +27,12 @@ def mutate(raw, mode):
 
 def prepare(mode, head, output, verify=False):
     assert git('rev-parse', 'HEAD').decode().strip() == head
-    changed = git('diff', '--name-only', 'HEAD').decode().splitlines()
-    assert set(changed) <= ({LIST} if verify else set())
+    changed = git('diff', '--ignore-submodules=none', '--name-only', 'HEAD').decode().splitlines()
+    allowed = {LIST} if verify else set()
+    assert set(changed) <= allowed | {'RobustToolbox'}, 'unreviewed changes'
+    if 'RobustToolbox' in changed:
+        import runpy
+        runpy.run_path(str(ROOT/'tools/civ13-provenance/prepare-robust.py'))['verify_root_changes'](ROOT, changed, allowed)
     original = git('cat-file', 'blob', BASE + ':' + LIST)
     assert b'MaximumPooledCapacity' not in original
     assert original.count(b'ListPool.Count < DreamManager.ListPoolSize') == 1
@@ -35,7 +40,11 @@ def prepare(mode, head, output, verify=False):
     for name in PATHS:
         committed = git('cat-file', 'blob', head + ':' + name)
         wanted = original if name == LIST and mode == 'baseline' else mutate(committed, mode) if name == LIST else committed
-        assert (ROOT/name).read_bytes() == (wanted if verify else committed), 'source drift: '+name
+        actual = (ROOT/name).read_bytes()
+        expected = wanted if verify else committed
+        if name.startswith('tools/civ13-provenance/'):
+            actual, expected = actual.replace(b'\r\n', b'\n'), expected.replace(b'\r\n', b'\n')
+        assert actual == expected, 'source drift: '+name
         records[name] = {'committed':sha(committed), 'prepared':sha(wanted)}
         if not verify:
             target = output/'prepared-source'/name

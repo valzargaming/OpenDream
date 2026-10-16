@@ -29,7 +29,8 @@ class NativeFixtureCompositionTests(unittest.TestCase):
 
     def test_combined_driver_matches_reviewed_pin(self):
         raw = (ROOT / 'Content.IntegrationTests/GameTests.cs').read_bytes()
-        self.assertEqual(hashlib.sha256(raw).hexdigest().encode(), COMPOSITION['IDENTITY_FIXTURE_CURRENT'])
+        self.assertEqual(hashlib.sha256(raw.replace(b'\r\n', b'\n')).hexdigest().encode(),
+                         COMPOSITION['IDENTITY_FIXTURE_CURRENT'])
 
     def test_only_fixture_pin_changes_frozen_dependency_candidates(self):
         values = COMPOSITION['frozen']()
@@ -40,7 +41,7 @@ class NativeFixtureCompositionTests(unittest.TestCase):
                 expected = values[frozen].replace(COMPOSITION['IDENTITY_FIXTURE_PREVIOUS'],
                                                   COMPOSITION['IDENTITY_FIXTURE_CURRENT'], 1)
                 self.assertEqual(candidate, expected)
-                self.assertEqual((ROOT / path).read_bytes(), candidate)
+                self.assertEqual((ROOT / path).read_bytes().replace(b'\r\n', b'\n'), candidate)
 
     def test_unknown_or_duplicate_fixture_pin_is_rejected(self):
         old = COMPOSITION['IDENTITY_FIXTURE_PREVIOUS']

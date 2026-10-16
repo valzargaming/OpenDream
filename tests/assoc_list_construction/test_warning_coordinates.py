@@ -7,6 +7,24 @@ def load(name):
 W=load('warning_coordinates');A=load('archive_logs')
 
 class WarningCoordinates(unittest.TestCase):
+    def test_native_identity_moves_only_unchanged_diagnostic_lines(self):
+        paths={'OpenDreamClient/States/MainMenu/MainMenuState.cs',
+               'OpenDreamRuntime/DreamConnection.cs', 'OpenDreamRuntime/DreamManager.cs'}
+        spec=json.loads((HERE/'inherited-build-warnings.json').read_text())
+        original=spec['cases']['matrix']['positive']['warnings']
+        selected=[row for row in original if any(row.startswith(path+'(') for path in paths)]
+        self.assertEqual(len(selected),16)
+        with tempfile.TemporaryDirectory() as temporary:
+            folder=Path(temporary);W.capture(folder)
+            composed=W.compose(selected,folder)
+            self.assertEqual(sum(old!=new for old,new in zip(selected,composed)),10)
+            # A coordinate translation must preserve the entire diagnostic payload.
+            self.assertEqual([row.split('): warning ',1)[1] for row in selected],
+                             [row.split('): warning ',1)[1] for row in composed])
+            for path in paths:
+                with self.assertRaises(AssertionError):
+                    W.compose([path+'(2147483647,1): warning CS0000: foreign'],folder)
+
     def test_exact_source_map_and_all_diagnostic_identity(self):
         spec=json.loads((HERE/'inherited-build-warnings.json').read_text())
         with tempfile.TemporaryDirectory() as temporary:
