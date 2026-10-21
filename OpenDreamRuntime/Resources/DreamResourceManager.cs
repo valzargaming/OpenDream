@@ -290,10 +290,15 @@ public sealed partial class DreamResourceManager {
     public bool SaveTextToFile(string filePath, string text) {
         try {
             Directory.GetParent(filePath)?.Create();
-            File.WriteAllText(filePath, text);
+            // text2file appends a line, including when Text already ends in LF.
+            // Use a literal LF on every platform; File.AppendAllText uses UTF-8 without a BOM.
+            File.AppendAllText(filePath, text + "\n");
         } catch (Exception) {
             return false;
         }
+
+        if (TryLoadResource(filePath, out var resource))
+            resource.ReleaseFileDataCache();
 
         return true;
     }
