@@ -18,6 +18,9 @@ class NativeFixtureCompositionTests(unittest.TestCase):
             builds = [match.start() for match in re.finditer(r'^.*dotnet build.*$', source, re.M)
                       if ('Content.IntegrationTests/' in match.group() or 'OpenDream.slnx' in match.group()
                           or 'dotnet build --configuration' in match.group())]
+            # The save-cost driver builds the full solution behind a Python call.
+            builds.extend(match.start() for match in re.finditer(
+                r'^.*tools/save_cost_profile/ci\.py build\b.*$', source, re.M))
             if not builds:
                 continue
             with self.subTest(workflow=path.name):
@@ -26,6 +29,8 @@ class NativeFixtureCompositionTests(unittest.TestCase):
                 checked.append(path.name)
         self.assertIn('field-ownership.yml', checked)
         self.assertIn('numeric-list-ownership.yml', checked)
+        self.assertIn('save-cost-profile.yml', checked)
+        self.assertIn('save-cost-profile-controls.yml', checked)
 
     def test_combined_driver_matches_reviewed_pin(self):
         raw = (ROOT / 'Content.IntegrationTests/GameTests.cs').read_bytes()
