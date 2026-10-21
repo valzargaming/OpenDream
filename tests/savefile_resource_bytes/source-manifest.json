@@ -2,7 +2,7 @@
   "schema": 1,
   "base_commit": "5075c426b2f6f37dccb14b0902bb98780bbd62e1",
   "sources": {
-    ".github/workflows/savefile-resource-bytes.yml": "b169358edf2f69af215b72ea7c0c2011c578df1d100f17ac7db6b783ab9ac178",
+    ".github/workflows/savefile-resource-bytes.yml": "f09fb2a3434a5ddf21951f6244639637897c8c852cd66372a0dd1cedc656d51b",
     "Content.IntegrationTests/Content.IntegrationTests.csproj": "7d2ed2e3871ebe160b8b2324d980ea9192725b226dca2d1d752236ae490114a3",
     "Content.IntegrationTests/ContentIntegrationTest.cs": "c73200f630470b7e4fc82db2e48b2cfcd62b579d460b5573570a51d4cdfdf51e",
     "Content.IntegrationTests/DMProject/Fixtures/savefile-resource-bytes.dm": "89dd6f2eb39370a8348a547d8eef60db0a374bc7da3e294a41e86b7567f24d2d",
