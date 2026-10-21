@@ -14,7 +14,7 @@
     }
   ],
   "expected_sources": {
-    ".github/workflows/assoc-list-construction.yml": "f89a5f284058848485aa40b9cc968c226fdd6768423cfa6bbff28f6168966e8c",
+    ".github/workflows/assoc-list-construction.yml": "185a4a10ad5739a3afbaad71b091954915de53cbd78e75cf8e27c2d26a11e06b",
     ".github/workflows/check-test-parity.yml": "933a567d3508b64f37a6ac4e82b8f3dca4212eb037dd26d478e7efef9e808dbf",
     "Content.IntegrationTests/AssocListConstructionTests.cs": "27da87650e4d44e9adb36f25dc50d187add1cecf45062d2ffd4bccf14808a41c",
     "Content.IntegrationTests/DMProject/Fixtures/assoc-list-construction.dm": "072ca012a493d871f9bfd161d699ed8abf02726928c1067fb94025dc08a6936d",
@@ -46,6 +46,14 @@
     "tests/assoc_list_construction/test_warning_coordinates.py": "e0863a5319b5899f46f1afbcfd9943dba91e09c9710ac59dfddc4fda368eba25",
     "OpenDreamClient/States/MainMenu/MainMenuState.cs": "f99c51f12f148e9e62eae679c7d22765bfbdd8f0308f3dd1ccd2fd7fd3c38384",
     "OpenDreamRuntime/DreamConnection.cs": "5938f66866b911f268db30d96d44b1554718befa5697c118d4edebf537215453",
-    "OpenDreamRuntime/DreamManager.cs": "973ba18d864b81da6621aac71c10d6df24715d36a06a0ffaafa199fee79788ea"
+    "OpenDreamRuntime/DreamManager.cs": "973ba18d864b81da6621aac71c10d6df24715d36a06a0ffaafa199fee79788ea",
+    "tests/savefile_resource_bytes/controls.json": "3a5f96b61468dfe0742af5a10793cc0f5049c45d67bcb09b140e68960c7b4a73",
+    "tools/save_cost_profile/sdk_guard.py": "9eb724c24ad3523be68ed879085a84e30ddc2477a0f3a4c59b06e67640f855c4",
+    "tools/save_cost_profile/test_sdk_guard.py": "82b1892aecee20eb27cf3207d152a6d55abbf4b5052fe8d0da735c56ce04a52c",
+    ".github/workflows/savefile-resource-bytes.yml": "4ee1a9e32d0eb1589bbc60793c620b5c0b61a0a5bf433ae485d4563a22d28657",
+    ".github/workflows/savefile-raw-cache.yml": "ce9e63742f46bc11d4af9c0f55a5e58d1e9c5d466dc021a4174fd75959185946",
+    ".github/workflows/native-matrix-ownership.yml": "d7de6de6a352fce10cf46b8d1f691805c4b7b612e0997ee51d927fc183d79b9c",
+    ".github/workflows/save-cost-profile.yml": "8e9c73615513963b260739e31f3312cf7111eb8b2eeca7fbb6911f6a6f9e75aa",
+    ".github/workflows/text2file-compatibility.yml": "7649f670f3cc069fe3ec4710503a77de2d9d57d8528a0f1bbe92fb573c2e4ace"
   }
 }

@@ -6,8 +6,8 @@
   "historical_resource_lf_sha256": "7eb6c235e91a88f18acc394d9d9a1599747da456a9177679222eeda415a0cc4d",
   "transform": "CRLF to LF only; committed Linux source must match exactly",
   "sources": {
-    ".github/workflows/savefile-raw-cache.yml": "bc697a5a141ac4cf306bbffa92d698f13e1d819600d0c83426aa069397d1e960",
-    ".github/workflows/savefile-resource-bytes.yml": "f09fb2a3434a5ddf21951f6244639637897c8c852cd66372a0dd1cedc656d51b",
+    ".github/workflows/savefile-raw-cache.yml": "ce9e63742f46bc11d4af9c0f55a5e58d1e9c5d466dc021a4174fd75959185946",
+    ".github/workflows/savefile-resource-bytes.yml": "4ee1a9e32d0eb1589bbc60793c620b5c0b61a0a5bf433ae485d4563a22d28657",
     "Content.IntegrationTests/Content.IntegrationTests.csproj": "7d2ed2e3871ebe160b8b2324d980ea9192725b226dca2d1d752236ae490114a3",
     "Content.IntegrationTests/ContentIntegrationTest.cs": "c73200f630470b7e4fc82db2e48b2cfcd62b579d460b5573570a51d4cdfdf51e",
     "Content.IntegrationTests/DMProject/Fixtures/savefile-raw-cache.dm": "1ef54f7733fe7fb66c08910816c35f4b600092c9bd6ff8e074683c520036524c",
@@ -46,13 +46,13 @@
     "tests/savefile_resource_bytes/test_controls.py": "eee3aedd44a642a4bbaf821070ae1a4df68278d1ef971dccd785c2801fd52da2",
     "tests/savefile_resource_bytes/verify.py": "869e03484dfda87294a87b2e58247e41c828df672c730e73145b6251fee58ae9",
     "tests/string_format_decoder/verify.py": "1e1bf99ca675404f5e40083541ffbffc76351c16a9e26e4760a63493c3debf88",
-    "tools/save_cost_profile/control.py": "2a6d6d9cc7e1f45c6ce6f6e5653a26359f0f1c957b8413c8b09d84ef4c3e8a09",
+    "tools/save_cost_profile/control.py": "372e9b7e5444f6fa1f24d478fe36010d2d0e66030ebe66bc2d2271925ce931ef",
     "tools/save_cost_profile/manifest.json": "6e088c16acd60ef2a5cb2b9601bcba258e356a6f8bbd4952fc0d3906596f4363",
-    "tools/save_cost_profile/test_source_composition.py": "862a5f4da6dd1175c2bd69c9edc96aa7538f16d2e2508668cdda9bdb84334e82",
+    "tools/save_cost_profile/test_source_composition.py": "c9adc95e63327f9ca85006d7bcfa9be39d8bf40ef734dafa9662aa4c1360a4c2",
     ".gitattributes": "011eed8c7cc4815654e15578bd7e60474ca4f7c5cd4bfdc848ea716eb92a6d9f",
     "tests/resource_output_allocation/control.py": "cb07daf018e9ea366b0b8866740dc6e5176181f395c75019063dd425cad0667d",
     "tests/resource_output_allocation/test_controls.py": "06417904b9c46b77e08e61f913a1f850fe5cc98c700d843fd7ecb4c86beb632e",
-    "tests/savefile_resource_bytes/source-manifest.json": "3cee4bd502ceb23db377c2cb1e2ec3aed14bb3821f77c04c634fc1f99df17142",
+    "tests/savefile_resource_bytes/source-manifest.json": "07f61e8d73d2441a9b343b6381bb8707416ff8983d5ffb1970c50f19fa6cf5d3",
     "tests/string_format_decoder/source-manifest.json": "9dc7577fa4b38c85ca3d7f727c92e32acf91e0c40e60a83d6a1cdcfd93fcfd9b",
     "Content.IntegrationTests/SetupCompileDM.cs": "b36fbd0d33ae6a14a2d8e9fc65784b1520aaa8fc2747c02e00c58a14468526b9",
     "DMCompiler/DMCompiler.csproj": "0f323d9bd962d7fea71bdabb3252952a4202d142b587587bc01a7f80703f3bbc",
@@ -69,7 +69,13 @@
     "tests/list_pool_capacity/frozen_dependencies/missing-composed.py": "ef7052ca814fac0a75f534ba93821a79020a1c8b9f83515c3c1ffc3955d20fac",
     "tools/civ13-provenance/prepare-robust.py": "f0fb2772d073bb4e41ad7744cc79ce72c1cb73f4a7358363e02a44df5a4265b4",
     "tools/civ13-provenance/robust-auth.patch": "74d9231cdc842f8aec2082c147e214cc6d34433db806d4b543d9677fe3431a1d",
-    "tools/civ13-provenance/test_robust_preparation.py": "7e3963fb4e7f401ac74ad69564e2d34844024855585238951a3d105a236c8909"
+    "tools/civ13-provenance/test_robust_preparation.py": "7e3963fb4e7f401ac74ad69564e2d34844024855585238951a3d105a236c8909",
+    "tools/save_cost_profile/sdk_guard.py": "9eb724c24ad3523be68ed879085a84e30ddc2477a0f3a4c59b06e67640f855c4",
+    "tools/save_cost_profile/test_sdk_guard.py": "82b1892aecee20eb27cf3207d152a6d55abbf4b5052fe8d0da735c56ce04a52c",
+    ".github/workflows/native-matrix-ownership.yml": "d7de6de6a352fce10cf46b8d1f691805c4b7b612e0997ee51d927fc183d79b9c",
+    ".github/workflows/assoc-list-construction.yml": "185a4a10ad5739a3afbaad71b091954915de53cbd78e75cf8e27c2d26a11e06b",
+    ".github/workflows/save-cost-profile.yml": "8e9c73615513963b260739e31f3312cf7111eb8b2eeca7fbb6911f6a6f9e75aa",
+    ".github/workflows/text2file-compatibility.yml": "7649f670f3cc069fe3ec4710503a77de2d9d57d8528a0f1bbe92fb573c2e4ace"
   },
   "dependency_compositions": {
     ".gitattributes": {

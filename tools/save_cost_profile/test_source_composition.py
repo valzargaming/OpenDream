@@ -15,13 +15,20 @@ class SourceCompositionTests(unittest.TestCase):
         project = (PACKAGE.parents[1]/'Content.IntegrationTests/Content.IntegrationTests.csproj').read_text()
         self.assertIn('<Compile Remove="ResourceOutputAllocationTests.cs" Condition="\'$(SaveCostHostOriginal)\' == \'true\'" />',project)
         import ci
-        with patch.object(ci.subprocess,'check_output',return_value=b'10.0.401\n'), patch.object(ci,'run',return_value=1) as run:
+        with patch.object(ci.subprocess,'run',return_value=SimpleNamespace(returncode=0)), patch.object(ci,'run',return_value=1) as run:
             # Observe the actual build command without starting a native executable.
             for mode in ('original','positive'):
                 run.side_effect=[0,1]
                 with self.assertRaises(AssertionError):ci.build(mode,Path('unused'))
                 command=run.call_args.args[0]
                 self.assertIn('-p:SaveCostHostOriginal='+('true' if mode=='original' else 'false'),command)
+    def test_sdk_guard_failure_stops_before_engine_build(self):
+        import ci
+        failure = ci.subprocess.CalledProcessError(1, ['sdk_guard.py'])
+        with patch.object(ci.subprocess, 'run', side_effect=failure), patch.object(ci, 'run') as run:
+            with self.assertRaises(ci.subprocess.CalledProcessError):
+                ci.build('original', Path('unused'))
+            run.assert_not_called()
     def test_exact_resource_composition_and_adversaries(self):
         frozen = (PACKAGE/'frozen/candidate'/control.RESOURCE).read_bytes()
         current = (PACKAGE.parents[1]/control.RESOURCE).read_bytes()

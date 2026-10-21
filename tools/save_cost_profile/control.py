@@ -20,7 +20,7 @@ COMPOSED_SAVEFILE_SHA = "565b7d86e547ddf96d28cc33ef85e38bde0c771da69d7f2a88807f8
 COMPOSED_MANAGER_SHA = "5d567afb602ba3c118336e1ba51106e122ad99ec7e12bd1309ada3af97c55683"
 OLD_DECODE = b"DreamResourceManager.CreateResource(Convert.FromBase64String(sfDreamFileValue.Data))"
 NEW_DECODE = b"DreamResourceManager.CreateResourceFromSavefile(Convert.FromBase64String(sfDreamFileValue.Data))"
-PACKAGE_CODE = ("controls.json", "control.py", "verify.py", "ci.py", "test_verify.py", "run_package.py", "control_batch.py", "test_copied_artifact_logging.py", "test_source_composition.py")
+PACKAGE_CODE = ("controls.json", "control.py", "verify.py", "ci.py", "test_verify.py", "run_package.py", "control_batch.py", "test_copied_artifact_logging.py", "test_source_composition.py", "sdk_guard.py", "test_sdk_guard.py")
 METHODS = ["ActualFlushCountsBytesAndClocks", "CappedFlushStopsCounters", "EnabledCloseAndDirtyFailure",
            "ScopeAndResourceFilterCoverage", "DisabledFlushAndLifecycle", "ModerateFlushWorkload", "EmptyClockCalibration"]
 
