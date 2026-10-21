@@ -10,6 +10,8 @@ on:
       - tests/assoc_list_construction/archive_logs.py
       - tests/assoc_list_construction/test_archive*.py
       - .github/workflows/native-matrix-ownership.yml
+      - 'tools/save_cost_profile/sdk_guard.py'
+      - 'tools/save_cost_profile/test_sdk_guard.py'
   workflow_dispatch:
 permissions:
   contents: read
@@ -33,6 +35,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.13'
+      - name: Pure SDK selection guard controls
+        run: python -m unittest discover -s tools/save_cost_profile -p 'test_sdk_guard.py' -v
       - name: Pure parser and source controls
         run: |
           python -m unittest discover -s tests/native_matrix_ownership -p 'test_*.py' -v
@@ -49,7 +53,7 @@ jobs:
       - name: Full build with original log
         shell: bash
         run: |
-          test "$(dotnet --version)" = '10.0.401'
+          python tools/save_cost_profile/sdk_guard.py --results matrix-results --comparison shell
           dotnet --info > matrix-results/sdk-info.log
           set +e
           dotnet build OpenDream.slnx --configuration Release --property WarningLevel=4 -m:1 -p:UseSharedCompilation=false --disable-build-servers > matrix-results/build.log 2>&1

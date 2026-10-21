@@ -2,7 +2,7 @@
   "schema": 1,
   "base_commit": "5075c426b2f6f37dccb14b0902bb98780bbd62e1",
   "sources": {
-    ".github/workflows/savefile-resource-bytes.yml": "f9007e8a8f739e3ed4c41920b6f0e92a94d4f02f9f8a5d65b6315d5979185b48",
+    ".github/workflows/savefile-resource-bytes.yml": "b8e7a2b43c89d8ae46b9ea9faa6fc3d39178c2705f4791c79537e7ac8c7b5baf",
     "Content.IntegrationTests/Content.IntegrationTests.csproj": "7d2ed2e3871ebe160b8b2324d980ea9192725b226dca2d1d752236ae490114a3",
     "Content.IntegrationTests/ContentIntegrationTest.cs": "11440e100252e5f0c634a160c168cd7bb7646948613425746a84f759413e8ddb",
     "Content.IntegrationTests/DMProject/Fixtures/savefile-resource-bytes.dm": "89dd6f2eb39370a8348a547d8eef60db0a374bc7da3e294a41e86b7567f24d2d",
@@ -28,9 +28,11 @@
     "tests/savefile_resource_bytes/test_controls.py": "b9e84023da3b090f9571ef26acc91c93156f21d1d6d132c3e8321bbd0b7a3386",
     "tests/savefile_resource_bytes/verify.py": "869e03484dfda87294a87b2e58247e41c828df672c730e73145b6251fee58ae9",
     "tests/string_format_decoder/verify.py": "1e1bf99ca675404f5e40083541ffbffc76351c16a9e26e4760a63493c3debf88",
-    "tools/save_cost_profile/control.py": "fb3056607af3e4f1fa7958074fb1f8f50626debe022024e5125c870b63a20763",
+    "tools/save_cost_profile/control.py": "4e53d86e002fcfa8419ffda0eba3ed7961b34e26e3d74124419920ea9303e495",
     "tools/save_cost_profile/manifest.json": "6e088c16acd60ef2a5cb2b9601bcba258e356a6f8bbd4952fc0d3906596f4363",
-    "tools/save_cost_profile/test_source_composition.py": "862a5f4da6dd1175c2bd69c9edc96aa7538f16d2e2508668cdda9bdb84334e82"
+    "tools/save_cost_profile/test_source_composition.py": "862a5f4da6dd1175c2bd69c9edc96aa7538f16d2e2508668cdda9bdb84334e82",
+    "tools/save_cost_profile/sdk_guard.py": "472225c05da02128acd6e6e996b004a3b01ac77eaaff92d8f9d5c02ba33aa643",
+    "tools/save_cost_profile/test_sdk_guard.py": "99a914b692350eec9a22ff0419bec1e6946982d729809f9ba59aec544636e3f4"
   },
   "submodules": "160000 commit af2a7d0406b410c4d960f0f4b34513651c6dc742\tRobustToolbox",
   "evidence": "source-only candidate; no native run"

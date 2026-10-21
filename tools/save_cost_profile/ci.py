@@ -35,7 +35,8 @@ def run(command, cwd, log, timeout, env=None):
     return code
 
 def build(mode, results):
-    assert subprocess.check_output(["dotnet", "--version"], cwd=ROOT).decode().strip() == "10.0.401"
+    subprocess.run([sys.executable, str(PACKAGE / "sdk_guard.py"), "--results", str(results),
+                    "--comparison", "strip"], cwd=ROOT, check=True)
     assert run(["dotnet", "--info"], ROOT, results / "sdk-info.log", 60) == 0
     command = ["dotnet", "build", "OpenDream.slnx", "--configuration", "Release", "--property", "WarningLevel=4",
                "-m:1", "-p:UseSharedCompilation=false", "--disable-build-servers", "-p:SaveCostHostProfile=" + ("false" if mode == "original" else "true"),

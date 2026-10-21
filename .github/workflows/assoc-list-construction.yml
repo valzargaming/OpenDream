@@ -7,6 +7,8 @@ on:
       - Content.IntegrationTests/DMProject/Fixtures/assoc-list-construction.dm
       - tests/assoc_list_construction/**
       - .github/workflows/assoc-list-construction.yml
+      - 'tools/save_cost_profile/sdk_guard.py'
+      - 'tools/save_cost_profile/test_sdk_guard.py'
   workflow_dispatch:
 permissions:
   contents: read
@@ -30,6 +32,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.13'
+      - name: Pure SDK selection guard controls
+        run: python -m unittest discover -s tools/save_cost_profile -p 'test_sdk_guard.py' -v
       - name: Pure source and evidence verifier controls
         run: python -m unittest discover -s tests/assoc_list_construction -p 'test_*.py' -v
       - name: Verify exact committed sources and freeze control preparation
@@ -44,7 +48,7 @@ jobs:
       - name: Full build with original log
         shell: bash
         run: |
-          test "$(dotnet --version)" = '10.0.401'
+          python tools/save_cost_profile/sdk_guard.py --results assoc-results --comparison shell
           dotnet --info > assoc-results/sdk-info.log
           set +e
           dotnet build OpenDream.slnx --configuration Release --property WarningLevel=4 -m:1 -p:UseSharedCompilation=false --disable-build-servers > assoc-results/build.log 2>&1

@@ -14,7 +14,7 @@
     }
   ],
   "expected_sources": {
-    ".github/workflows/assoc-list-construction.yml": "c3d54a50ff47c6b74f883d3afeb7fc8a178ec44f4d610ab4194c5bb542a2aea2",
+    ".github/workflows/assoc-list-construction.yml": "1ded8be778f3b3671b4028b2f8708f32324cbafb38f7013ef1d52e345365f0c8",
     ".github/workflows/check-test-parity.yml": "933a567d3508b64f37a6ac4e82b8f3dca4212eb037dd26d478e7efef9e808dbf",
     "Content.IntegrationTests/AssocListConstructionTests.cs": "27da87650e4d44e9adb36f25dc50d187add1cecf45062d2ffd4bccf14808a41c",
     "Content.IntegrationTests/DMProject/Fixtures/assoc-list-construction.dm": "072ca012a493d871f9bfd161d699ed8abf02726928c1067fb94025dc08a6936d",
@@ -44,6 +44,8 @@
     "OpenDreamRuntime/Map/DreamMapManager.cs": "7756a5276f625fc8c66a6dc30005212054888462c4040f51f8c4ff648d73bf59",
     "tests/assoc_list_construction/warning_coordinates.py": "c5dcd59e8cd9f105e31d91a476b4bc82ed18d00c239350ad7cf17af78b462257",
     "tests/assoc_list_construction/test_warning_coordinates.py": "0c64d667817fd887c3be94ae5716293b5db5d0a6eed99b7e9ca47254b636951c",
-    "tests/savefile_resource_bytes/controls.json": "b16ef4079b5c51183a2ba8f2a9649713f321eb31c157146e03290dcf091311de"
+    "tests/savefile_resource_bytes/controls.json": "b16ef4079b5c51183a2ba8f2a9649713f321eb31c157146e03290dcf091311de",
+    "tools/save_cost_profile/sdk_guard.py": "472225c05da02128acd6e6e996b004a3b01ac77eaaff92d8f9d5c02ba33aa643",
+    "tools/save_cost_profile/test_sdk_guard.py": "99a914b692350eec9a22ff0419bec1e6946982d729809f9ba59aec544636e3f4"
   }
 }
