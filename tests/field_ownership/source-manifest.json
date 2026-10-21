@@ -68,7 +68,7 @@
     }
   ],
   "expected_sources": {
-    ".github/workflows/field-ownership.yml": "4ba4a12d6e8bb7ab3fdf21a6aaf89ec87a7911ea774383cc2c1183b6b05001e9",
+    ".github/workflows/field-ownership.yml": "be7a1861ed1db4cf0002c41f8872347e1032e1dfa85206ed4b49c54922d835d1",
     "Content.IntegrationTests/GameTests.FieldOwnership.cs": "741f63a1b36bf1a84402a3b66bd9b4b414bce53852579d4f0f8d93b3608e4d55",
     "Content.IntegrationTests/GameTests.cs": "8890b994a6b8aae212f414262503e3b45925694f79469f181c0285af8140f25b",
     "OpenDreamRuntime/Procs/DMProc.cs": "90d11d9bd08ccc768cce7c085678594b792758cd822dcc9a2f3d34958ca687fc",
@@ -94,7 +94,9 @@
     "tests/list_pool_capacity/frozen_dependencies/project-original.txt": "aeaee5ef044c58f1c79da81a3ad2a4efd3f0583c577aa19af16a711d1828706f",
     "tests/list_pool_capacity/frozen_dependencies/project-composed.txt": "7d2ed2e3871ebe160b8b2324d980ea9192725b226dca2d1d752236ae490114a3",
     "tests/list_pool_capacity/frozen_dependencies/missing-original.py": "a30b8e1f59f23e34288340651d279c198913f3e11039ec593b2317ce0a6c7497",
-    "tests/list_pool_capacity/frozen_dependencies/missing-composed.py": "ef7052ca814fac0a75f534ba93821a79020a1c8b9f83515c3c1ffc3955d20fac"
+    "tests/list_pool_capacity/frozen_dependencies/missing-composed.py": "ef7052ca814fac0a75f534ba93821a79020a1c8b9f83515c3c1ffc3955d20fac",
+    "tools/save_cost_profile/sdk_guard.py": "9eb724c24ad3523be68ed879085a84e30ddc2477a0f3a4c59b06e67640f855c4",
+    "tools/save_cost_profile/test_sdk_guard.py": "ab248f0cdc80cf67e58173ffb899f0e934f03e39634ad551ffb87d7685dfe9df"
   },
   "integration_base": "8a19c5737ac4b47d8fbb6367897c5dafc132c1a0",
   "integration_note": "Preserves tested numeric-list hook and refreshes all three shared fixture pins; field production unchanged from reviewed-v2",

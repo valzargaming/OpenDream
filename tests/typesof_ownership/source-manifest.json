@@ -26,7 +26,7 @@
     "OpenDreamRuntime/Procs/DreamProcArguments.cs": "775cfc452bc49a6f5393759353a66ee09e16c54c9711683dea1af4f7bd5a1ee9",
     "OpenDreamRuntime/Procs/NativeProc.cs": "f9a12077fcaa1a3454d36db2b2f385d46c75ca2fd183f121351c25a60caaff15",
     "tests/string_format_decoder/verify.py": "1e1bf99ca675404f5e40083541ffbffc76351c16a9e26e4760a63493c3debf88",
-    ".github/workflows/typesof-ownership.yml": "bfd8a84eb72987d8bcb8c1097b7661aacf191f96232a58c91710f909aa8289f1",
+    ".github/workflows/typesof-ownership.yml": "23d1b46f2005bc231a247011ef1271a528532875f70a132fe351b3f037860dce",
     "Content.IntegrationTests/DMProject/Fixtures/typesof-ownership.dm": "f60b5e6c9606313cbe03240177d2c2453d588d395db3c370b667b3204fbf3b30",
     "Content.IntegrationTests/TypesOfOwnershipTests.cs": "56ba9b0467b379b862ad5cf2ff29a96da085d469c45fcbca3f25d15caa6b9fad",
     "OpenDreamRuntime/Procs/Native/DreamProcNativeRoot.cs": "b55a81a8cac15ad87b3a029271ca2f6ca6c1abd8efbdef2b34f376431b699039",
@@ -53,7 +53,9 @@
     "tests/list_pool_capacity/frozen_dependencies/project-original.txt": "aeaee5ef044c58f1c79da81a3ad2a4efd3f0583c577aa19af16a711d1828706f",
     "tests/list_pool_capacity/frozen_dependencies/project-composed.txt": "7d2ed2e3871ebe160b8b2324d980ea9192725b226dca2d1d752236ae490114a3",
     "tests/list_pool_capacity/frozen_dependencies/missing-original.py": "a30b8e1f59f23e34288340651d279c198913f3e11039ec593b2317ce0a6c7497",
-    "tests/list_pool_capacity/frozen_dependencies/missing-composed.py": "ef7052ca814fac0a75f534ba93821a79020a1c8b9f83515c3c1ffc3955d20fac"
+    "tests/list_pool_capacity/frozen_dependencies/missing-composed.py": "ef7052ca814fac0a75f534ba93821a79020a1c8b9f83515c3c1ffc3955d20fac",
+    "tools/save_cost_profile/sdk_guard.py": "9eb724c24ad3523be68ed879085a84e30ddc2477a0f3a4c59b06e67640f855c4",
+    "tools/save_cost_profile/test_sdk_guard.py": "ab248f0cdc80cf67e58173ffb899f0e934f03e39634ad551ffb87d7685dfe9df"
   },
   "dependency_compositions": {
     "OpenDreamRuntime/Objects/Types/DreamList.cs": {
