@@ -90,8 +90,9 @@
     "OpenDreamRuntime/Objects/Types/DreamObjectSavefile.cs": "565b7d86e547ddf96d28cc33ef85e38bde0c771da69d7f2a88807f805395547f",
     "OpenDreamRuntime/Resources/DreamResourceManager.cs": "fbf8ba2689e6dbf11b4a8542d58aa53dbca37301476c36f73fefb86a3ff109d6",
     "OpenDreamRuntime/Map/DreamMapManager.cs": "7756a5276f625fc8c66a6dc30005212054888462c4040f51f8c4ff648d73bf59",
-    "tests/assoc_list_construction/warning_coordinates.py": "73ad2ac6972e1e1ea34f08953e3682e6d605c5fe1e40a1efd90157cbbe7e84f6",
-    "tests/assoc_list_construction/test_warning_coordinates.py": "51bb8a381358b261cf1170dee226171690f47f73bcda1996d3b00739d2b2bfd6"
+    "tests/assoc_list_construction/warning_coordinates.py": "c5dcd59e8cd9f105e31d91a476b4bc82ed18d00c239350ad7cf17af78b462257",
+    "tests/assoc_list_construction/test_warning_coordinates.py": "0c64d667817fd887c3be94ae5716293b5db5d0a6eed99b7e9ca47254b636951c",
+    "tests/savefile_resource_bytes/controls.json": "b16ef4079b5c51183a2ba8f2a9649713f321eb31c157146e03290dcf091311de"
   },
   "dependency_compositions": {
     "OpenDreamRuntime/Objects/Types/DreamList.cs": {

@@ -5,6 +5,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 ORIGINAL = '52df08ee4e5711df1c3fd5e907c81f87a986e371'
 CANDIDATE = '90fbbd647817cee18d3fdc6804d216573db13b56'
+MANAGER = 'OpenDreamRuntime/Resources/DreamResourceManager.cs'
+FILE_CONTRACT = 'tests/savefile_resource_bytes/controls.json'
+FILE_CONTRACT_SHA = 'b16ef4079b5c51183a2ba8f2a9649713f321eb31c157146e03290dcf091311de'
+COMPOSED_MANAGER_SHA = 'fbf8ba2689e6dbf11b4a8542d58aa53dbca37301476c36f73fefb86a3ff109d6'
 SOURCES = {
     'OpenDreamRuntime/Objects/Types/DreamList.cs': ('c5c3baed5e30333ce63fcd38e2be40d5b3cc07bda4c900171e8da84d0a588e55', '380196bc158ade1044094bb414b46bb36266e43e6f6cff5bfa12c9b6e6edb156'),
     'OpenDreamRuntime/Objects/Types/DreamObjectSavefile.cs': ('151a92e3a2691adf0a85787fa15dbe9ff669f4a94309019d6e7e523993b8ee6d', '565b7d86e547ddf96d28cc33ef85e38bde0c771da69d7f2a88807f805395547f'),
@@ -22,6 +26,14 @@ def inputs(root=ROOT):
     for path, (old_hash, new_hash) in SOURCES.items():
         old, new = source(ORIGINAL, path, root), source(CANDIDATE, path, root)
         assert (sha(old), sha(new)) == (old_hash, new_hash), 'immutable warning source drift: ' + path
+        if path == MANAGER:
+            contract = source('HEAD', FILE_CONTRACT, root)
+            assert sha(contract) == FILE_CONTRACT_SHA, 'file contract receipt drift'
+            for change in json.loads(contract)['production'][MANAGER]['preserve_file_contract']:
+                before, after = change['old'].encode(), change['new'].encode()
+                assert new.count(before) == 1, 'file contract warning composition must match once'
+                new = new.replace(before, after, 1)
+            assert sha(new) == COMPOSED_MANAGER_SHA, 'composed warning source drift'
         result[path] = (old, new)
     return result
 

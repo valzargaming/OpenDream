@@ -7,6 +7,23 @@ def load(name):
 W=load('warning_coordinates');A=load('archive_logs')
 
 class WarningCoordinates(unittest.TestCase):
+    def test_file_contract_keeps_historical_inputs_and_rejects_drift(self):
+        original_source = W.source
+        try:
+            historical = original_source(W.CANDIDATE, W.MANAGER)
+            self.assertEqual(W.sha(historical), W.SOURCES[W.MANAGER][1])
+            old, composed = W.inputs()[W.MANAGER]
+            self.assertEqual(W.sha(old), W.SOURCES[W.MANAGER][0])
+            self.assertEqual(W.sha(composed), W.COMPOSED_MANAGER_SHA)
+            self.assertIn(b'InvalidateFileCache(destinationFilePath);', composed)
+            def changed_source(commit, path, root=W.ROOT):
+                raw = original_source(commit, path, root)
+                return raw + b' ' if path == W.FILE_CONTRACT else raw
+            W.source = changed_source
+            with self.assertRaises(AssertionError): W.inputs()
+        finally:
+            W.source = original_source
+
     def test_exact_source_map_and_all_diagnostic_identity(self):
         spec=json.loads((HERE/'inherited-build-warnings.json').read_text())
         with tempfile.TemporaryDirectory() as temporary:
