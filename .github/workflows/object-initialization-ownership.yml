@@ -40,6 +40,8 @@ jobs:
       - name: Apply exactly one omission to this disposable checkout
         if: matrix.control != 'positive'
         run: python tests/object_initialization/control.py '${{ matrix.control }}' --root .
+      - name: Apply pinned trusted client host patch
+        run: python tools/civ13-provenance/prepare-robust.py
       - name: Build real engine and connected tests
         run: dotnet build --configuration Release --property WarningLevel=4 -m:1 -p:UseSharedCompilation=false --disable-build-servers
       - name: Verify actual production object initialization ownership

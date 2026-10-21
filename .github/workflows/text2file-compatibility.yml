@@ -45,7 +45,7 @@ jobs:
           git submodule status --recursive | Set-Content text2file-results/submodules.txt
           Copy-Item OpenDreamRuntime/Resources/DreamResourceManager.cs text2file-results/committed-DreamResourceManager.cs
           if ('${{ matrix.mode }}' -eq 'baseline') {
-            git show a7ed7a28b73c466116a4d1c5b89297b08d6ff1ed:OpenDreamRuntime/Resources/DreamResourceManager.cs | Set-Content -Encoding utf8NoBOM OpenDreamRuntime/Resources/DreamResourceManager.cs
+            git show 483765d2824eb3f315b949c3857856cb887b4aaa:OpenDreamRuntime/Resources/DreamResourceManager.cs | Set-Content -Encoding utf8NoBOM OpenDreamRuntime/Resources/DreamResourceManager.cs
             if ($LASTEXITCODE -ne 0) { throw 'Cannot prepare baseline' }
           }
           $path = 'OpenDreamRuntime/Resources/DreamResourceManager.cs'
@@ -66,6 +66,11 @@ jobs:
           }
           git diff | Set-Content text2file-results/control.diff
           Copy-Item OpenDreamRuntime/Resources/DreamResourceManager.cs text2file-results/tested-DreamResourceManager.cs
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Prepare exact pinned client dependency
+        run: python tools/civ13-provenance/prepare-robust.py
       - name: Build production and tests
         shell: pwsh
         run: |

@@ -27,6 +27,8 @@ jobs:
           python-version: '3.12'
       - run: python tests/async_return_ownership/control.py '${{ matrix.control }}'
       - run: python -m unittest discover -s tests/native_argument_ownership -p test_verify.py -v
+      - name: Apply pinned trusted client host patch
+        run: python tools/civ13-provenance/prepare-robust.py
       - run: dotnet build --configuration Release --property WarningLevel=4 /m
       - name: Verify one intended connected failure
         shell: bash

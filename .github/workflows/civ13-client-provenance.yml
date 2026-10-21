@@ -20,6 +20,9 @@ jobs:
           fetch-depth: 0
           submodules: recursive
       - uses: actions/setup-dotnet@v4
+        env:
+          # Keep latestFeature resolution away from preinstalled hosted SDKs.
+          DOTNET_INSTALL_DIR: ${{ runner.temp }}/opendream-dotnet-${{ github.run_id }}-${{ github.run_attempt }}-${{ strategy.job-index }}
         with:
           dotnet-version: 10.0.401
       - uses: actions/setup-python@v5
@@ -27,8 +30,26 @@ jobs:
           python-version: '3.12'
       - name: Reject contaminated source and dependency inputs
         run: python tools/civ13-provenance/test-inputs.py
+      - name: Verify standalone resource and assembly inventory contracts
+        run: python -B -m unittest discover -s tools/civ13-provenance -p test_standalone.py -v
+      - name: Verify shared native identity fixture composition
+        run: python -B -m unittest discover -s tools/civ13-provenance -p test_fixture_composition.py -v
+      - name: Verify exact prepared Robust dependency admission
+        run: python -B -m unittest discover -s tools/civ13-provenance -p test_robust_preparation.py -v
+      - name: Verify file-only server acceptance distribution contracts
+        run: python -B -m unittest discover -s tools/civ13-provenance -p test_server_acceptance.py -v
       - name: Build pinned client, Shared and authentication loader with behavior controls
+        id: coherent-build
         run: python tools/civ13-provenance/build.py --output provenance-output --timeout 1500
+      - name: Export already-built server acceptance distribution
+        run: python -B tools/civ13-provenance/server_acceptance.py --output provenance-output --head '${{ github.event.pull_request.head.sha || github.sha }}' --receipt-sha256 '${{ steps.coherent-build.outputs.server_acceptance_receipt_sha256 }}' --timeout 300
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: civ13-startup-diagnostic-${{ matrix.os }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: provenance-output/standalone-startup.log
+          if-no-files-found: ignore
+          retention-days: 14
       - uses: actions/upload-artifact@v4
         if: always()
         with:

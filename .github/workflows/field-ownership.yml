@@ -2,6 +2,8 @@ name: Field ownership regression
 on:
   pull_request:
     paths:
+      - 'tools/save_cost_profile/sdk_guard.py'
+      - 'tools/save_cost_profile/test_sdk_guard.py'
       - OpenDreamRuntime/Procs/DMProc.cs
       - Content.IntegrationTests/GameTests.cs
       - Content.IntegrationTests/GameTests.FieldOwnership.cs
@@ -29,20 +31,27 @@ jobs:
           EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
         run: test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
       - uses: actions/setup-dotnet@v4
+        env:
+          # Keep latestFeature resolution away from preinstalled hosted SDKs.
+          DOTNET_INSTALL_DIR: ${{ runner.temp }}/opendream-dotnet-${{ github.run_id }}-${{ github.run_attempt }}-${{ strategy.job-index }}
         with:
           dotnet-version: 10.0.401
       - uses: actions/setup-python@v5
         with:
           python-version: '3.13'
+      - name: Pure SDK selection failure controls
+        run: python -m unittest discover -s tools/save_cost_profile -p 'test_sdk_guard.py' -v
       - name: Verify pure verifier
         run: python -m unittest discover -s tests/field_ownership -p 'test_*.py' -v
       - name: Verify frozen originals and record exact source preparation
         env:
           EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
         run: python tests/field_ownership/control.py '${{ matrix.mode }}' --expected-head "$EXPECTED_HEAD" --receipt field-results/source-receipt.json
+      - name: Apply pinned trusted client host patch
+        run: python tools/civ13-provenance/prepare-robust.py
       - name: Verify SDK and full build
         run: |
-          test "$(dotnet --version)" = '10.0.401'
+          python tools/save_cost_profile/sdk_guard.py --results field-results --comparison shell
           dotnet build OpenDream.slnx --configuration Release --property WarningLevel=4 -m:1 -p:UseSharedCompilation=false --disable-build-servers
       - name: Production-method ownership tests and strict receipt
         shell: bash

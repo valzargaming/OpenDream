@@ -5,7 +5,7 @@
   "baseline_lf_sha256": "2723652b58569d1f261dac0ef561a1c00ce357a53070822a0685bf8cf735304d",
   "candidate_lf_sha256": "7082f95f8623674c4ab0849f5d5878c33e31993d18bc1b9c91684601b78d8cc9",
   "expected_sources": {
-    ".github/workflows/string-format-decoder.yml": "9e85e4a6127f37d4947174f570441cc802f85102c2d8242db78ec668eb43c062",
+    ".github/workflows/string-format-decoder.yml": "2b4326322e3e13522b524102b25b89ac873b7b88803e72a83a295da7d52f0c6d",
     "Content.IntegrationTests/StringFormatDecoderTests.cs": "0316e6d03a9c16abd165ab8c7e5fa26e772e38c6767e4d8863cf2a3c6a6a6325",
     "OpenDreamShared/Dream/StringFormatDecoder.cs": "7082f95f8623674c4ab0849f5d5878c33e31993d18bc1b9c91684601b78d8cc9",
     "tests/string_format_decoder/Benchmark.cs": "58a7f6cb21934089678e0a28936d23434cd289edc30ef958988048b65384e82e",
@@ -19,7 +19,9 @@
     "OpenDreamRuntime/Resources/DreamResource.cs": "42f43ce2430d79596aab5fdd119b70a8228f826d4f9f63a24dfb88d9b8b104e6",
     "OpenDreamRuntime/DreamValue.cs": "383070fb0046a3940e0c3638916ac5fbf6e28fbb82201490113e7de9c4acb71a",
     "OpenDreamRuntime/Objects/Types/DreamObjectSavefile.cs": "565b7d86e547ddf96d28cc33ef85e38bde0c771da69d7f2a88807f805395547f",
-    "Content.IntegrationTests/GameTests.cs": "f53a97e17fd7f8f249a2bdb05d3ed8c7b1cfa887e29e490dc6884823668ba27c",
-    "Content.IntegrationTests/GameTests.Savefile.cs": "221826b0c3867195b1a828750bd260560f06e97b6e934db211bdb50a89a14020"
+    "Content.IntegrationTests/GameTests.cs": "8890b994a6b8aae212f414262503e3b45925694f79469f181c0285af8140f25b",
+    "Content.IntegrationTests/GameTests.Savefile.cs": "221826b0c3867195b1a828750bd260560f06e97b6e934db211bdb50a89a14020",
+    "tools/save_cost_profile/sdk_guard.py": "9eb724c24ad3523be68ed879085a84e30ddc2477a0f3a4c59b06e67640f855c4",
+    "tools/save_cost_profile/test_sdk_guard.py": "e3a43c2bf9e432b8369bb6820e08a1e709cf4b84885fe6c9110ba9b7f2b62bf3"
   }
 }

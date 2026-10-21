@@ -7,6 +7,7 @@ from pathlib import Path
 import subprocess
 import tempfile
 import unittest
+from unittest.mock import patch
 
 spec = importlib.util.spec_from_file_location("sdk_guard", Path(__file__).with_name("sdk_guard.py"))
 guard = importlib.util.module_from_spec(spec)
@@ -80,7 +81,8 @@ class SdkGuardTests(unittest.TestCase):
     def test_all_pinned_jobs_install_into_a_private_runner_directory(self):
         root = Path(__file__).resolve().parents[2]
         for name in ("savefile-resource-bytes", "savefile-raw-cache", "native-matrix-ownership",
-                     "assoc-list-construction", "save-cost-profile", "text2file-compatibility"):
+                     "assoc-list-construction", "save-cost-profile", "save-cost-profile-controls", "text2file-compatibility",
+                     "assoc-list-removal", "field-ownership", "range-ownership", "index-read-ownership", "string-format-decoder", "turf-tile-queue", "typesof-ownership", "world-realtime-clock"):
             with self.subTest(workflow=name):
                 workflow = (root / ".github/workflows" / (name + ".yml")).read_text()
                 self.assertEqual(workflow.count("uses: actions/setup-dotnet@v4"), 1)
@@ -89,6 +91,47 @@ class SdkGuardTests(unittest.TestCase):
                 self.assertIn("          DOTNET_INSTALL_DIR: ${{ runner.temp }}/opendream-dotnet-${{ github.run_id }}-${{ github.run_attempt }}-${{ strategy.job-index }}\n", setup)
                 self.assertIn("          dotnet-version: ", setup)
                 self.assertIn("10.0.401", setup)
+
+    def test_serial_positive_and_control_builds_guard_before_engine_commands(self):
+        import ci
+        import control_batch
+        self.assertIs(control_batch.build, ci.build)
+        modes = ["positive", *json.loads((ci.PACKAGE / "controls.json").read_text())]
+        self.assertEqual(len(modes), 10)
+        with tempfile.TemporaryDirectory() as directory:
+            for mode in modes:
+                with self.subTest(mode=mode):
+                    results = Path(directory) / mode
+                    # Abort at the injected engine build, before binary collection.
+                    with patch.object(ci.subprocess, "run") as selection, patch.object(
+                            ci, "run", side_effect=[0, 1]) as commands:
+                        with self.assertRaisesRegex(AssertionError, "full engine build failed"):
+                            ci.build(mode, results)
+                        selection.assert_called_once_with(
+                            [ci.sys.executable, str(ci.PACKAGE / "sdk_guard.py"),
+                             "--results", str(results), "--comparison", "strip"],
+                            cwd=ci.ROOT, check=True)
+                        self.assertEqual(commands.call_args_list[0].args[0], ["dotnet", "--info"])
+                        self.assertEqual(commands.call_args_list[1].args[0][:3],
+                                         ["dotnet", "build", "OpenDream.slnx"])
+                        self.assertTrue(all(str(results) in str(call.args[2])
+                                            for call in commands.call_args_list))
+
+    def test_shell_workflows_reject_before_build_and_retain_sdk_receipts(self):
+        root = Path(__file__).resolve().parents[2]
+        results = {'assoc-list-removal': 'assoc-results', 'field-ownership': 'field-results', 'range-ownership': 'range-results', 'index-read-ownership': 'index-read-results', 'string-format-decoder': 'decoder-results', 'turf-tile-queue': 'tile-results', 'typesof-ownership': 'typesof-results', 'world-realtime-clock': 'clock-results'}
+        for name, directory in results.items():
+            with self.subTest(workflow=name):
+                workflow = (root / ".github/workflows" / (name + ".yml")).read_text()
+                command = "python tools/save_cost_profile/sdk_guard.py --results " + directory + " --comparison shell"
+                self.assertEqual(workflow.count(command), 1)
+                self.assertLess(workflow.index(command), workflow.index("          dotnet build "))
+                self.assertNotIn('test "$(dotnet --version)"', workflow)
+                self.assertIn("path: " + directory + "/", workflow)
+                self.assertIn("if: always()", workflow)
+                self.assertIn("-p 'test_sdk_guard.py' -v", workflow)
+                for source in ("sdk_guard.py", "test_sdk_guard.py"):
+                    self.assertIn("      - 'tools/save_cost_profile/" + source + "'", workflow)
 
     def test_banner_is_retained_and_rejected_without_second_version_query(self):
         banner = b"Welcome to .NET!\n10.0.401\n"

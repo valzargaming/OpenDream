@@ -41,6 +41,8 @@ jobs:
         id: python
         with:
           python-version: '3.13'
+      - name: Apply pinned trusted client host patch
+        run: python tools/civ13-provenance/prepare-robust.py
       - name: Pure verifier adversaries
         run: |
           & '${{ steps.python.outputs.python-path }}' -m unittest discover -s tools/save_cost_profile -p 'test_*.py' -v

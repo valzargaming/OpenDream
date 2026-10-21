@@ -8,6 +8,7 @@ namespace OpenDreamClient;
 
 public static class ClientContentIoC {
     public static void Register() {
+        // Native observation is registered by the trusted engine before content loads.
         IoCManager.Register<IDreamInterfaceManager, DreamInterfaceManager>();
         IoCManager.Register<IDreamResourceManager, DreamResourceManager>();
         IoCManager.Register<DreamUserInterfaceStateManager>();

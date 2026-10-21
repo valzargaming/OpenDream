@@ -10,16 +10,21 @@
   "sources": {
     "OpenDreamRuntime/Map/DreamMapManager.cs": "7756a5276f625fc8c66a6dc30005212054888462c4040f51f8c4ff648d73bf59",
     "Content.IntegrationTests/TurfTileQueueTests.cs": "f7efce8683b1f4f5bd3b9c632697c37562d050b09a1ecd9e34f1f896a656dc98",
-    "Content.IntegrationTests/GameTests.cs": "f53a97e17fd7f8f249a2bdb05d3ed8c7b1cfa887e29e490dc6884823668ba27c",
-    ".github/workflows/turf-tile-queue.yml": "d41a4b0cd69f4eec943b9b337158caff9b7cceacabf396e016478dd36200b630",
+    "Content.IntegrationTests/GameTests.cs": "8890b994a6b8aae212f414262503e3b45925694f79469f181c0285af8140f25b",
+    ".github/workflows/turf-tile-queue.yml": "8f493567792ef8d4e01e5f507690ae7ab57d58a90d33837b183e593bb8374b71",
     "tests/string_format_decoder/verify.py": "1e1bf99ca675404f5e40083541ffbffc76351c16a9e26e4760a63493c3debf88",
     "tests/turf_tile_queue/archive_logs.py": "544e1e9d83d559bb96ab1461a1ced0277dc95ad8a870203976f1c3368de6820b",
     "tests/turf_tile_queue/capture.py": "7fdbbe75f45a570f98f70a4cac58ccd96e1265a1c485a1e49f3162bc66168184",
-    "tests/turf_tile_queue/control.py": "44409befed158b0dedce2111dc1521eb09e777352d33fd368fddc903fdafdab3",
+    "tests/turf_tile_queue/control.py": "5472b80182e068ce56208216ed5d653af95c9a4b4c82c84441f2910bb1d93eb7",
     "tests/turf_tile_queue/test_controls.py": "280f7545470bb7af9a69db8c695c15ce60c13121b70c6c5ce8f940ea24f3b21f",
     "tests/turf_tile_queue/verify.py": "0c8fbd94d1583c594f1a013617690b9c25f6b5a4958b793e0022f74fc898fb7d",
     "tests/turf_tile_queue/README.md": "83f8ea31477bfc010f912233b08d9fa1c7726e9ac6bb75ebed57225db113925c",
     "OpenDreamClient/Rendering/DMISpriteSystem.cs": "94ba6247827efd80d0c94bd5e7c0c875f36c96fdf070c0abc1a8e03570314074",
-    "OpenDreamShared/Dream/MutableAppearance.cs": "592f419f16a40c3e8cc433fd59716c17a9de1aaa9f41a0d2781414306d1b836a"
+    "OpenDreamShared/Dream/MutableAppearance.cs": "592f419f16a40c3e8cc433fd59716c17a9de1aaa9f41a0d2781414306d1b836a",
+    "tools/civ13-provenance/prepare-robust.py": "f0fb2772d073bb4e41ad7744cc79ce72c1cb73f4a7358363e02a44df5a4265b4",
+    "tools/civ13-provenance/robust-auth.patch": "74d9231cdc842f8aec2082c147e214cc6d34433db806d4b543d9677fe3431a1d",
+    "tools/civ13-provenance/test_robust_preparation.py": "7e3963fb4e7f401ac74ad69564e2d34844024855585238951a3d105a236c8909",
+    "tools/save_cost_profile/sdk_guard.py": "9eb724c24ad3523be68ed879085a84e30ddc2477a0f3a4c59b06e67640f855c4",
+    "tools/save_cost_profile/test_sdk_guard.py": "e3a43c2bf9e432b8369bb6820e08a1e709cf4b84885fe6c9110ba9b7f2b62bf3"
   }
 }

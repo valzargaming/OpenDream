@@ -41,6 +41,8 @@ jobs:
         run: |
           python -m unittest discover -s tests/list_pool_capacity -v
           python tests/list_pool_capacity/control.py '${{ matrix.mode }}' --head "$HEAD" --output pool-results
+      - name: Apply pinned trusted client host patch
+        run: python tools/civ13-provenance/prepare-robust.py
       - name: Build and preserve original output
         shell: bash
         run: |

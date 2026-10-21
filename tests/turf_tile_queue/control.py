@@ -20,7 +20,12 @@ def authenticate_robust(root,manifest):
     robust=root/'RobustToolbox'
     commit=manifest['robust_commit']
     assert git(robust,'rev-parse','HEAD').decode().strip()==commit, 'wrong Robust commit'
-    assert not git(robust,'diff','--name-only','HEAD').strip(), 'dirty Robust source'
+    if git(robust,'diff','--ignore-submodules=none','--name-only','HEAD').strip():
+        import runpy
+        helper=root/'tools/civ13-provenance/prepare-robust.py'
+        assert helper.is_file(), 'missing trusted Robust authenticator'
+        assert helper.read_bytes().replace(b'\r\n',b'\n') == git(root,'cat-file','blob','HEAD:tools/civ13-provenance/prepare-robust.py').replace(b'\r\n',b'\n'), 'Robust authenticator drift'
+        runpy.run_path(str(helper))['verify_prepared'](root)
     records={}
     for path,expected in manifest['robust_sources'].items():
         committed=git(robust,'cat-file','blob',commit+':'+path)
@@ -31,8 +36,12 @@ def authenticate_robust(root,manifest):
 
 def prepare(root,mode,head,receipt,verify=False):
     assert git(root,'rev-parse','HEAD').decode().strip()==head
-    changed=git(root,'diff','--name-only','HEAD').decode().splitlines()
-    assert set(changed)<=({MANAGER} if verify else set()), 'unreviewed changes'
+    changed=git(root,'diff','--ignore-submodules=none','--name-only','HEAD').decode().splitlines()
+    allowed = {MANAGER} if verify else set()
+    assert set(changed) <= allowed | {'RobustToolbox'}, 'unreviewed changes'
+    if 'RobustToolbox' in changed:
+        import runpy
+        runpy.run_path(str(root/'tools/civ13-provenance/prepare-robust.py'))['verify_root_changes'](root, changed, allowed)
     manifest_path='tests/turf_tile_queue/source-manifest.json'
     raw_manifest=(root/manifest_path).read_bytes()
     assert raw_manifest==git(root,'cat-file','blob',head+':'+manifest_path)

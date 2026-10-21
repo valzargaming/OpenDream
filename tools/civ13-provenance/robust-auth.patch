@@ -94,7 +94,7 @@ index 3aab543..010cb92 100644
              {
                  foreach (var assembly in alc.Assemblies)
 diff --git a/Robust.Client/GameController/GameController.cs b/Robust.Client/GameController/GameController.cs
-index 60fabdc..3684d90 100644
+index 60fabdc..ddf6247 100644
 --- a/Robust.Client/GameController/GameController.cs
 +++ b/Robust.Client/GameController/GameController.cs
 @@ -1,4 +1,5 @@
@@ -103,17 +103,29 @@ index 60fabdc..3684d90 100644
  using System.IO;
  using System.Linq;
  using System.Net;
-@@ -320,6 +321,9 @@ namespace Robust.Client
+@@ -171,8 +172,10 @@ namespace Robust.Client
+             _modLoader.SetUseLoadContext(!ContentStart);
+             var disableSandbox = Environment.GetEnvironmentVariable("ROBUST_DISABLE_SANDBOX") == "1";
+             _modLoader.SetEnableSandboxing(!disableSandbox && Options.Sandboxing);
++            InitializeNativeIdentity();
+             if (!LoadModules())
+                 return false;
++            _logger.Info("PASS native identity content sandbox type checks");
+ 
+             foreach (var loadedModule in _modLoader.LoadedModules)
+             {
+@@ -319,6 +322,10 @@ namespace Robust.Client
+             _configurationManager.OnValueChanged(CVars.DisplayVSync, _ => UpdateVsyncConfig(), invokeImmediately: true);
  
              _clyde.Ready();
- 
++            ConfigureStartupSmokeExit();
++
 +            if (!TryRunStartupCommands())
 +                return false;
-+
+ 
              if (_resourceManifest!.AutoConnect &&
                  (_commandLineArgs?.Connect == true || _commandLineArgs?.Launcher == true)
-                 && LaunchState.ConnectEndpoint != null)
-@@ -327,8 +331,50 @@ namespace Robust.Client
+@@ -327,8 +334,50 @@ namespace Robust.Client
                  _client.ConnectToServer(LaunchState.ConnectEndpoint);
              }
  
@@ -165,6 +177,22 @@ index 60fabdc..3684d90 100644
              return true;
          }
  
+diff --git a/Robust.Client/Robust.Client.csproj b/Robust.Client/Robust.Client.csproj
+index 6ee0278..e63a431 100644
+--- a/Robust.Client/Robust.Client.csproj
++++ b/Robust.Client/Robust.Client.csproj
+@@ -57,6 +57,11 @@
+     <ProjectReference Include="..\Robust.Xaml\Robust.Xaml.csproj" />
+   </ItemGroup>
+ 
++  <!-- Fork-only trusted native host: content receives bounded identity operations. -->
++  <ItemGroup>
++    <Compile Include="../../tools/native-byond-bridge/trusted-host/*.cs" Link="NativeByond/%(Filename)%(Extension)" />
++  </ItemGroup>
++
+   <!-- Shader embedding -->
+   <ItemGroup>
+     <EmbeddedResource Include="Graphics\Clyde\Shaders\*" />
 diff --git a/Robust.Shared/Network/AuthManager.cs b/Robust.Shared/Network/AuthManager.cs
 index ea2250e..a727d2d 100644
 --- a/Robust.Shared/Network/AuthManager.cs

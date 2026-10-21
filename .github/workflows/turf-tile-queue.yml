@@ -2,6 +2,8 @@ name: Pending turf tile queue
 on:
   pull_request:
     paths:
+      - 'tools/save_cost_profile/sdk_guard.py'
+      - 'tools/save_cost_profile/test_sdk_guard.py'
       - 'OpenDreamRuntime/Map/DreamMapManager.cs'
       - 'Content.IntegrationTests/TurfTileQueueTests.cs'
       - 'tests/turf_tile_queue/**'
@@ -26,11 +28,16 @@ jobs:
           fetch-depth: 0
           submodules: recursive
       - uses: actions/setup-dotnet@v4
+        env:
+          # Keep latestFeature resolution away from preinstalled hosted SDKs.
+          DOTNET_INSTALL_DIR: ${{ runner.temp }}/opendream-dotnet-${{ github.run_id }}-${{ github.run_attempt }}-${{ strategy.job-index }}
         with:
           dotnet-version: 10.0.401
       - uses: actions/setup-python@v5
         with:
           python-version: '3.13'
+      - name: Pure SDK selection failure controls
+        run: python -m unittest discover -s tools/save_cost_profile -p 'test_sdk_guard.py' -v
       - name: Pure source and parser controls
         run: python -m unittest discover -s tests/turf_tile_queue -p 'test_*.py' -v
       - name: Authenticate committed source and prepare exact control
@@ -39,11 +46,13 @@ jobs:
         run: |
           python tests/turf_tile_queue/control.py '${{ matrix.mode }}' --head "$EXPECTED_HEAD" --receipt tile-results/source-receipt.json
           python tests/turf_tile_queue/capture.py tile-results
+      - name: Apply pinned trusted client host patch
+        run: python tools/civ13-provenance/prepare-robust.py
       - name: Build with original output
         id: build
         shell: bash
         run: |
-          test "$(dotnet --version)" = '10.0.401'
+          python tools/save_cost_profile/sdk_guard.py --results tile-results --comparison shell
           dotnet --info > tile-results/sdk-info.log
           set +e
           dotnet build Content.IntegrationTests/Content.IntegrationTests.csproj -c Release -m:1 -p:UseSharedCompilation=false --disable-build-servers > tile-results/build.log 2>&1

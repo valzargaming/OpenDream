@@ -67,8 +67,12 @@ public sealed class DreamObjectClient : DreamObject {
                 }
 
                 return true;
-            case "computer_id": // FIXME: This is not secure! Whenever RT implements a more robust (heh) method of uniquely identifying computers, replace this impl with that.
-                MD5 md5 = MD5.Create();
+            case "computer_id": {
+                if (Connection.NativeComputerId is { } nativeComputerId) {
+                    value = new(nativeComputerId);
+                    return true;
+                }
+                using var md5 = MD5.Create();
                 // Check on Robust.Shared.Network.NetUserData.HWId" if you want to seed from how RT does user identification.
                 // We don't use it here because it is probably not enough to ensure security, and (as of time of writing) only works on Windows machines.
                 byte[] brown = Encoding.UTF8.GetBytes(Connection.Key);
@@ -77,6 +81,7 @@ public sealed class DreamObjectClient : DreamObject {
 
                 value = new(long.Parse(hashStr, System.Globalization.NumberStyles.HexNumber).ToString()); // Converts from hex to decimal. Output is in analogous format to BYOND's.
                 return true;
+            }
             case "address":
                 // TODO: Session could be null if this is gotten from /mob/Logout() or /client/Del()
                 // BYOND's behavior there needs tested

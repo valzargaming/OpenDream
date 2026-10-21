@@ -95,7 +95,11 @@ public abstract class ContentIntegrationTest : RobustIntegrationTest {
 
         client.SetConnectTarget(server);
 
-        client.Post(() => IoCManager.Resolve<IClientNetManager>().ClientConnect(null!, 0, null!));
+        client.Post(() => {
+            if (clientOptions is ClientContentIntegrationOption contentOptions)
+                contentOptions.ContentBeforeConnect?.Invoke();
+            IoCManager.Resolve<IClientNetManager>().ClientConnect(null!, 0, null!);
+        });
 
         await RunTicksSync(client, server, 10);
 
@@ -142,6 +146,7 @@ public abstract class ContentIntegrationTest : RobustIntegrationTest {
         };
 
         public Action ContentBeforeIoC { get; set; }
+        public Action ContentBeforeConnect { get; set; }
     }
 
     protected sealed class ServerContentIntegrationOption : ServerIntegrationOptions {

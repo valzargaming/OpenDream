@@ -1,0 +1,16 @@
+{
+  "baselineHead": "ebc7a8289e7aea4ca1d2ed7c6c296ba97706649d",
+  "baselineSourceSha256": "20d0cf5b2cb6adc070d27b71098fe37c62c3209ffbbc970cc1a24dcb0d10ec42",
+  "canonicalSourceHashes": {
+    "OpenDreamPackageTool/ContentAssemblySelection.cs": "82c10b5edcdd2bde56dd57609f80a18f714032763d08ebce22331f8540c33ab1",
+    "OpenDreamPackageTool/ServerPackaging.cs": "5964aea56f4f32dd5e39cf5cbe2445d01cb4b51f2c194ecb0b85dd0315791056",
+    "tests/server_packaging/SelectionProbe.cs": "d94a421203ab8159b039ed86e38647f0f240a21df01a3b0bcc8ed4258c0bc5f7",
+    "tests/server_packaging/SelectionProbe.csproj": "4ccc2984d55605cf70c039de26f15063ef18cadceeb4848c699d9e40c8b43af2"
+  },
+  "canonicalControlHashes": {
+    "positive": "82c10b5edcdd2bde56dd57609f80a18f714032763d08ebce22331f8540c33ab1",
+    "dedup": "76032ead456df6792c198781ff465b4277de1b6e54c5fd1002520f83412b72ff",
+    "prefix": "61106db23344b7f1cc077f4441b9f0468dc4f37a401d826e2fdb8024ba694206",
+    "required": "d96739399ded9392ecf45f9c22efbea044ec71bc4eb9ece3fea8903d5bb15fb4"
+  }
+}

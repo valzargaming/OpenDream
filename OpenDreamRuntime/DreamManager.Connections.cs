@@ -45,6 +45,10 @@ public sealed partial class DreamManager {
     private ulong _topicsProcessed;
 
     private void InitializeConnectionManager() {
+        if (_config.GetCVar(OpenDreamCVars.RequireNativeIdentity))
+            _nativeAdmission = new NativeByondBridge.NativeIdentityAdmissionGate(CurrentNativeBinding);
+        _netManager.RegisterNetMessage<MsgNativeIdentityChallenge>();
+        _netManager.RegisterNetMessage<MsgNativeIdentityReport>(RxNativeIdentityReport);
         _netManager.AssignUserIdCallback = AssignGuestIdTask;
         _playerManager.PlayerStatusChanged += OnPlayerStatusChanged;
 
@@ -107,6 +111,10 @@ public sealed partial class DreamManager {
     }
 
     private void ShutdownConnectionManager() {
+        _playerManager.PlayerStatusChanged -= OnPlayerStatusChanged;
+        _nativeAdmission?.Dispose();
+        _nativeAdmission = null;
+        _nativeChannels.Clear();
         _worldTopicSocket!.Dispose();
         _worldTopicCancellationToken!.Cancel();
     }
@@ -254,6 +262,10 @@ public sealed partial class DreamManager {
     private void RxAckLoadInterface(MsgAckLoadInterface message) {
         // Once the client loaded the interface, move them to in-game.
         var player = _playerManager.GetSessionByChannel(message.MsgChannel);
+        if (_nativeAdmission != null && player.Status != SessionStatus.InGame) {
+            if (!AdmitNativeClient(player)) return;
+            if (!message.MsgChannel.IsConnected || player.Status == SessionStatus.Disconnected) return;
+        }
         if(player.Status != SessionStatus.InGame) //Don't rejoin if this is a hot reload of interface
             _playerManager.JoinGame(player);
     }
@@ -285,14 +297,17 @@ public sealed partial class DreamManager {
     private void OnPlayerStatusChanged(object? sender, SessionStatusEventArgs e) {
         switch (e.NewStatus) {
             case SessionStatus.Connected:
-                var msgLoadInterface = new MsgLoadInterface {
-                    InterfaceText = _dreamResourceManager.InterfaceFile?.ReadAsString()
-                };
-
-                e.Session.Channel.SendMessage(msgLoadInterface);
+                if (_nativeAdmission != null) BeginNativeAdmission(e.Session);
+                else SendInitialInterface(e.Session);
                 break;
 
             case SessionStatus.InGame: {
+                if (_nativeAdmission != null) {
+                    // Admission was consumed on the owning thread before JoinGame changes the status.
+                    if (!_connections.TryGetValue(e.Session.UserId, out var admitted) || !ReferenceEquals(admitted.Session, e.Session))
+                        e.Session.Channel.Disconnect("A fresh native BYOND identity is required.");
+                    break;
+                }
                 if (!_connections.TryGetValue(e.Session.UserId, out var connection)) {
                     connection = new DreamConnection(e.Session.Name);
 
@@ -304,8 +319,9 @@ public sealed partial class DreamManager {
             }
 
             case SessionStatus.Disconnected: {
+                if (_nativeChannels.Remove(e.Session.Channel, out var native)) _nativeAdmission?.Disconnect(native.Binding);
                 if (_connections.TryGetValue(e.Session.UserId, out var connection))
-                    connection.HandleDisconnection();
+                    if (ReferenceEquals(connection.Session, e.Session)) connection.HandleDisconnection();
 
                 break;
             }

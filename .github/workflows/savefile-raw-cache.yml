@@ -48,6 +48,8 @@ jobs:
         run: |
           python tests/savefile_raw_cache/control.py '${{ matrix.mode }}' --head "$EXPECTED_HEAD" --receipt raw-cache-results/source-receipt.json
           python tests/savefile_raw_cache/capture.py raw-cache-results
+      - name: Apply pinned trusted client host patch
+        run: python tools/civ13-provenance/prepare-robust.py
       - name: Build with original output
         id: build
         shell: bash

@@ -11,7 +11,7 @@ HERE = pathlib.Path(__file__).resolve().parent
 spec = importlib.util.spec_from_file_location('native_argument_verify', HERE.parent / 'native_argument_ownership' / 'verify.py')
 module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
-BASELINE_COMMIT = 'd0ae5d844c723450c21b319eb9b61a17d5eca3be'
+BASELINE_COMMIT = 'e96f60769ae38e05599119b4f5ed1fcb2cb8a91b'
 EXPECTED_CANDIDATE_HASHES = {
     'OpenDreamRuntime/Objects/DreamObject.cs': '1d3006d536a0ae846ed4aaebf42256c45baea7af44de91f3b1b475f23945a5ff',
     'OpenDreamRuntime/Procs/DMOpcodeHandlers.cs': 'c467c88732460adcf3349ec6e5608cd8fd9e3208e889c8452c01cc7445673121',

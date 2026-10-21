@@ -30,4 +30,15 @@ foreach (var handle in definition.GetMethods()) {
 }
 bool sqlite = reader.AssemblyReferences.Any(h => reader.GetString(reader.GetAssemblyReference(h).Name) == "Microsoft.Data.Sqlite");
 if (!command || !execute || !sqlite) throw new InvalidOperationException("Launcher authentication command contract is incomplete");
+var nativeTypes = reader.TypeDefinitions.Select(h => (Handle: h, Type: reader.GetTypeDefinition(h)))
+    .Where(t => reader.GetString(t.Type.Namespace) == "Robust.Client.NativeByond").ToArray();
+foreach (var required in new[] { "FileNativeObserverHost", "NativeIdentityObserverProvider", "NativeObserverOptions" }) {
+    var type = nativeTypes.Single(t => reader.GetString(t.Type.Name) == required).Type;
+    if ((type.Attributes & System.Reflection.TypeAttributes.VisibilityMask) != System.Reflection.TypeAttributes.NotPublic)
+        throw new InvalidOperationException("Native host capabilities must not be public: " + required);
+}
+var coordinator = nativeTypes.Single(t => reader.GetString(t.Type.Name) == "NativeIdentityCoordinator").Type;
+if ((coordinator.Attributes & System.Reflection.TypeAttributes.VisibilityMask) != System.Reflection.TypeAttributes.Public)
+    throw new InvalidOperationException("Bounded native identity coordinator is missing");
+Console.WriteLine("PASS trusted native host metadata (internal process/file host, public bounded coordinator)");
 Console.WriteLine("PASS launchauth metadata contract (type, command getter, Execute, SQLite reference)");

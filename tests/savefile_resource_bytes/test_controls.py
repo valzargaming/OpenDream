@@ -146,7 +146,7 @@ class SourceTests(unittest.TestCase):
         head='a'*40
         def read_git(root,*args):
             if args==('rev-parse','HEAD'): return (head+'\n').encode()
-            if args==('diff','--name-only','HEAD'): return b''
+            if args==('diff','--ignore-submodules=none','--name-only','HEAD'): return b''
             path=args[-1].split(':',1)[1]
             if path=='tests/savefile_resource_bytes/source-manifest.json': return (control.HERE/'source-manifest.json').read_bytes()
             raw=(control.ROOT/path).read_bytes()
