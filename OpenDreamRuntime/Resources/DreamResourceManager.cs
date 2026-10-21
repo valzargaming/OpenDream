@@ -27,6 +27,7 @@ public sealed partial class DreamResourceManager {
     private DreamAczProvider _aczProvider = default!;
     private readonly List<DreamResource> _resourceCache = new();
     private readonly Dictionary<string, int> _resourcePathToId = new();
+
     // Preserve resource identity for each spelling, but invalidate all aliases of a disk file.
     private readonly Dictionary<string, List<DreamResource>> _fileResourcesByPath = new(
         OperatingSystem.IsWindows() ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
@@ -127,6 +128,7 @@ public sealed partial class DreamResourceManager {
                     aliases = new List<DreamResource>();
                     _fileResourcesByPath.Add(fullPath, aliases);
                 }
+
                 aliases.Add(resource);
             }
         }

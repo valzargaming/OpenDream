@@ -7,8 +7,8 @@ ORIGINAL = '52df08ee4e5711df1c3fd5e907c81f87a986e371'
 CANDIDATE = '7497005929f2972efd112fd792b873a06ca1364a'
 MANAGER = 'OpenDreamRuntime/Resources/DreamResourceManager.cs'
 FILE_CONTRACT = 'tests/savefile_resource_bytes/controls.json'
-FILE_CONTRACT_SHA = 'b16ef4079b5c51183a2ba8f2a9649713f321eb31c157146e03290dcf091311de'
-COMPOSED_MANAGER_SHA = 'fbf8ba2689e6dbf11b4a8542d58aa53dbca37301476c36f73fefb86a3ff109d6'
+FILE_CONTRACT_SHA = '3a5f96b61468dfe0742af5a10793cc0f5049c45d67bcb09b140e68960c7b4a73'
+COMPOSED_MANAGER_SHA = '5d567afb602ba3c118336e1ba51106e122ad99ec7e12bd1309ada3af97c55683'
 SOURCES = {
     'OpenDreamRuntime/Objects/Types/DreamList.cs': ('c5c3baed5e30333ce63fcd38e2be40d5b3cc07bda4c900171e8da84d0a588e55', '380196bc158ade1044094bb414b46bb36266e43e6f6cff5bfa12c9b6e6edb156'),
     'OpenDreamRuntime/Objects/Types/DreamObjectSavefile.cs': ('151a92e3a2691adf0a85787fa15dbe9ff669f4a94309019d6e7e523993b8ee6d', '565b7d86e547ddf96d28cc33ef85e38bde0c771da69d7f2a88807f805395547f'),
