@@ -40,7 +40,7 @@
     "tests/assoc_list_construction/test_archive_inherited_build_warnings.py": "7beed2a238da448455718d5c570708df01aeab4fcff498781939e3793916e14f",
     "OpenDreamRuntime/Objects/Types/DreamList.cs": "380196bc158ade1044094bb414b46bb36266e43e6f6cff5bfa12c9b6e6edb156",
     "OpenDreamRuntime/Objects/Types/DreamObjectSavefile.cs": "565b7d86e547ddf96d28cc33ef85e38bde0c771da69d7f2a88807f805395547f",
-    "OpenDreamRuntime/Resources/DreamResourceManager.cs": "ad62b66bfa26039da65ce38ae282d9edefb9fd7392877ae4dcd765f4c9ad84a3",
+    "OpenDreamRuntime/Resources/DreamResourceManager.cs": "fbf8ba2689e6dbf11b4a8542d58aa53dbca37301476c36f73fefb86a3ff109d6",
     "OpenDreamRuntime/Map/DreamMapManager.cs": "7756a5276f625fc8c66a6dc30005212054888462c4040f51f8c4ff648d73bf59",
     "tests/assoc_list_construction/warning_coordinates.py": "73ad2ac6972e1e1ea34f08953e3682e6d605c5fe1e40a1efd90157cbbe7e84f6",
     "tests/assoc_list_construction/test_warning_coordinates.py": "51bb8a381358b261cf1170dee226171690f47f73bcda1996d3b00739d2b2bfd6"

@@ -131,4 +131,75 @@ public sealed class Text2FileTests {
         Assert.That(parentResult.MustGetValueAsFloat(), Is.Zero);
         Assert.That(File.ReadAllBytes(path), Is.EqualTo(cached));
     }
+
+    [Test]
+    public void CopyRefreshesReusableJournalDestinations() {
+        foreach (var name in new[] { "slot0", "slot1", "pending" }) {
+            var destination = Path.Combine(_temporary, name + ".json");
+            Write(new DreamValue("old"), destination);
+            Read(destination, "old\n");
+            for (var revision = 1; revision <= 3; revision++) {
+                var temporary = Path.Combine(_temporary, name + revision + ".tmp");
+                var payload = "{\"revision\":" + revision + "}";
+                Write(new DreamValue(payload), temporary);
+                Read(temporary, payload + "\n");
+                using var copy = Call("fcopy", new DreamValue(temporary), new DreamValue(destination));
+                Assert.That(copy.MustGetValueAsFloat(), Is.EqualTo(1));
+                Read(destination, payload + "\n");
+                Assert.That(File.ReadAllBytes(destination), Is.EqualTo(Encoding.UTF8.GetBytes(payload + "\n")));
+            }
+        }
+    }
+
+    [TestCase(false)]
+    [TestCase(true)]
+    public void WritesInvalidateAllCachedPathAliases(bool copy) {
+        var path = Path.Combine(_temporary, "aliased.txt");
+        Directory.CreateDirectory(Path.Combine(_temporary, "sub"));
+        var aliases = new List<string> { path, Path.Combine(_temporary, ".", "aliased.txt"),
+            Path.Combine(_temporary, "sub", "..", "aliased.txt"), Path.GetRelativePath(Directory.GetCurrentDirectory(), path) };
+        if (OperatingSystem.IsWindows()) {
+            aliases.Add(path.ToUpperInvariant());
+            aliases.Add(path.Replace('\\', '/'));
+        }
+        Write(new DreamValue("old"), path);
+        var handles = new List<DreamResource>();
+        foreach (var alias in aliases) {
+            Read(alias, "old\n");
+            handles.Add(_resources.LoadResource(alias));
+        }
+        if (copy) {
+            var source = Path.Combine(_temporary, "source.txt");
+            Write(new DreamValue("new"), source);
+            using var result = Call("fcopy", new DreamValue(source), new DreamValue(aliases[2]));
+            Assert.That(result.MustGetValueAsFloat(), Is.EqualTo(1));
+        } else {
+            Write(new DreamValue("new"), aliases[2]);
+        }
+        var expected = copy ? "new\n" : "old\nnew\n";
+        Assert.That(File.ReadAllBytes(path), Is.EqualTo(Encoding.UTF8.GetBytes(expected)));
+        for (var i = 0; i < aliases.Count; i++) {
+            Read(aliases[i], expected);
+            Assert.That(_resources.LoadResource(aliases[i]), Is.SameAs(handles[i]), "keep raw-path resource identity");
+            using var result = Call("file2text", new DreamValue(handles[i]));
+            Assert.That(result.MustGetValueAsString(), Is.EqualTo(expected));
+        }
+    }
+
+    [Test]
+    public void FailedCopyPreservesDestinationBytesAndCache() {
+        var source = Path.Combine(_temporary, "source.txt");
+        var destination = Path.Combine(_temporary, "destination.txt");
+        Write(new DreamValue("new"), source);
+        Write(new DreamValue("old"), destination);
+        Read(destination, "old\n");
+        var cached = _resources.LoadResource(destination).ResourceData;
+        using (File.Open(destination, FileMode.Open, FileAccess.ReadWrite, FileShare.None)) {
+            using var result = Call("fcopy", new DreamValue(source), new DreamValue(destination));
+            Assert.That(result.MustGetValueAsFloat(), Is.Zero);
+            Assert.That(_resources.LoadResource(destination).ResourceData, Is.SameAs(cached));
+        }
+        Assert.That(File.ReadAllBytes(destination), Is.EqualTo(cached));
+        Read(destination, "old\n");
+    }
 }

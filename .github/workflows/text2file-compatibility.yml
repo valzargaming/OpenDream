@@ -19,6 +19,8 @@ jobs:
           - {os: ubuntu-latest, mode: positive}
           - {os: windows-latest, mode: positive}
           - {os: ubuntu-latest, mode: baseline}
+          - {os: ubuntu-latest, mode: omit-copy-invalidation}
+          - {os: ubuntu-latest, mode: omit-alias-registration}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -43,6 +45,22 @@ jobs:
             git show a7ed7a28b73c466116a4d1c5b89297b08d6ff1ed:OpenDreamRuntime/Resources/DreamResourceManager.cs | Set-Content -Encoding utf8NoBOM OpenDreamRuntime/Resources/DreamResourceManager.cs
             if ($LASTEXITCODE -ne 0) { throw 'Cannot prepare baseline' }
           }
+          $path = 'OpenDreamRuntime/Resources/DreamResourceManager.cs'
+          $source = Get-Content -Raw $path
+          $needle = $null
+          $replacement = $null
+          if ('${{ matrix.mode }}' -eq 'omit-copy-invalidation') {
+            $needle = '        InvalidateFileCache(destinationFilePath);'
+            $replacement = '        // Negative control: keep stale copy destination bytes.'
+          }
+          if ('${{ matrix.mode }}' -eq 'omit-alias-registration') {
+            $needle = '                aliases.Add(resource);'
+            $replacement = '                if (resourcePath == fullPath) aliases.Add(resource);'
+          }
+          if ($needle) {
+            if (($source.Split($needle).Count - 1) -ne 1) { throw 'Mutation must match once' }
+            $source.Replace($needle, $replacement) | Set-Content -NoNewline -Encoding utf8NoBOM $path
+          }
           git diff | Set-Content text2file-results/control.diff
           Copy-Item OpenDreamRuntime/Resources/DreamResourceManager.cs text2file-results/tested-DreamResourceManager.cs
       - name: Build production and tests
@@ -63,14 +81,25 @@ jobs:
           Get-Content text2file-results/test.log -Tail 80
           [xml]$trx = Get-Content -Raw text2file-results/text2file.trx
           $counts = $trx.TestRun.ResultSummary.Counters
-          if ($counts.total -ne '11' -or $counts.executed -ne '11') { throw 'Expected all 11 contract cases to execute' }
+          if ($counts.total -ne '15' -or $counts.executed -ne '15') { throw 'Expected all 15 contract cases to execute' }
           if ('${{ matrix.mode }}' -eq 'positive') {
-            if ($code -ne 0 -or $counts.passed -ne '11' -or $counts.failed -ne '0') { throw 'Positive contracts failed' }
-          } else {
-            if ($code -eq 0 -or $counts.failed -ne '10' -or $counts.passed -ne '1') { throw 'Historical overwrite/no-LF/cache defect was not detected as expected' }
+            if ($code -ne 0 -or $counts.passed -ne '15' -or $counts.failed -ne '0') { throw 'Positive contracts failed' }
+          } elseif ('${{ matrix.mode }}' -eq 'baseline') {
+            if ($code -eq 0 -or $counts.failed -ne '14' -or $counts.passed -ne '1') { throw 'Historical overwrite/no-LF/cache defect was not detected as expected' }
             $passed = @($trx.TestRun.Results.UnitTestResult | Where-Object outcome -eq 'Passed')
             if ($passed.Count -ne 1 -or $passed[0].testName -ne 'InvalidDestinationReturnsZero') { throw 'Wrong negative-control outcomes' }
+          } else {
+            if ($code -eq 0 -or $counts.failed -ne '2' -or $counts.passed -ne '13') { throw 'Expected exactly two cache-contract failures' }
+            $failed = @($trx.TestRun.Results.UnitTestResult | Where-Object outcome -eq 'Failed' | ForEach-Object testName)
+            $expected = if ('${{ matrix.mode }}' -eq 'omit-copy-invalidation') {
+              @('CopyRefreshesReusableJournalDestinations', 'WritesInvalidateAllCachedPathAliases(True)')
+            } else {
+              @('WritesInvalidateAllCachedPathAliases(False)', 'WritesInvalidateAllCachedPathAliases(True)')
+            }
+            if (Compare-Object ($failed | Sort-Object) ($expected | Sort-Object)) { throw 'Unexpected cache-control failure names' }
           }
+          # GitHub's pwsh wrapper propagates LASTEXITCODE, including expected test failures.
+          exit 0
       - name: Hash evidence
         if: always()
         shell: pwsh
