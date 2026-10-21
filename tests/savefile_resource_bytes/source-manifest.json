@@ -30,7 +30,7 @@
     "tests/string_format_decoder/verify.py": "1e1bf99ca675404f5e40083541ffbffc76351c16a9e26e4760a63493c3debf88",
     "tools/save_cost_profile/control.py": "4e53d86e002fcfa8419ffda0eba3ed7961b34e26e3d74124419920ea9303e495",
     "tools/save_cost_profile/manifest.json": "6e088c16acd60ef2a5cb2b9601bcba258e356a6f8bbd4952fc0d3906596f4363",
-    "tools/save_cost_profile/test_source_composition.py": "862a5f4da6dd1175c2bd69c9edc96aa7538f16d2e2508668cdda9bdb84334e82",
+    "tools/save_cost_profile/test_source_composition.py": "c9adc95e63327f9ca85006d7bcfa9be39d8bf40ef734dafa9662aa4c1360a4c2",
     "tools/save_cost_profile/sdk_guard.py": "472225c05da02128acd6e6e996b004a3b01ac77eaaff92d8f9d5c02ba33aa643",
     "tools/save_cost_profile/test_sdk_guard.py": "99a914b692350eec9a22ff0419bec1e6946982d729809f9ba59aec544636e3f4"
   },
