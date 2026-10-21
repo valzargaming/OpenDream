@@ -120,7 +120,19 @@ class SourceTests(unittest.TestCase):
         with self.assertRaises(AssertionError): control.mutate((control.ROOT/control.MANAGER).read_bytes()+b'\n','hash-only',spec)
     def test_baseline_is_exact_original(self):
         for path,spec in json.loads((control.HERE/'controls.json').read_text())['production'].items():
-            raw=(control.ROOT/path).read_bytes();original=bytes.fromhex(spec['original_hex']);expected=original.replace(control.CACHE_READ_ORIGINAL,control.CACHE_READ) if path==control.SAVEFILE else original;self.assertEqual(control.mutate(raw,'baseline',spec),expected)
+            raw=(control.ROOT/path).read_bytes();original=bytes.fromhex(spec['original_hex']);expected=original.replace(control.CACHE_READ_ORIGINAL,control.CACHE_READ) if path==control.SAVEFILE else control.compose_file_contract(original,spec);self.assertEqual(control.mutate(raw,'baseline',spec),expected)
+    def test_file_contract_composition_is_exact_and_reversible(self):
+        spec=json.loads((control.HERE/'controls.json').read_text())['production'][control.MANAGER]
+        original=bytes.fromhex(spec['original_hex'])
+        composed=control.compose_file_contract(original,spec)
+        self.assertEqual(control.compose_file_contract(composed,spec,reverse=True),original)
+        self.assertIn(b'File.AppendAllText(filePath, text + "\\n");',composed)
+        self.assertIn(b'InvalidateFileCache(destinationFilePath);',composed)
+        self.assertIn(b'aliases.Add(resource);',composed)
+        self.assertNotIn(b'CreateResourceFromSavefile',composed)
+        for change in spec['preserve_file_contract']:
+            altered=original.replace(change['old'].encode(),b'changed',1)
+            with self.assertRaises(AssertionError): control.compose_file_contract(altered,spec)
     def test_original_logs_tamper(self):
         with tempfile.TemporaryDirectory() as d:
             root=Path(d)

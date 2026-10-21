@@ -88,10 +88,10 @@
     "tests/list_pool_capacity/frozen_dependencies/missing-original.py": "a30b8e1f59f23e34288340651d279c198913f3e11039ec593b2317ce0a6c7497",
     "tests/list_pool_capacity/frozen_dependencies/missing-composed.py": "ef7052ca814fac0a75f534ba93821a79020a1c8b9f83515c3c1ffc3955d20fac",
     "OpenDreamRuntime/Objects/Types/DreamObjectSavefile.cs": "565b7d86e547ddf96d28cc33ef85e38bde0c771da69d7f2a88807f805395547f",
-    "OpenDreamRuntime/Resources/DreamResourceManager.cs": "ad62b66bfa26039da65ce38ae282d9edefb9fd7392877ae4dcd765f4c9ad84a3",
+    "OpenDreamRuntime/Resources/DreamResourceManager.cs": "fbf8ba2689e6dbf11b4a8542d58aa53dbca37301476c36f73fefb86a3ff109d6",
     "OpenDreamRuntime/Map/DreamMapManager.cs": "7756a5276f625fc8c66a6dc30005212054888462c4040f51f8c4ff648d73bf59",
-    "tests/assoc_list_construction/warning_coordinates.py": "f9aaf4e90cc26e4c388cb40593d9073d50f2533f0121857984fe93cd022ddc1c",
-    "tests/assoc_list_construction/test_warning_coordinates.py": "56e030e97d66e6c7802466a41a2e0acd9abc917cc7d03ce50dc8e25dabc2c33d",
+    "tests/assoc_list_construction/warning_coordinates.py": "b108fecf42da0864edec43557b2d874570faaf327c3af4bec2b15b66c0fc954e",
+    "tests/assoc_list_construction/test_warning_coordinates.py": "e0863a5319b5899f46f1afbcfd9943dba91e09c9710ac59dfddc4fda368eba25",
     "OpenDreamClient/States/MainMenu/MainMenuState.cs": "f99c51f12f148e9e62eae679c7d22765bfbdd8f0308f3dd1ccd2fd7fd3c38384",
     "OpenDreamRuntime/DreamConnection.cs": "5938f66866b911f268db30d96d44b1554718befa5697c118d4edebf537215453"
   },

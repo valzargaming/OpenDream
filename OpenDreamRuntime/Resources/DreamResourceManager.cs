@@ -27,6 +27,9 @@ public sealed partial class DreamResourceManager {
     private DreamAczProvider _aczProvider = default!;
     private readonly List<DreamResource> _resourceCache = new();
     private readonly Dictionary<string, int> _resourcePathToId = new();
+    // Preserve resource identity for each spelling, but invalidate all aliases of a disk file.
+    private readonly Dictionary<string, List<DreamResource>> _fileResourcesByPath = new(
+        OperatingSystem.IsWindows() ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
     private readonly Dictionary<string, IconResource> _md5ToGeneratedIcon = new();
     private readonly Dictionary<string, List<byte[]>> _savefileResourceData = new();
     private readonly List<string> _queuedResourceLoads = new();
@@ -43,6 +46,7 @@ public sealed partial class DreamResourceManager {
     public void Initialize(string rootPath, string[] resources, string? interfaceFile) {
         _resourceCache.Clear();
         _resourcePathToId.Clear();
+        _fileResourcesByPath.Clear();
         _savefileResourceData.Clear();
 
         // An empty resource path is the console
@@ -117,6 +121,14 @@ public sealed partial class DreamResourceManager {
             resource = GetResource();
             _resourceCache.Add(resource);
             _resourcePathToId.Add(resourcePath, resourceId);
+            var fullPath = TryGetFullPath(resourcePath);
+            if (fullPath != null) {
+                if (!_fileResourcesByPath.TryGetValue(fullPath, out var aliases)) {
+                    aliases = new List<DreamResource>();
+                    _fileResourcesByPath.Add(fullPath, aliases);
+                }
+                aliases.Add(resource);
+            }
         }
 
         ProcessQueuedResourceLoads();
@@ -290,10 +302,14 @@ public sealed partial class DreamResourceManager {
     public bool SaveTextToFile(string filePath, string text) {
         try {
             Directory.GetParent(filePath)?.Create();
-            File.WriteAllText(filePath, text);
+            // text2file appends a line, including when Text already ends in LF.
+            // Use a literal LF on every platform; File.AppendAllText uses UTF-8 without a BOM.
+            File.AppendAllText(filePath, text + "\n");
         } catch (Exception) {
             return false;
         }
+
+        InvalidateFileCache(filePath);
 
         return true;
     }
@@ -312,7 +328,25 @@ public sealed partial class DreamResourceManager {
             return false;
         }
 
+        InvalidateFileCache(destinationFilePath);
         return true;
+    }
+
+    private static string? TryGetFullPath(string path) {
+        try {
+            return Path.GetFullPath(path);
+        } catch (Exception e) when (e is ArgumentException or NotSupportedException or PathTooLongException) {
+            // Loading a missing/invalid resource must keep its previous behavior.
+            return null;
+        }
+    }
+
+    private void InvalidateFileCache(string path) {
+        var fullPath = TryGetFullPath(path);
+        if (fullPath != null && _fileResourcesByPath.TryGetValue(fullPath, out var aliases)) {
+            foreach (var resource in aliases)
+                resource.ReleaseFileDataCache();
+        }
     }
 
     public string[] EnumerateListing(string path) {

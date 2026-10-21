@@ -20,6 +20,17 @@ def blob(raw): return hashlib.sha1(b'blob ' + str(len(raw)).encode() + b'\0' + r
 def git(root, *args):
     return subprocess.run(['git', '-C', str(root), *args], check=True, capture_output=True).stdout
 
+def compose_file_contract(raw, spec, reverse=False):
+    # Exact, separately reviewed file compatibility edits. Preserve them while
+    # removing only savefile byte sharing in the historical negative control.
+    changes = spec.get('preserve_file_contract', [])
+    for change in reversed(changes) if reverse else changes:
+        old, new = change['old'].encode(), change['new'].encode()
+        if reverse: old, new = new, old
+        assert raw.count(old) == 1, 'file contract composition must match once'
+        raw = raw.replace(old, new, 1)
+    return raw
+
 def mutate(raw, mode, spec):
     assert mode in MODES and sha(raw) == spec['candidate_sha256'], 'unreviewed candidate'
     if mode == 'positive': return raw
@@ -29,6 +40,7 @@ def mutate(raw, mode, spec):
         if spec.get("preserve_read_cache"):
             assert original.count(CACHE_READ_ORIGINAL) == 1 and b"ReleaseFileDataCache" not in original
             original = original.replace(CACHE_READ_ORIGINAL, CACHE_READ)
+        original = compose_file_contract(original, spec)
         return original
     needle = b'if (data.AsSpan().SequenceEqual(candidate))'
     assert raw.count(needle) == 1, 'unexpected equality guard'

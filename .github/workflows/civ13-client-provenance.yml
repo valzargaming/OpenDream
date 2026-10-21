@@ -20,6 +20,9 @@ jobs:
           fetch-depth: 0
           submodules: recursive
       - uses: actions/setup-dotnet@v4
+        env:
+          # Keep latestFeature resolution away from preinstalled hosted SDKs.
+          DOTNET_INSTALL_DIR: ${{ runner.temp }}/opendream-dotnet-${{ github.run_id }}-${{ github.run_attempt }}-${{ strategy.job-index }}
         with:
           dotnet-version: 10.0.401
       - uses: actions/setup-python@v5
