@@ -52,7 +52,7 @@
     ".gitattributes": "011eed8c7cc4815654e15578bd7e60474ca4f7c5cd4bfdc848ea716eb92a6d9f",
     "tests/resource_output_allocation/control.py": "cb07daf018e9ea366b0b8866740dc6e5176181f395c75019063dd425cad0667d",
     "tests/resource_output_allocation/test_controls.py": "06417904b9c46b77e08e61f913a1f850fe5cc98c700d843fd7ecb4c86beb632e",
-    "tests/savefile_resource_bytes/source-manifest.json": "71434b79545819d50119c595125890a24aac692183a22fff935c3645cbbe9895",
+    "tests/savefile_resource_bytes/source-manifest.json": "0f923d62e48eeccc81a5f92b880872b387a6e03a5eb01810a226823425a000b3",
     "tests/string_format_decoder/source-manifest.json": "6ca6889e511fe6b55c803a45d68aba5cb802c0cf490bba6771b7f01e2f8649b9",
     "Content.IntegrationTests/SetupCompileDM.cs": "b36fbd0d33ae6a14a2d8e9fc65784b1520aaa8fc2747c02e00c58a14468526b9",
     "DMCompiler/DMCompiler.csproj": "0f323d9bd962d7fea71bdabb3252952a4202d142b587587bc01a7f80703f3bbc",
@@ -74,7 +74,7 @@
     "tools/save_cost_profile/test_sdk_guard.py": "e3a43c2bf9e432b8369bb6820e08a1e709cf4b84885fe6c9110ba9b7f2b62bf3",
     ".github/workflows/native-matrix-ownership.yml": "d7de6de6a352fce10cf46b8d1f691805c4b7b612e0997ee51d927fc183d79b9c",
     ".github/workflows/assoc-list-construction.yml": "185a4a10ad5739a3afbaad71b091954915de53cbd78e75cf8e27c2d26a11e06b",
-    ".github/workflows/save-cost-profile.yml": "4eb58e17fa4820cbd84f99ce9abbe42b94031a4e716e50a554aa9c1f387def1c",
+    ".github/workflows/save-cost-profile.yml": "23fdbffee832a1e6c825b381f3521b47104eea4ed5c9e2c9e7ef7985cdcd1152",
     ".github/workflows/text2file-compatibility.yml": "7649f670f3cc069fe3ec4710503a77de2d9d57d8528a0f1bbe92fb573c2e4ace"
   },
   "dependency_compositions": {

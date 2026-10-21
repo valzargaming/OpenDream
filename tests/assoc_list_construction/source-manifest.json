@@ -53,7 +53,7 @@
     ".github/workflows/savefile-resource-bytes.yml": "4ee1a9e32d0eb1589bbc60793c620b5c0b61a0a5bf433ae485d4563a22d28657",
     ".github/workflows/savefile-raw-cache.yml": "ce9e63742f46bc11d4af9c0f55a5e58d1e9c5d466dc021a4174fd75959185946",
     ".github/workflows/native-matrix-ownership.yml": "d7de6de6a352fce10cf46b8d1f691805c4b7b612e0997ee51d927fc183d79b9c",
-    ".github/workflows/save-cost-profile.yml": "4eb58e17fa4820cbd84f99ce9abbe42b94031a4e716e50a554aa9c1f387def1c",
+    ".github/workflows/save-cost-profile.yml": "23fdbffee832a1e6c825b381f3521b47104eea4ed5c9e2c9e7ef7985cdcd1152",
     ".github/workflows/text2file-compatibility.yml": "7649f670f3cc069fe3ec4710503a77de2d9d57d8528a0f1bbe92fb573c2e4ace"
   }
 }
