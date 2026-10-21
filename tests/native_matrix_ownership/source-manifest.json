@@ -3,9 +3,9 @@
   "historical_creator_base": "644a0eca75c7a5a5d74b16de04ec589cf0ac1faa",
   "historical_native_root_sha256": "ce29b09ba46d16edb858f8569290651a75436815cdea18f3055b554bc3abe3fa",
   "expected_sources": {
-    ".github/workflows/assoc-list-construction.yml": "c3d54a50ff47c6b74f883d3afeb7fc8a178ec44f4d610ab4194c5bb542a2aea2",
+    ".github/workflows/assoc-list-construction.yml": "d48e96cd2a901ce1dacaf5f7c376517b78fcf2419c283c1d483987fe318af588",
     ".github/workflows/check-test-parity.yml": "933a567d3508b64f37a6ac4e82b8f3dca4212eb037dd26d478e7efef9e808dbf",
-    ".github/workflows/native-matrix-ownership.yml": "50f4cb5831b2972a641b81457c14f419f0a926ef4e12366f2ff5b407ed65f667",
+    ".github/workflows/native-matrix-ownership.yml": "d9a9c69fafd0f45a3f544cb6519ab02b1c66c83980551a1237c38a33072f4d7c",
     ".github/workflows/typesof-ownership.yml": "369778964f9207c10732881066794e0d921fae45c9838c7b27fd64bccabc1c6e",
     "Content.IntegrationTests/AssocListConstructionTests.cs": "27da87650e4d44e9adb36f25dc50d187add1cecf45062d2ffd4bccf14808a41c",
     "Content.IntegrationTests/Content.IntegrationTests.csproj": "7d2ed2e3871ebe160b8b2324d980ea9192725b226dca2d1d752236ae490114a3",
@@ -88,10 +88,17 @@
     "tests/list_pool_capacity/frozen_dependencies/missing-original.py": "a30b8e1f59f23e34288340651d279c198913f3e11039ec593b2317ce0a6c7497",
     "tests/list_pool_capacity/frozen_dependencies/missing-composed.py": "ef7052ca814fac0a75f534ba93821a79020a1c8b9f83515c3c1ffc3955d20fac",
     "OpenDreamRuntime/Objects/Types/DreamObjectSavefile.cs": "565b7d86e547ddf96d28cc33ef85e38bde0c771da69d7f2a88807f805395547f",
-    "OpenDreamRuntime/Resources/DreamResourceManager.cs": "ad62b66bfa26039da65ce38ae282d9edefb9fd7392877ae4dcd765f4c9ad84a3",
+    "OpenDreamRuntime/Resources/DreamResourceManager.cs": "5d567afb602ba3c118336e1ba51106e122ad99ec7e12bd1309ada3af97c55683",
     "OpenDreamRuntime/Map/DreamMapManager.cs": "7756a5276f625fc8c66a6dc30005212054888462c4040f51f8c4ff648d73bf59",
-    "tests/assoc_list_construction/warning_coordinates.py": "73ad2ac6972e1e1ea34f08953e3682e6d605c5fe1e40a1efd90157cbbe7e84f6",
-    "tests/assoc_list_construction/test_warning_coordinates.py": "51bb8a381358b261cf1170dee226171690f47f73bcda1996d3b00739d2b2bfd6"
+    "tests/assoc_list_construction/warning_coordinates.py": "cb954fe17dd2accc58b83321a9aa908871e939009c1b48752c904d93e183dad9",
+    "tests/assoc_list_construction/test_warning_coordinates.py": "0c64d667817fd887c3be94ae5716293b5db5d0a6eed99b7e9ca47254b636951c",
+    "tests/savefile_resource_bytes/controls.json": "3a5f96b61468dfe0742af5a10793cc0f5049c45d67bcb09b140e68960c7b4a73",
+    "tools/save_cost_profile/sdk_guard.py": "9eb724c24ad3523be68ed879085a84e30ddc2477a0f3a4c59b06e67640f855c4",
+    "tools/save_cost_profile/test_sdk_guard.py": "82b1892aecee20eb27cf3207d152a6d55abbf4b5052fe8d0da735c56ce04a52c",
+    ".github/workflows/savefile-resource-bytes.yml": "d32949d6e15c618dff6a84a7513bf2fb86c31113460e8ba4b035aaaee8ac6d48",
+    ".github/workflows/savefile-raw-cache.yml": "da6961ee83012c0d52cb6850b79a7f81332741e925ef9d16b23812580b361d66",
+    ".github/workflows/save-cost-profile.yml": "8e9c73615513963b260739e31f3312cf7111eb8b2eeca7fbb6911f6a6f9e75aa",
+    ".github/workflows/text2file-compatibility.yml": "1544aa934d4d15c6f105e4aefb2e83f0a3a6cdc3971e341048668741933e54b0"
   },
   "dependency_compositions": {
     "OpenDreamRuntime/Objects/Types/DreamList.cs": {
