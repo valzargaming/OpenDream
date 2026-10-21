@@ -1,8 +1,14 @@
 name: Isolated native identity handoff
 on:
   pull_request:
-    paths: ['OpenDreamRuntime/NativeByondBridge/**', 'OpenDreamRuntime/DreamManager*.cs', 'OpenDreamRuntime/DreamConnection.cs', 'OpenDreamRuntime/Objects/Types/DreamObjectClient.cs', 'OpenDreamShared/**', 'OpenDreamClient/**', 'Content.IntegrationTests/**', 'tests/native_identity_integration/**', 'tests/native_client_identity/**', 'tests/native_byond_proof/**', 'tools/native-byond-bridge/**', '.github/workflows/native-byond-proof.yml']
+    paths: ['OpenDreamRuntime/NativeByondBridge/**', 'OpenDreamRuntime/DreamManager*.cs', 'OpenDreamRuntime/DreamConnection.cs', 'OpenDreamRuntime/Objects/Types/DreamObjectClient.cs', 'OpenDreamShared/**', 'OpenDreamClient/**', 'Content.IntegrationTests/**', 'tests/native_identity_integration/**', 'tests/native_client_identity/**', 'tests/native_byond_proof/**', 'tests/workflow_routing/**', 'tools/native-byond-bridge/**', '.github/workflows/native-byond-proof.yml']
   workflow_dispatch:
+    inputs:
+      native_compile_authorized_sha:
+        description: 'Exact selected commit SHA; supply only after separate authorization for this native compiler download and compile'
+        type: string
+        required: false
+        default: ''
 permissions:
   contents: read
 jobs:
@@ -23,6 +29,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Verify offline workflow routing and native compile selection
+        if: matrix.probe == 'positive'
+        run: python -B -m unittest discover -s tests/workflow_routing -p 'test_*.py' -v
       - name: Positive linked admission and observer lifecycle
         if: matrix.probe == 'positive'
         run: python tests/native_identity_integration/run.py
@@ -76,6 +85,9 @@ jobs:
         if: matrix.probe != 'positive'
         run: python tests/native_byond_proof/run.py --control '${{ matrix.probe }}'
   native-compile:
+    # An input records the separately authorized exact source; it does not grant authority.
+    # Automatic PR runs and manual runs with the default empty input skip this job.
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.native_compile_authorized_sha == github.sha }}
     runs-on: ubuntu-22.04
     timeout-minutes: 8
     steps:
