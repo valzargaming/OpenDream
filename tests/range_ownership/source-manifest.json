@@ -14,8 +14,8 @@
     "Content.IntegrationTests/GameTests.RangeOwnership.cs": "75df4e298ea4218c39a7d863a9e8591972fed045cd0bad842a1196fdc1c6d43d",
     "OpenDreamRuntime/Procs/DMOpcodeHandlers.cs": "c467c88732460adcf3349ec6e5608cd8fd9e3208e889c8452c01cc7445673121",
     "tests/call_ext_ownership/control.py": "abaa7baaf6b29a6acfd0257f78dc103fe7bb03c8166ffdd581e1a4a2f34ae831",
-    "tests/field_ownership/source-manifest.json": "da08d6ae024e280ae29cb39f06a6d13c0057a86447acbcd5333840da1388e24b",
-    "tests/index_read_ownership/source-manifest.json": "0fdf67ec3d1c9fabf2d893bd5a6baf9695310a5ce45f60293c28a83a468d236f",
+    "tests/field_ownership/source-manifest.json": "a3ae28bdb7c034b5d4fe33ac27b49ca3617251c444a75003f64dc42f6b40c8d2",
+    "tests/index_read_ownership/source-manifest.json": "cca7329437724432f0ff537ebb8612cf00e373d3fb0cd8ee8a681b34ef83c63c",
     "tests/missing_operator_ownership/control.py": "d0e911a0e8b2971fe0474e9ce353e3cdf9446cb3add1d99d2bb74b5636c7c442",
     "tests/numeric_list_ownership/control.py": "9992cac5da97284afe35e1153cc09cc3ea68742aaa3bfe9ba05536039433bb11",
     "tests/range_ownership/control.py": "13cbf6eeffa72e9dd0f2cffe43e8705d6db2ec6c1716d51b22f3b2027b3d5467",
@@ -36,7 +36,7 @@
     "tests/list_pool_capacity/frozen_dependencies/missing-original.py": "a30b8e1f59f23e34288340651d279c198913f3e11039ec593b2317ce0a6c7497",
     "tests/list_pool_capacity/frozen_dependencies/missing-composed.py": "ef7052ca814fac0a75f534ba93821a79020a1c8b9f83515c3c1ffc3955d20fac",
     "tools/save_cost_profile/sdk_guard.py": "9eb724c24ad3523be68ed879085a84e30ddc2477a0f3a4c59b06e67640f855c4",
-    "tools/save_cost_profile/test_sdk_guard.py": "ab248f0cdc80cf67e58173ffb899f0e934f03e39634ad551ffb87d7685dfe9df"
+    "tools/save_cost_profile/test_sdk_guard.py": "e3a43c2bf9e432b8369bb6820e08a1e709cf4b84885fe6c9110ba9b7f2b62bf3"
   },
   "baseline_control_scope": "Restore only historical IsInRange; preserve current associative constructor cleanup.",
   "dependency_compositions": {

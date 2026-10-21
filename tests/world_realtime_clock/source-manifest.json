@@ -49,6 +49,6 @@
     "tests/world_realtime_clock/README.md": "0118ab3d9a182f2558a906440b5c3097604867aae53870c1695f3d76412a992b",
     "tests/string_format_decoder/verify.py": "1e1bf99ca675404f5e40083541ffbffc76351c16a9e26e4760a63493c3debf88",
     "tools/save_cost_profile/sdk_guard.py": "9eb724c24ad3523be68ed879085a84e30ddc2477a0f3a4c59b06e67640f855c4",
-    "tools/save_cost_profile/test_sdk_guard.py": "ab248f0cdc80cf67e58173ffb899f0e934f03e39634ad551ffb87d7685dfe9df"
+    "tools/save_cost_profile/test_sdk_guard.py": "e3a43c2bf9e432b8369bb6820e08a1e709cf4b84885fe6c9110ba9b7f2b62bf3"
   }
 }

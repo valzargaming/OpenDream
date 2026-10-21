@@ -96,10 +96,10 @@
     "OpenDreamRuntime/DreamConnection.cs": "5938f66866b911f268db30d96d44b1554718befa5697c118d4edebf537215453",
     "tests/savefile_resource_bytes/controls.json": "3a5f96b61468dfe0742af5a10793cc0f5049c45d67bcb09b140e68960c7b4a73",
     "tools/save_cost_profile/sdk_guard.py": "9eb724c24ad3523be68ed879085a84e30ddc2477a0f3a4c59b06e67640f855c4",
-    "tools/save_cost_profile/test_sdk_guard.py": "ab248f0cdc80cf67e58173ffb899f0e934f03e39634ad551ffb87d7685dfe9df",
+    "tools/save_cost_profile/test_sdk_guard.py": "e3a43c2bf9e432b8369bb6820e08a1e709cf4b84885fe6c9110ba9b7f2b62bf3",
     ".github/workflows/savefile-resource-bytes.yml": "4ee1a9e32d0eb1589bbc60793c620b5c0b61a0a5bf433ae485d4563a22d28657",
     ".github/workflows/savefile-raw-cache.yml": "ce9e63742f46bc11d4af9c0f55a5e58d1e9c5d466dc021a4174fd75959185946",
-    ".github/workflows/save-cost-profile.yml": "8e9c73615513963b260739e31f3312cf7111eb8b2eeca7fbb6911f6a6f9e75aa",
+    ".github/workflows/save-cost-profile.yml": "4eb58e17fa4820cbd84f99ce9abbe42b94031a4e716e50a554aa9c1f387def1c",
     ".github/workflows/text2file-compatibility.yml": "7649f670f3cc069fe3ec4710503a77de2d9d57d8528a0f1bbe92fb573c2e4ace"
   },
   "dependency_compositions": {

@@ -35,11 +35,11 @@
     "tools/civ13-provenance/robust-auth.patch": "74d9231cdc842f8aec2082c147e214cc6d34433db806d4b543d9677fe3431a1d",
     "tools/civ13-provenance/test_robust_preparation.py": "7e3963fb4e7f401ac74ad69564e2d34844024855585238951a3d105a236c8909",
     "tools/save_cost_profile/sdk_guard.py": "9eb724c24ad3523be68ed879085a84e30ddc2477a0f3a4c59b06e67640f855c4",
-    "tools/save_cost_profile/test_sdk_guard.py": "ab248f0cdc80cf67e58173ffb899f0e934f03e39634ad551ffb87d7685dfe9df",
+    "tools/save_cost_profile/test_sdk_guard.py": "e3a43c2bf9e432b8369bb6820e08a1e709cf4b84885fe6c9110ba9b7f2b62bf3",
     ".github/workflows/savefile-raw-cache.yml": "ce9e63742f46bc11d4af9c0f55a5e58d1e9c5d466dc021a4174fd75959185946",
     ".github/workflows/native-matrix-ownership.yml": "d7de6de6a352fce10cf46b8d1f691805c4b7b612e0997ee51d927fc183d79b9c",
     ".github/workflows/assoc-list-construction.yml": "185a4a10ad5739a3afbaad71b091954915de53cbd78e75cf8e27c2d26a11e06b",
-    ".github/workflows/save-cost-profile.yml": "8e9c73615513963b260739e31f3312cf7111eb8b2eeca7fbb6911f6a6f9e75aa",
+    ".github/workflows/save-cost-profile.yml": "4eb58e17fa4820cbd84f99ce9abbe42b94031a4e716e50a554aa9c1f387def1c",
     ".github/workflows/text2file-compatibility.yml": "7649f670f3cc069fe3ec4710503a77de2d9d57d8528a0f1bbe92fb573c2e4ace"
   },
   "submodules": "160000 commit af2a7d0406b410c4d960f0f4b34513651c6dc742\tRobustToolbox",

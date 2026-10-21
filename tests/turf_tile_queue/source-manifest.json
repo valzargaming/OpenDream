@@ -25,6 +25,6 @@
     "tools/civ13-provenance/robust-auth.patch": "74d9231cdc842f8aec2082c147e214cc6d34433db806d4b543d9677fe3431a1d",
     "tools/civ13-provenance/test_robust_preparation.py": "7e3963fb4e7f401ac74ad69564e2d34844024855585238951a3d105a236c8909",
     "tools/save_cost_profile/sdk_guard.py": "9eb724c24ad3523be68ed879085a84e30ddc2477a0f3a4c59b06e67640f855c4",
-    "tools/save_cost_profile/test_sdk_guard.py": "ab248f0cdc80cf67e58173ffb899f0e934f03e39634ad551ffb87d7685dfe9df"
+    "tools/save_cost_profile/test_sdk_guard.py": "e3a43c2bf9e432b8369bb6820e08a1e709cf4b84885fe6c9110ba9b7f2b62bf3"
   }
 }

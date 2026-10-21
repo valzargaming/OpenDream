@@ -52,8 +52,8 @@
     ".gitattributes": "011eed8c7cc4815654e15578bd7e60474ca4f7c5cd4bfdc848ea716eb92a6d9f",
     "tests/resource_output_allocation/control.py": "cb07daf018e9ea366b0b8866740dc6e5176181f395c75019063dd425cad0667d",
     "tests/resource_output_allocation/test_controls.py": "06417904b9c46b77e08e61f913a1f850fe5cc98c700d843fd7ecb4c86beb632e",
-    "tests/savefile_resource_bytes/source-manifest.json": "d5f19009342bc390d4558866881d94315eb425b7a52b3d6aa8813e0a547986ad",
-    "tests/string_format_decoder/source-manifest.json": "796ed0e261e87a33d3688fe7e52d8d327a76d2937d0a1879fd0f82d83a8d3e4c",
+    "tests/savefile_resource_bytes/source-manifest.json": "71434b79545819d50119c595125890a24aac692183a22fff935c3645cbbe9895",
+    "tests/string_format_decoder/source-manifest.json": "6ca6889e511fe6b55c803a45d68aba5cb802c0cf490bba6771b7f01e2f8649b9",
     "Content.IntegrationTests/SetupCompileDM.cs": "b36fbd0d33ae6a14a2d8e9fc65784b1520aaa8fc2747c02e00c58a14468526b9",
     "DMCompiler/DMCompiler.csproj": "0f323d9bd962d7fea71bdabb3252952a4202d142b587587bc01a7f80703f3bbc",
     "tests/list_pool_capacity/dependency_composition.py": "0594a22bd61c16e1fda2a61a788fafda04276c65582fde6295294d62ae5f5f60",
@@ -71,10 +71,10 @@
     "tools/civ13-provenance/robust-auth.patch": "74d9231cdc842f8aec2082c147e214cc6d34433db806d4b543d9677fe3431a1d",
     "tools/civ13-provenance/test_robust_preparation.py": "7e3963fb4e7f401ac74ad69564e2d34844024855585238951a3d105a236c8909",
     "tools/save_cost_profile/sdk_guard.py": "9eb724c24ad3523be68ed879085a84e30ddc2477a0f3a4c59b06e67640f855c4",
-    "tools/save_cost_profile/test_sdk_guard.py": "ab248f0cdc80cf67e58173ffb899f0e934f03e39634ad551ffb87d7685dfe9df",
+    "tools/save_cost_profile/test_sdk_guard.py": "e3a43c2bf9e432b8369bb6820e08a1e709cf4b84885fe6c9110ba9b7f2b62bf3",
     ".github/workflows/native-matrix-ownership.yml": "d7de6de6a352fce10cf46b8d1f691805c4b7b612e0997ee51d927fc183d79b9c",
     ".github/workflows/assoc-list-construction.yml": "185a4a10ad5739a3afbaad71b091954915de53cbd78e75cf8e27c2d26a11e06b",
-    ".github/workflows/save-cost-profile.yml": "8e9c73615513963b260739e31f3312cf7111eb8b2eeca7fbb6911f6a6f9e75aa",
+    ".github/workflows/save-cost-profile.yml": "4eb58e17fa4820cbd84f99ce9abbe42b94031a4e716e50a554aa9c1f387def1c",
     ".github/workflows/text2file-compatibility.yml": "7649f670f3cc069fe3ec4710503a77de2d9d57d8528a0f1bbe92fb573c2e4ace"
   },
   "dependency_compositions": {

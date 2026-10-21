@@ -29,7 +29,7 @@
     "tests/string_format_decoder/verify.py": "1e1bf99ca675404f5e40083541ffbffc76351c16a9e26e4760a63493c3debf88",
     "tests/assoc_list_construction/test_native_adapter.py": "8652156744961d00f223b9c0f8ba5df90482a49cfd45523a8a4db20a8f5cd02c",
     "tests/assoc_list_construction/test_timing_controls.py": "bfa554303f69629093821b8b2a93a168176af295a5a46d992166a844eccd4172",
-    "tests/range_ownership/source-manifest.json": "7c1460bb892995c01ebb190bc91cb0c72c48bea76b79c49e7619d3985dc95330",
+    "tests/range_ownership/source-manifest.json": "53e638ffd165f21db59157cf002cd21c460e71782c8cfb89757dd6807789fc19",
     "tests/range_ownership/controls.json": "c12a3cb8b1270ec6fbae39c35f7810dc445d7de38c3ccfd0aefdb84498079466",
     "tests/object_initialization/control.py": "572d890dbc57202312a6b8c35952839f1b86df4ab51ab7f05d730b6ff262899d",
     "tests/native_argument_ownership/verify.py": "ff9ba7da2224604cd45d170e15aa3131061ef7aef56a367ea93f204e278be960",
@@ -49,11 +49,11 @@
     "OpenDreamRuntime/DreamManager.cs": "973ba18d864b81da6621aac71c10d6df24715d36a06a0ffaafa199fee79788ea",
     "tests/savefile_resource_bytes/controls.json": "3a5f96b61468dfe0742af5a10793cc0f5049c45d67bcb09b140e68960c7b4a73",
     "tools/save_cost_profile/sdk_guard.py": "9eb724c24ad3523be68ed879085a84e30ddc2477a0f3a4c59b06e67640f855c4",
-    "tools/save_cost_profile/test_sdk_guard.py": "ab248f0cdc80cf67e58173ffb899f0e934f03e39634ad551ffb87d7685dfe9df",
+    "tools/save_cost_profile/test_sdk_guard.py": "e3a43c2bf9e432b8369bb6820e08a1e709cf4b84885fe6c9110ba9b7f2b62bf3",
     ".github/workflows/savefile-resource-bytes.yml": "4ee1a9e32d0eb1589bbc60793c620b5c0b61a0a5bf433ae485d4563a22d28657",
     ".github/workflows/savefile-raw-cache.yml": "ce9e63742f46bc11d4af9c0f55a5e58d1e9c5d466dc021a4174fd75959185946",
     ".github/workflows/native-matrix-ownership.yml": "d7de6de6a352fce10cf46b8d1f691805c4b7b612e0997ee51d927fc183d79b9c",
-    ".github/workflows/save-cost-profile.yml": "8e9c73615513963b260739e31f3312cf7111eb8b2eeca7fbb6911f6a6f9e75aa",
+    ".github/workflows/save-cost-profile.yml": "4eb58e17fa4820cbd84f99ce9abbe42b94031a4e716e50a554aa9c1f387def1c",
     ".github/workflows/text2file-compatibility.yml": "7649f670f3cc069fe3ec4710503a77de2d9d57d8528a0f1bbe92fb573c2e4ace"
   }
 }

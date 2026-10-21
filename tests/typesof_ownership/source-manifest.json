@@ -55,7 +55,7 @@
     "tests/list_pool_capacity/frozen_dependencies/missing-original.py": "a30b8e1f59f23e34288340651d279c198913f3e11039ec593b2317ce0a6c7497",
     "tests/list_pool_capacity/frozen_dependencies/missing-composed.py": "ef7052ca814fac0a75f534ba93821a79020a1c8b9f83515c3c1ffc3955d20fac",
     "tools/save_cost_profile/sdk_guard.py": "9eb724c24ad3523be68ed879085a84e30ddc2477a0f3a4c59b06e67640f855c4",
-    "tools/save_cost_profile/test_sdk_guard.py": "ab248f0cdc80cf67e58173ffb899f0e934f03e39634ad551ffb87d7685dfe9df"
+    "tools/save_cost_profile/test_sdk_guard.py": "e3a43c2bf9e432b8369bb6820e08a1e709cf4b84885fe6c9110ba9b7f2b62bf3"
   },
   "dependency_compositions": {
     "OpenDreamRuntime/Objects/Types/DreamList.cs": {
